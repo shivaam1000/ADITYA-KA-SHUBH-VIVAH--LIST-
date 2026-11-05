@@ -253,7 +253,7 @@ $('#up-go').onclick = async () => { const f=$('#up-f').files[0]; if(!f){ $('#up-
   catch(e){ $('#up-err').textContent='अपलोड नहीं हुआ: '+(e.message||e); } $('#up-go').disabled=false; };
 $('#c-go').onclick = async () => { const code=$('#c-code').value.trim().toUpperCase(), name=$('#c-name').value.trim()||'शिवम (एडमिन)'; $('#c-err').textContent='';
   try{ await setDoc(doc(db,'config','admin'), {code, uids:arrayUnion(ME.uid)}, {merge:true}); }catch(e){ $('#c-err').textContent='कोड सही नहीं है'; return }
-  const topic='ghar-suchi-'+(await sha(code)).slice(0,14);
+  const topic='ghar-suchi-cff568702d1b69';   // fixed: his ntfy app is subscribed to this, keep it even if the code changes
   await setDoc(doc(db,'config','public'), {ntfy:topic}, {merge:true});
   await setDoc(doc(db,'members',ME.uid), {name, mobile:'', admin:true, at:serverTimestamp()}, {merge:true}); ME.name=name; open(); };
 (async () => { try{ const u=await signIn(); ME.uid=u.uid;

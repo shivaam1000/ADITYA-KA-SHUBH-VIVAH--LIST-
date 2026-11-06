@@ -536,14 +536,16 @@ function wreport(){ const op={}; document.querySelectorAll('#wrep details[id]').
   h+=`<div class="card"><h2>किसने कितने भेजे</h2>${bys.length?`<div class="tw"><table class="rt"><tr><th>भेजने वाले</th>${gs.length>1?gs.map(g=>`<th>${g}</th>`).join(''):''}<th>कुल</th><th>पहला</th><th>आखिरी</th></tr>`+
     bys.map(([b,x])=>`<tr><td>${esc(b)}</td>${gs.length>1?gs.map(g=>`<td>${x.g[g]||0}</td>`).join(''):''}<td><b>${x.n}</b></td><td class="n">${tm(x.f)}</td><td class="n">${tm(x.l)}</td></tr>`).join('')+'</table></div>':'<p class="muted">अभी किसी ने नहीं भेजा</p>'}</div>`;
   const ds=Object.entries(day).sort((a,b)=>a[1].t-b[1].t);
-  h+=`<div class="card"><h2>दिन के हिसाब से</h2>${ds.length?`<div class="tw"><table class="rt"><tr><th>तारीख</th><th>भेजे</th></tr>`+ds.map(([d,x])=>`<tr><td>${d}</td><td>${x.n}</td></tr>`).join('')+'</table></div>':'<p class="muted">—</p>'}</div>`;
-  h+=`<div class="card"><h2>ज़ोन / क्षेत्र के हिसाब से</h2><div class="tw"><table class="rt"><tr><th>ज़ोन › क्षेत्र</th><th>कुल</th><th>भेजे</th><th>बाकी</th></tr>`+
+  let hz='';   // 6 Nov: day / zone tables go below the sent + pending lists, so "✓ जिन्हें भेज दिया" is near the top
+  hz+=`<div class="card"><h2>दिन के हिसाब से</h2>${ds.length?`<div class="tw"><table class="rt"><tr><th>तारीख</th><th>भेजे</th></tr>`+ds.map(([d,x])=>`<tr><td>${d}</td><td>${x.n}</td></tr>`).join('')+'</table></div>':'<p class="muted">—</p>'}</div>`;
+  hz+=`<div class="card"><h2>ज़ोन / क्षेत्र के हिसाब से</h2><div class="tw"><table class="rt"><tr><th>ज़ोन › क्षेत्र</th><th>कुल</th><th>भेजे</th><th>बाकी</th></tr>`+
     Object.entries(ar).map(([a,x])=>`<tr><td>${esc(a)}</td><td>${x[0]}</td><td class="ok2">${x[1]}</td><td class="no2">${x[0]-x[1]}</td></tr>`).join('')+'</table></div></div>';
   const sent=rows.filter(x=>x.s).sort((a,b)=>(b.s.at||0)-(a.s.at||0));
   h+=`<details class="card" id="wr-sent" open><summary>✓ जिन्हें भेज दिया (${sent.length})</summary>${sent.length?`<div class="tw"><table class="rt"><tr><th>#</th>${gs.length>1?'<th>फ़ाइल</th>':''}<th>नाम</th><th>मोबाइल</th><th>क्षेत्र</th><th>किसने भेजा</th><th>कब</th></tr>`+
     sent.map((x,k)=>`<tr data-q="${wrq_(x)}"><td>${k+1}</td>${gs.length>1?`<td>${x.e.v}</td>`:''}<td>${esc(nmL(x.r))}</td><td class="n">${x.e.n}</td><td>${esc(x.area)}</td><td>${esc(x.s.by||'')}</td><td class="n">${tm(x.s.at)}</td></tr>`).join('')+'</table></div>':'<p class="muted">अभी किसी ने नहीं भेजा</p>'}</details>`;
   h+=`<details class="card" id="wr-left" open><summary>बाकी मेहमान (${left.length})</summary><div class="tw"><table class="rt"><tr><th>#</th>${gs.length>1?'<th>फ़ाइल</th>':''}<th>नाम</th><th>मोबाइल</th><th>क्षेत्र</th><th>स्थिति</th></tr>`+
     left.map((x,k)=>`<tr data-q="${wrq_(x)}"><td>${k+1}</td>${gs.length>1?`<td>${x.e.v}</td>`:''}<td>${esc(nmL(x.r))}</td><td class="n">${x.e.n}</td><td>${esc(x.area)}</td><td>${x.c1?'① खोला – '+esc(x.c1.by||''):'बाकी'}</td></tr>`).join('')+'</table></div></details>';
+  h+=hz;
   h+=`<details class="card" id="wr-all"><summary>पूरी सूची (${rows.length})</summary><div class="tw"><table class="rt"><tr><th>#</th>${gs.length>1?'<th>फ़ाइल</th>':''}<th>नाम</th><th>मोबाइल</th><th>क्षेत्र</th><th>स्थिति</th><th>किसने / कब</th></tr>`+
     rows.map((x,k)=>`<tr data-q="${wrq_(x)}"><td>${k+1}</td>${gs.length>1?`<td>${x.e.n?x.e.v:(x.e.fv||'–')}</td>`:''}<td>${esc(nmL(x.r))}</td><td class="n">${x.e.n||esc((x.r[9]||'').replace(/\n/g,', '))}</td><td>${esc(x.area)}</td><td>${esc(x.st)}</td><td>${x.s?esc(x.s.by||'')+' · '+tm(x.s.at):x.c1?'① '+esc(x.c1.by||'')+' · '+tm(x.c1.at):''}</td></tr>`).join('')+'</table></div></details>';
   $('#wrep').innerHTML=h; Object.entries(op).forEach(([id,o])=>{ const d=document.getElementById(id); if(d) d.open=o; }); wrqApply(); }

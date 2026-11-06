@@ -59,12 +59,36 @@ mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 <p class="muted">शिवम जी के फ़ोन पर सूचना पहुँच गई है। उनके ✓ करते ही यह पेज अपने-आप सूची में बदल जाएगा – दोबारा कुछ करने की ज़रूरत नहीं। पेज बंद कर दें तो बाद में यही लिंक फिर खोल लें।</p></div></div>
 <div class="scr" id="s-no"><div class="card"><h2 id="no-h">अनुमति नहीं मिली</h2><p class="muted" id="no-p">इस फ़ोन को सूची देखने की अनुमति नहीं है। ज़रूरत हो तो शिवम जी से बात करें।</p></div></div>
 <div class="scr" id="s-list">
+<a class="btn" id="wa-link" href="tebteam.html" style="display:none;background:#1E7D45;text-align:center;text-decoration:none;margin:4px 0 8px">📲 WhatsApp पर भेजें (इवेंट टीम)</a>
 <div class="bar"><div class="srow"><div class="sbox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8892E" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
 <input id="q" type="text" inputmode="search" enterkeyhint="search" autocomplete="off"><button class="x" id="qx">×</button></div>
 <div class="lang"><button data-l="hi" class="on">हिं</button><button data-l="en">EN</button></div></div>
 <div class="chips" id="c1"></div><div class="chips" id="c2"></div><div class="stats" id="st"></div></div>
 <div id="out"></div><p class="muted" id="ver"></p></div>
-</div><div class="toast" id="toast"></div>
+</div><div class="sheet" id="ed-sheet"><style>.sheet{display:none;position:fixed;inset:0;z-index:50;background:rgba(20,24,10,.55);overflow-y:auto;-webkit-overflow-scrolling:touch}.sheet.on{display:block}
+.sheet-in{max-width:760px;margin:18px auto 40px;background:var(--iv);border-radius:16px;padding:12px 14px 18px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;font-family:"Martel";color:var(--ol);font-size:18px}.x2{border:0;background:#EFE6CC;border-radius:50%;width:36px;height:36px;font-size:22px;line-height:34px}
+.tk.ed{flex:0 0 auto;border-color:var(--gd);color:#7A5A10}#ed-sheet textarea.in{font-family:inherit}</style>
+<div class="sheet-in"><div class="sheet-h"><span>✏️ नाम सुधारें</span><button class="x2" id="ed-x" aria-label="बंद करें">×</button></div><div id="ef" style="display:none;margin-top:10px;border-top:2px solid var(--gd);padding-top:6px">
+<p class="muted" id="ef-t"></p>
+<label>भाग › ज़ोन › क्षेत्र (सूची में कहाँ दिखे)</label><select class="in" id="f-g"></select>
+<label>स्टिकर / नंबर</label><input class="in" id="f-no" placeholder="जैसे 535, D-63, E">
+<label>नाम (हिंदी)</label><input class="in" id="f-hi"><label>Name (English)</label><input class="in" id="f-en">
+<label>हेडिंग (हिंदी)</label><input class="in" id="f-hh" list="dl-hh"><label>Heading (English)</label><input class="in" id="f-he" list="dl-he">
+<label>क्षेत्र / पता (हिंदी)</label><input class="in" id="f-ah"><label>Area / Address (English)</label><input class="in" id="f-ae">
+<label>मोबाइल (एक से ज़्यादा हों तो अलग लाइन में)</label><textarea class="in" id="f-mob" rows="2"></textarea>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 10px">
+<div><label>18 विनायक</label><input class="in" id="f-f0" list="dl-f"></div><div><label>20 तिलक-स्वागत</label><input class="in" id="f-f1" list="dl-f"></div>
+<div><label>21 गीत-भोज</label><input class="in" id="f-f2" list="dl-f"></div><div><label>21 शुभ विवाह</label><input class="in" id="f-f3" list="dl-f"></div>
+<div><label>गिफ्ट (संख्या)</label><input class="in" id="f-gift" inputmode="numeric"></div>
+<div><label>प्रोग्राम कार्ड</label><select class="in" id="f-pc"><option value="">–</option><option>✓</option><option>होल्ड</option><option>बन चुका</option><option>E-card</option><option>भगवान</option></select></div>
+<div><label>लिफ़ाफ़ा</label><select class="in" id="f-env"><option value="">–</option><option>①</option><option>②</option><option>③</option><option>④</option></select></div></div>
+<p class="muted" style="text-align:left">कार्यक्रम में <b>WF</b> या 3 से ज़्यादा लिखेंगे तो अपने-आप <b>सपरिवार</b>, <b>TICK</b> लिखेंगे तो <b>✓</b> हो जाएगा।</p>
+<label>नोट (हिंदी)</label><input class="in" id="f-nh"><label>Note (English)</label><input class="in" id="f-ne">
+<button class="btn" id="f-save">सेव करें</button><button class="btn" id="f-del" style="background:#fff;color:var(--mr);border:1.5px solid var(--mr)">यह नाम सूची से हटाएँ</button>
+<button class="btn" id="f-x" style="background:#EFE6CC;color:var(--ol)">रद्द करें</button><div class="err" id="f-err"></div></div>
+<datalist id="dl-f"><option value="✓"><option value="1"><option value="2"><option value="सपरिवार"></datalist><datalist id="dl-hh"></datalist><datalist id="dl-he"></datalist></div></div>
+<div class="toast" id="toast"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -96,7 +120,11 @@ const T={hi:{sec:{all:'सब',jo:'जोधपुर',ba:'बाहर',ej:'E-c
  en:{sec:{all:'All',jo:'Jodhpur',ba:'Outside',ej:'E-card Jodhpur',eb:'E-card outside',ho:'Hold'},fn:['Vinayak','Tilak-Reception','Geet-Bhoj','Wedding'],fs:['18 Vinayak','20 Tilak','21 Geet','21 Wedding'],
   st:{all:'All',done:'Delivered ✓',left:'Pending'},pc:'Prog card',gift:'Gift',zone:'All zones / cities',head:'All headings',tot:'Total',vis:'Showing',dn:'Delivered',lf:'Pending',gf:'Gift given',
   tick:'Delivered',gtick:'Gift given',none:'No name found – try a slightly different spelling',more:'Show more',ph:'Name, mobile, sticker no., area… (Hindi / English)',env:'Envelope',sfam:'With family'}};
-function setData(g,d){G=g;D=d;ZSUB={};G.forEach(x=>{ZSUB[x[0]+x[2]]=(ZSUB[x[0]+x[2]]||0)+1});
+function nfv(v){const s=String(v??'').trim(); if(!s) return ''; const u=s.toUpperCase().replace(/[\s.]/g,'');
+  if(u.startsWith('WF')||u==='W/F'||['SAPARIVAAR','SAPARIVAR','SPARIVAR','FAMILY','सपरिवार'].includes(u)) return 'सपरिवार';
+  if(['TICK','HAAN','HA','YES','Y','✓','✔','√','OK'].includes(u)) return '✓'; if(['0','-','–','NO','N','NA','NAHI'].includes(u)) return '';
+  if(/^\d+$/.test(u)) return +u>2?'सपरिवार':String(+u); return s;}
+function setData(g,d){G=g;D=d;D.forEach(r=>{ if(Array.isArray(r[10])) r[10]=r[10].map(nfv); });ZSUB={};G.forEach(x=>{ZSUB[x[0]+x[2]]=(ZSUB[x[0]+x[2]]||0)+1});
   IX=D.map(r=>{const x=G[r[1]];return{hi:nHi([r[3],r[7],x[4]].join(' ')),en:nEn([r[4],r[8],x[5]].join(' ')),hw:toks([r[3],r[7],x[4]].join(' '),1),ew:toks([r[4],r[8],x[5]].join(' '),0),
     mob:(r[9]||'').replace(/\D/g,''),no:String(r[2]).toLowerCase()}});
   ZONES=[...new Set(G.map(x=>x[2]+'|'+x[3]))].map(z=>z.split('|')); HEADS=[...new Set(D.map(r=>r[5]+'|'+r[6]).filter(h=>h!=='|'))].map(h=>h.split('|'));}
@@ -141,7 +169,7 @@ function render(){if(!D.length)return;const t=T[L], q=Q.trim(), hits=[];
     h+=`<div class="g ${r[12]==='✓'?'pc':''}"><div class="t1"><div class="nb">${hl(r[2])}</div><div style="flex:1"><div class="nm">${hl(hi?r[3]:r[4])}</div>
       <div class="sub2">${hl(hi?r[7]:r[8])}${(hi?r[5]:r[6])?' · '+esc(hi?r[5]:r[6]):''}</div>${mobs}</div></div><div class="fn">${f}</div>${meta?`<div class="meta">${meta}</div>`:''}
       ${note?`<div class="note">${esc(note)}</div>`:''}<div class="act"><button class="tk ${s.d?'on':''}" data-tk="${i}">${s.d?'✓ ':''}${t.tick}${s.d?`<small>${esc(s.dBy||'')} · ${s.dAt?tm(s.dAt):''}</small>`:''}</button>
-      <button class="tk ${s.g?'on':''}" data-gk="${i}">${s.g?'✓ ':''}${t.gtick}${s.g?`<small>${esc(s.gBy||'')} · ${s.gAt?tm(s.gAt):''}</small>`:''}</button></div></div>`;}
+      <button class="tk ${s.g?'on':''}" data-gk="${i}">${s.g?'✓ ':''}${t.gtick}${s.g?`<small>${esc(s.gBy||'')} · ${s.gAt?tm(s.gAt):''}</small>`:''}</button>${ME.admin?`<button class="tk ed" data-edit="${esc(r[0])}">✏️ सुधारें</button>`:''}</div></div>`;}
   if(la>=0)h+='</div>'; if(lz)h+='</div>'; if(shown>LIMIT)h+=`<button class="more" id="more">${t.more} (${shown-LIMIT})</button>`;
   $('#out').innerHTML=h;}
 let rt; const rerender=()=>{clearTimeout(rt);rt=setTimeout(render,60)};
@@ -152,6 +180,43 @@ function subscribeList(cb){                       // live: meta + every chunk; a
     build(); });
   function build(){ if(!META) return; const n=META.chunks; for(let i=0;i<n;i++) if(CH[i]===undefined) return; setData(G, CH.slice(0,n).flat()); cb(META); } }
 
+const PEN={'✓':'✓','होल्ड':'Hold','बन चुका':'Already made','E-card':'E-card','भगवान':'Deity design','':''};
+let EDIT=null;                                       // rid being edited, or 'new'
+function edResults(){ const q=$('#eq').value.trim(); if(q.length<1){ $('#eres').innerHTML=''; return }
+  const hits=[]; for(let i=0;i<D.length&&hits.length<8;i++) if(match(i,q)) hits.push(i);
+  $('#eres').innerHTML = hits.length ? hits.map(i=>{const r=D[i];return `<div class="req"><div class="w"><b>${esc(r[2])} · ${esc(nmL(r))}</b><small>${esc(arL(r,G[r[1]]))}${r[9]?' · '+esc(r[9].split('\n')[0]):''}</small></div><button class="ok" data-ed="${esc(r[0])}">सुधारें</button></div>`}).join('') : '<p class="muted">कोई नाम नहीं मिला</p>'; }
+function fillGroups(sel){ $('#f-g').innerHTML = G.map((g,i)=>`<option value="${i}" ${i===sel?'selected':''}>${esc(g[0].replace(/^\d+\.\s*/,'').split('(')[0].trim())} › ${esc(g[2])}${g[2]!==g[4]?' › '+esc(g[4]):''}</option>`).join('');
+  $('#dl-hh').innerHTML=HEADS.map(h=>`<option value="${esc(h[0])}">`).join(''); $('#dl-he').innerHTML=HEADS.map(h=>`<option value="${esc(h[1])}">`).join(''); }
+function edOpen(rid){ const r = rid==='new' ? null : D.find(x=>x[0]===rid); EDIT = rid; $('#ef').style.display='block'; $('#f-err').textContent='';
+  $('#ef-t').textContent = r ? 'सुधार रहे हैं: '+r[3] : 'नया नाम – सब भरकर "सेव करें" दबाएँ'; fillGroups(r ? r[1] : 0); $('#f-del').style.display = r ? 'block' : 'none';
+  const v = (id,x)=>{ $(id).value = x ?? '' }; v('#f-no', r?r[2]:''); v('#f-hi', r?r[3]:''); v('#f-en', r?r[4]:''); v('#f-hh', r?r[5]:''); v('#f-he', r?r[6]:'');
+  v('#f-ah', r?r[7]:''); v('#f-ae', r?r[8]:''); v('#f-mob', r?r[9]:''); for(let k=0;k<4;k++) v('#f-f'+k, r?r[10][k]:''); v('#f-gift', r&&r[11]?r[11]:'');
+  v('#f-pc', r?r[12]:'✓'); v('#f-env', r?r[14]:''); v('#f-nh', r?r[15]:''); v('#f-ne', r?r[16]:'');
+  const sh=$('#ed-sheet'); if(sh){ sh.classList.add('on'); document.body.style.overflow='hidden'; sh.scrollTop=0; } else $('#ef').scrollIntoView({behavior:'smooth'}); }
+function edClose(){ $('#ef').style.display='none'; const sh=$('#ed-sheet'); if(sh){ sh.classList.remove('on'); document.body.style.overflow=''; } }
+async function writeChunk(i, rows){ await setDoc(doc(db,'list','c'+i), {d: JSON.stringify(rows)}); }
+async function edSave(){ const hi=$('#f-hi').value.trim(); if(!hi){ $('#f-err').textContent='हिंदी नाम ज़रूरी है'; return }
+  const pc=$('#f-pc').value, gi=+$('#f-g').value;
+  const row=[EDIT==='new' ? 'N'+Date.now().toString(36) : EDIT, gi, $('#f-no').value.trim()||'–', hi, $('#f-en').value.trim(), $('#f-hh').value.trim(), $('#f-he').value.trim(),
+    $('#f-ah').value.trim(), $('#f-ae').value.trim(), $('#f-mob').value.trim(), [0,1,2,3].map(k=>nfv($('#f-f'+k).value)), parseInt($('#f-gift').value)||0, pc, PEN[pc]??pc, $('#f-env').value,
+    $('#f-nh').value.trim(), $('#f-ne').value.trim()];
+  $('#f-save').disabled=true; $('#f-err').textContent='सेव हो रहा है…';
+  try{ const n=META.chunks; let ci=-1, ri=-1;
+    if(EDIT!=='new'){ for(let i=0;i<n&&ci<0;i++){ const j=CH[i].findIndex(x=>x[0]===EDIT); if(j>=0){ci=i;ri=j} } if(ci<0) throw new Error('नाम नहीं मिला'); }
+    if(ci>=0){ const rows=CH[ci].slice(); rows[ri]=row; await writeChunk(ci, rows); }
+    else { const last=n-1; if(CH[last].length<100){ await writeChunk(last, CH[last].concat([row])); }
+           else { await writeChunk(n, [row]); } }
+    const total = CH.slice(0,n).reduce((a,c)=>a+c.length,0) + (EDIT==='new'?1:0);
+    await updateDoc(doc(db,'list','meta'), {v: META.v.split(' · ')[0]+' · बदला '+tm(Date.now()), n: total, chunks: (EDIT==='new' && CH[n-1].length>=100) ? n+1 : n, at: serverTimestamp()});
+    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:(EDIT==='new'?'नाम जोड़ा: ':'नाम सुधारा: ')+hi, no:row[2]});
+    toast(EDIT==='new'?'नया नाम जुड़ गया':'सुधार सेव हो गया'); edClose(); if($('#eq')){ $('#eq').value=''; edResults(); } $('#f-err').textContent=''; }
+  catch(e){ $('#f-err').textContent='सेव नहीं हुआ: '+(e.message||e); } $('#f-save').disabled=false; }
+async function edDel(){ const r=D.find(x=>x[0]===EDIT); if(!r||!confirm(r[3]+' को सूची से हटाएँ?')) return;
+  for(let i=0;i<META.chunks;i++){ const j=CH[i].findIndex(x=>x[0]===EDIT); if(j>=0){ await writeChunk(i, CH[i].filter((_,k)=>k!==j)); break } }
+  await updateDoc(doc(db,'list','meta'), {n: D.length-1, v: META.v.split(' · ')[0]+' · बदला '+tm(Date.now()), at: serverTimestamp()});
+  await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'नाम हटाया: '+r[3], no:r[2]}); toast('हटा दिया'); edClose(); }
+
+$('#f-save').onclick=edSave; $('#f-del').onclick=edDel; $('#f-x').onclick=edClose; $('#ed-x').onclick=edClose; $('#ed-sheet').addEventListener('click',e=>{ if(e.target.id==='ed-sheet') edClose(); });
 async function notify(name, by){ try{ const p = await getDoc(doc(db,'config','public')); const topic = p.exists() && p.data().ntfy; if(!topic) return;
   await fetch('https://ntfy.sh', {method:'POST', body: JSON.stringify({topic, title:'घर की सूची – नया अनुरोध', message:`${name}${by?' ('+by+' ने भेजा)':''} सूची देखना चाहते हैं`, click:'https://shivaam1000.github.io/ADITYA-KA-SHUBH-VIVAH--LIST-/admin.html', tags:['bell'], priority:4})}); }catch(e){} }
 let started=false;
@@ -159,7 +224,7 @@ async function startList(){ if(started) return; started=true; show('s-load'); le
   subscribeList(m => { if(!m){ $('#no-h').textContent='सूची अभी अपलोड नहीं हुई'; $('#no-p').textContent='शिवम जी एडमिन पेज से सूची डालेंगे, फिर यहाँ दिखेगी।'; show('s-no'); return; }
     $('#ver').textContent = 'सूची अपडेट: ' + (m.v||''); if(first){ first=false; chips(); show('s-list'); } else chips(); render(); });
   for(let k=0;k<10;k++) onSnapshot(doc(db,'status','s'+k), s => { const v = s.data()||{}; for(const [rid,o] of Object.entries(v)) ST[rid]=o; rerender(); });
-  onSnapshot(doc(db,'members',ME.uid), s => { if(!s.exists() && !ME.admin){ $('#no-h').textContent='अनुमति हटा दी गई'; $('#no-p').textContent='इस फ़ोन से सूची की अनुमति हटा दी गई है।'; show('s-no'); } }); }
+  onSnapshot(doc(db,'members',ME.uid), s => { const wl=$('#wa-link'); if(wl) wl.style.display=(s.exists()&&(s.data().wa||s.data().admin))?'block':'none'; if(!s.exists() && !ME.admin){ $('#no-h').textContent='अनुमति हटा दी गई'; $('#no-p').textContent='इस फ़ोन से सूची की अनुमति हटा दी गई है।'; show('s-no'); } }); }
 async function tick(i, key){ const r=D[i], rid=r[0], s=st(rid), on=!s[key]; const sk=sKey(rid);
   const upd={}; upd[rid+'.'+key]=on; upd[rid+'.'+key+'By']=ME.name; upd[rid+'.'+key+'At']=Date.now();
   ST[rid]=Object.assign({},s,{[key]:on,[key+'By']:ME.name,[key+'At']:Date.now()}); render();
@@ -168,11 +233,12 @@ async function tick(i, key){ const r=D[i], rid=r[0], s=st(rid), on=!s[key]; cons
 // events
 let tq; $('#q').addEventListener('input',e=>{clearTimeout(tq);tq=setTimeout(()=>{Q=e.target.value;LIMIT=400;$('#qx').style.display=Q?'block':'none';render()},120)});
 $('#qx').onclick=()=>{$('#q').value='';Q='';$('#qx').style.display='none';render()};
-document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{L=b.dataset.l;document.querySelectorAll('.lang button').forEach(x=>x.classList.toggle('on',x===b));chips();render()});
+document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{L=b.dataset.l;try{localStorage.setItem('lang',L)}catch(_){}document.querySelectorAll('.lang button').forEach(x=>x.classList.toggle('on',x===b));chips();render()});
+try{ if(localStorage.getItem('lang')==='en'){ L='en'; document.querySelectorAll('.lang button').forEach(x=>x.classList.toggle('on',x.dataset.l==='en')); } }catch(_){}
 document.addEventListener('click',e=>{const b=e.target.closest('button,.zone');if(!b)return;
   if(b.dataset.sec){SEC=b.dataset.sec;chips();render()} else if(b.dataset.fn){FN=FN===+b.dataset.fn?null:+b.dataset.fn;chips();render()}
   else if(b.dataset.st){STF=b.dataset.st;chips();render()} else if(b.dataset.pc){PC=!PC;chips();render()} else if(b.dataset.gf){GF=!GF;chips();render()}
-  else if(b.dataset.tk){tick(+b.dataset.tk,'d')} else if(b.dataset.gk){tick(+b.dataset.gk,'g')} else if(b.id==='more'){LIMIT+=400;render()}
+  else if(b.dataset.edit){edOpen(b.dataset.edit)} else if(b.dataset.tk){tick(+b.dataset.tk,'d')} else if(b.dataset.gk){tick(+b.dataset.gk,'g')} else if(b.id==='more'){LIMIT+=400;render()}
   else if(b.classList.contains('zone')){const k=b.dataset.k;OPEN.has(k)?OPEN.delete(k):OPEN.add(k);render()}});
 document.addEventListener('change',e=>{if(e.target.id==='zn'){ZN=e.target.value;render()}if(e.target.id==='hd'){HD=e.target.value;render()}});
 $('#a-go').onclick = async () => { const name=$('#a-name').value.trim(), mob=$('#a-mob').value.replace(/\D/g,''), by=$('#a-by').value.trim();

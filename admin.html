@@ -54,14 +54,45 @@ mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 <label>एडमिन कोड</label><input class="in" id="c-code" autocomplete="off" autocapitalize="characters" placeholder="SV-XXXX-XXXX">
 <label>आपका नाम (सूची में "किसने ✓ किया" में दिखेगा)</label><input class="in" id="c-name" value="शिवम (एडमिन)">
 <button class="btn" id="c-go">खोलें</button><div class="err" id="c-err"></div></div></div>
-<div class="scr" id="s-admin">
-<div class="card"><h2>अनुमति के अनुरोध <span class="pill" id="rq-n">0</span></h2><div id="rq"><p class="muted">कोई नया अनुरोध नहीं</p></div></div>
-<div class="card"><h2>जिन्हें अनुमति है <span class="pill" id="mb-n">0</span></h2><div id="mb"></div><p class="muted">"हटाएँ" दबाते ही उस फ़ोन पर सूची बंद।</p></div>
-<div class="card"><h2>बदलाव का रिकॉर्ड</h2><div class="log" id="log"><p class="muted">अभी कुछ नहीं</p></div></div>
-<div class="card" id="ed-card"><h2>नाम जोड़ें / सुधारें</h2>
+<div class="scr" id="s-admin"><style>.topbar{display:flex;gap:8px;align-items:stretch;margin:8px 0 4px}.topbar .btn{margin:0;flex:1;text-align:center;text-decoration:none;padding:11px 8px}
+details.card.dd>summary{list-style:none;display:flex;justify-content:center;align-items:center;gap:6px;font-family:"Martel";color:var(--ol);font-size:18px;cursor:pointer}
+details.card.dd>summary::-webkit-details-marker{display:none}details.card.dd>summary::after{content:"▼";font-size:12px;color:var(--gd);margin-left:4px}details.card.dd[open]>summary::after{content:"▲"}
+details.card.dd[open]>summary{margin-bottom:8px}</style>
+<div class="topbar"><a class="btn" href="./"><span data-en="📋 Open list">📋 सूची खोलें</span></a><div class="lang"><button data-al="hi" class="on">हिं</button><button data-al="en">EN</button></div></div>
+<div class="card"><h2><span data-en="Access requests">अनुमति के अनुरोध</span> <span class="pill" id="rq-n">0</span></h2><div id="rq"><p class="muted">कोई नया अनुरोध नहीं</p></div></div>
+<div class="card" id="cm-card"><style>.cks label{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:15px;margin:6px 0}.cks input{width:20px;height:20px}
+.cmr{border:1px solid #E7DDC2;border-radius:12px;padding:10px;margin:8px 0;background:#fff}.cmr b{font-family:"Martel";color:var(--ol);font-size:16px}.cmr .tg{font-size:12.5px;color:var(--mu)}
+.cmr .bt{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.cmr .bt button{font-size:13.5px;padding:7px 11px}.pg{height:8px;border-radius:6px;background:#EFE6CC;overflow:hidden;margin-top:8px}.pg i{display:block;height:100%;background:#1E7D45;width:0}</style>
+<h2><span data-en="📢 Send on WhatsApp">📢 WhatsApp पर भेजना</span></h2>
+<p class="muted">ई-निमंत्रण, Save the Date, दीपावली या कोई भी जानकारी – यहीं फ़ोन से फ़ाइल डालें, इवेंट टीम WhatsApp पर भेज देगी।</p>
+<div id="cm-list"></div>
+<button class="btn" id="cm-new" style="background:var(--gd)"><span data-en="+ New campaign">+ नया अभियान बनाएँ</span></button>
+<div id="cm-f" style="display:none;margin-top:12px;border-top:2px solid var(--gd);padding-top:6px">
+<p class="muted" id="cm-ft">नया अभियान</p>
+<label>अभियान का नाम</label><input class="in" id="cm-title" maxlength="40" placeholder="जैसे: दीपावली शुभकामना">
+<label>किसे भेजना है</label><div class="cks" id="cm-who"></div>
+<label>सिर्फ़ उन्हें जिनका यह कार्यक्रम है (ज़रूरी नहीं)</label><select class="in" id="cm-fn"></select>
+<label>फ़ाइल</label><select class="in" id="cm-mode"><option value="one">एक ही फ़ाइल / फ़ोटो सबको</option><option value="two">Save the Date जैसा – सिर्फ़ 20 वालों की अलग, 20–21 वालों की अलग फ़ोटो</option><option value="abc">कार्यक्रम के हिसाब से अलग फ़ाइल (A / B / C)</option><option value="none">कोई फ़ाइल नहीं – सिर्फ़ संदेश</option></select>
+<div id="cm-one"><label>फ़ाइल / फ़ोटो / वीडियो चुनें (एक से ज़्यादा भी चुन सकते हैं)</label><input type="file" class="in" id="cm-f-all" multiple></div>
+<div id="cm-two" style="display:none"><label>सिर्फ़ 20 नवम्बर वालों की फ़ाइल / फ़ोटो</label><input type="file" class="in" id="cm-f-20" multiple>
+<label>20–21 नवम्बर वालों की फ़ाइल / फ़ोटो (जिनका 21 का कोई भी कार्यक्रम है)</label><input type="file" class="in" id="cm-f-2021" multiple></div>
+<div id="cm-abc" style="display:none"><label>A – सिर्फ़ 20 नवम्बर वालों की फ़ाइल</label><input type="file" class="in" id="cm-f-A" multiple>
+<label>B – 20 + 21 शुभ विवाह वालों की फ़ाइल</label><input type="file" class="in" id="cm-f-B" multiple><label>C – 20 + 21 सभी कार्यक्रम वालों की फ़ाइल</label><input type="file" class="in" id="cm-f-C" multiple></div>
+<p class="muted" id="cm-fnow"></p>
+<label>संदेश – जोधपुर वाले मेहमान</label><textarea class="in" id="cm-msg" rows="7" placeholder="आदरणीय {name},&#10;…&#10;शुभेच्छु – बिड़ला परिवार"></textarea>
+<label>संदेश – बाहर वाले मेहमान (खाली छोड़ें तो ऊपर वाला ही जाएगा)</label><textarea class="in" id="cm-msg2" rows="5"></textarea>
+<p class="muted">{name} की जगह हर मेहमान का नाम अपने-आप आएगा।</p>
+<div class="cks"><label><input type="checkbox" id="cm-act" checked> चालू – इवेंट टीम को भेजने के लिए दिखे</label></div>
+<button class="btn" id="cm-save">सेव करें</button><div class="pg" id="cm-pg" style="display:none"><i></i></div>
+<button class="btn" id="cm-x" style="background:#EFE6CC;color:var(--ol)">रद्द करें</button><div class="err" id="cm-err"></div></div>
+<p class="muted" style="margin-top:12px">इवेंट टीम का पेज: <b style="user-select:all">https://shivaam1000.github.io/ADITYA-KA-SHUBH-VIVAH--LIST-/tebteam.html</b><br>उन्हें पहले सूची की अनुमति दें, फिर नीचे "जिन्हें अनुमति है" में <b>📲 WhatsApp अधिकार दें</b> दबाएँ।</p></div>
+
+<details class="card dd"><summary><span data-en="People with access">जिन्हें अनुमति है</span> <span class="pill" id="mb-n">0</span></summary><div id="mb"></div><p class="muted">"हटाएँ" दबाते ही उस फ़ोन पर सूची बंद।</p></details>
+<details class="card dd"><summary><span data-en="Change log">बदलाव का रिकॉर्ड</span></summary><div class="log" id="log"><p class="muted">अभी कुछ नहीं</p></div></details>
+<div class="card" id="ed-card"><h2><span data-en="Add / edit names">नाम जोड़ें / सुधारें</span></h2>
 <div class="sbox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8892E" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
 <input id="eq" type="text" autocomplete="off" placeholder="किसे सुधारना है? नाम / स्टिकर नं. / मोबाइल"></div><div id="eres"></div>
-<button class="btn gd" id="e-new" style="background:var(--gd)">+ नया नाम जोड़ें</button>
+<button class="btn gd" id="e-new" style="background:var(--gd)"><span data-en="+ Add new name">+ नया नाम जोड़ें</span></button>
 <div id="ef" style="display:none;margin-top:10px;border-top:2px solid var(--gd);padding-top:6px">
 <p class="muted" id="ef-t"></p>
 <label>भाग › ज़ोन › क्षेत्र (सूची में कहाँ दिखे)</label><select class="in" id="f-g"></select>
@@ -76,19 +107,49 @@ mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 <div><label>गिफ्ट (संख्या)</label><input class="in" id="f-gift" inputmode="numeric"></div>
 <div><label>प्रोग्राम कार्ड</label><select class="in" id="f-pc"><option value="">–</option><option>✓</option><option>होल्ड</option><option>बन चुका</option><option>E-card</option><option>भगवान</option></select></div>
 <div><label>लिफ़ाफ़ा</label><select class="in" id="f-env"><option value="">–</option><option>①</option><option>②</option><option>③</option><option>④</option></select></div></div>
+<p class="muted" style="text-align:left">कार्यक्रम में <b>WF</b> या 3 से ज़्यादा लिखेंगे तो अपने-आप <b>सपरिवार</b>, <b>TICK</b> लिखेंगे तो <b>✓</b> हो जाएगा।</p>
 <label>नोट (हिंदी)</label><input class="in" id="f-nh"><label>Note (English)</label><input class="in" id="f-ne">
 <button class="btn" id="f-save">सेव करें</button><button class="btn" id="f-del" style="background:#fff;color:var(--mr);border:1.5px solid var(--mr)">यह नाम सूची से हटाएँ</button>
 <button class="btn" id="f-x" style="background:#EFE6CC;color:var(--ol)">रद्द करें</button><div class="err" id="f-err"></div></div>
 <datalist id="dl-f"><option value="✓"><option value="1"><option value="2"><option value="सपरिवार"></datalist><datalist id="dl-hh"></datalist><datalist id="dl-he"></datalist></div>
-<div class="card"><h2>डाउनलोड</h2><p class="muted">सूची में जो अभी है (✓ समेत) वही आएगा।</p>
-<button class="btn" id="dl-csv">Excel फ़ाइल डाउनलोड</button><button class="btn gd" id="dl-json" style="background:var(--gd)">Claude के लिए फ़ाइल (JSON)</button>
+<div class="card"><h2><span data-en="Download">डाउनलोड</span></h2><p class="muted">सूची में जो अभी है (✓ समेत) वही आएगा।</p>
+<button class="btn" id="dl-csv"><span data-en="Download Excel">Excel फ़ाइल डाउनलोड</span></button><button class="btn gd" id="dl-json" style="background:var(--gd)">Claude के लिए फ़ाइल (JSON)</button>
 <p class="muted">स्टिकर / प्रोग्राम कार्ड छपवाने हों तो "Claude के लिए फ़ाइल" Claude को भेज दें।</p></div>
-<div class="card"><h2>सूची अपलोड / अपडेट</h2><p class="muted" id="up-v">—</p>
+<div class="card"><h2><span data-en="Upload / update list">सूची अपलोड / अपडेट</span></h2><p class="muted" id="up-v">—</p>
 <p class="muted">Claude की दी हुई <b>ghar-suchi-data … .json</b> फ़ाइल चुनें। पुराने ✓ (पहुँचा / गिफ्ट) वैसे ही रहेंगे।</p>
 <input type="file" id="up-f" accept=".json,application/json" class="in"><button class="btn" id="up-go">अपलोड करें</button><div class="err" id="up-err"></div></div>
-<div class="card"><h2>सूचना (नोटिफ़िकेशन)</h2><p class="muted">फ़ोन में <b>ntfy</b> ऐप खोलें → <b>+</b> → यह नाम डालें → Subscribe:</p><p style="text-align:center"><b id="nt" style="font-size:17px;user-select:all"></b></p></div>
-<a class="btn" style="text-align:center;text-decoration:none" href="./">सूची खोलें</a>
-</div></div><div class="toast" id="toast"></div>
+<div class="card"><h2><span data-en="Notifications">सूचना (नोटिफ़िकेशन)</span></h2><p class="muted">फ़ोन में <b>ntfy</b> ऐप खोलें → <b>+</b> → यह नाम डालें → Subscribe:</p><p style="text-align:center"><b id="nt" style="font-size:17px;user-select:all"></b></p></div>
+</div>
+<div class="scr" id="s-wa"><style>
+.g.wa.sent{opacity:.62}.act a.tk{display:block;text-align:center;text-decoration:none}.tk.w1d{background:#EEF1E2}.g.dl [data-w3]{background:#FFF4C2;border-color:#B8892E}
+.wa .mob{font-family:"Martel";font-size:15px}.wstp{margin:0;padding-left:20px;line-height:1.7;font-size:14.5px}.wstp b{color:var(--ol)}
+details.card>summary{font-family:"Martel";color:var(--ol);cursor:pointer;text-align:center;font-size:16px}textarea.in{font-family:inherit}#wm,#wm2{font-size:15px;line-height:1.5}
+.wf{text-align:center;font-size:14px;margin-top:8px;color:var(--ol)}.wf.bad{color:var(--mr)}.w1n{font-size:12.5px;color:#6B5520;margin-top:3px}
+.wmd{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:2px 0 10px}.wmd button{border:1.4px solid var(--ol);background:#fff;color:var(--ol);border-radius:16px;padding:6px 12px;font-size:14px}
+.wmd button.on{background:var(--ol);color:#fff}.wfrom{text-align:center;font-size:14px;margin:8px 0 0}.wfrom b{font-family:"Martel";color:var(--mr)}
+.chip.cp{border-color:#1E7D45;color:#1E7D45}.chip.cp.on{background:#1E7D45;color:#fff}.chip.cp.off{opacity:.55}
+.rt{width:100%;border-collapse:collapse;font-size:13.5px}.rt th{background:var(--ol);color:#fff;padding:5px 6px;text-align:left;font-weight:400}.rt td{border-bottom:1px solid #EFE6CC;padding:5px 6px;vertical-align:top}
+.rt tr.tot td{font-family:"Martel";background:#F6EAC9}.tw{overflow-x:auto}.rt td.n{white-space:nowrap}.ok2{color:#1E7D45}.no2{color:var(--mr)}
+@media(min-width:900px){.wrap{max-width:980px}#wout{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}#wout .more,#wout .empty{grid-column:1/-1}}
+@media print{@page{size:A4;margin:10mm}body{background:#fff}.hd,.toast,#s-wr .bar,#s-wa{display:none!important}.scr{display:none!important}#s-wr{display:block!important}
+ .card{box-shadow:none;border:0;padding:4px 0;margin:4px 0;break-inside:auto}.rt{font-size:10.5px}.rt tr{break-inside:avoid}details>summary{display:none}}
+</style>
+<div class="bar"><div class="srow"><button class="nob" id="wa-back">← एडमिन</button><div class="sbox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8892E" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+<input id="wq" type="text" autocomplete="off" placeholder="नाम / मोबाइल / स्टिकर नं."></div><div class="lang"><button data-al="hi" class="on">हिं</button><button data-al="en">EN</button></div></div>
+<div class="chips" id="wcp"></div><div class="chips" id="wc1"></div><div class="chips" id="wc2"></div><div class="stats" id="wst"></div></div>
+<div class="card"><h2 id="wtitle">कैसे भेजें</h2><div class="wmd" id="wmd"></div><ol class="wstp" id="wsteps"></ol>
+<p class="muted" style="margin:8px 0 0">नंबर सुरक्षित रखने के लिए: हर 30–40 के बाद 10 मिनट रुकें, सब एक ही बार में न भेजें।</p>
+<p class="wfrom">भेजने वाला WhatsApp नंबर: <b>99298 26404</b> (RSVP वाला) – इसी नंबर का WhatsApp खुला होना चाहिए।</p><div class="wf" id="wf"></div></div>
+<details class="card"><summary><span data-en="View / edit message">संदेश देखें / बदलें</span></summary>
+<label>संदेश – जोधपुर वाले मेहमान</label><textarea class="in" id="wm" rows="9"></textarea>
+<label>संदेश – बाहर वाले मेहमान (खाली छोड़ें तो ऊपर वाला ही जाएगा)</label><textarea class="in" id="wm2" rows="6"></textarea>
+<p class="muted">{name} की जगह हर मेहमान का नाम अपने-आप आएगा।</p><button class="btn" id="wm-save">संदेश सेव करें</button></details>
+<button class="btn" id="wr-open" style="background:var(--gd)"><span data-en="📊 Report / download">📊 रिपोर्ट देखें / डाउनलोड</span></button>
+<div id="wout"></div></div>
+<div class="scr" id="s-wr"><div class="bar"><div class="srow" style="flex-wrap:wrap"><button class="nob" id="wr-back">← भेजने वाला पेज</button>
+<button class="ok" id="wr-csv">⬇ Excel</button><button class="ok" id="wr-pdf" style="background:var(--gd)">⬇ PDF / प्रिंट</button></div></div><div id="wrep"></div></div>
+
+</div><div class="toast" id="toast"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -120,7 +181,11 @@ const T={hi:{sec:{all:'सब',jo:'जोधपुर',ba:'बाहर',ej:'E-c
  en:{sec:{all:'All',jo:'Jodhpur',ba:'Outside',ej:'E-card Jodhpur',eb:'E-card outside',ho:'Hold'},fn:['Vinayak','Tilak-Reception','Geet-Bhoj','Wedding'],fs:['18 Vinayak','20 Tilak','21 Geet','21 Wedding'],
   st:{all:'All',done:'Delivered ✓',left:'Pending'},pc:'Prog card',gift:'Gift',zone:'All zones / cities',head:'All headings',tot:'Total',vis:'Showing',dn:'Delivered',lf:'Pending',gf:'Gift given',
   tick:'Delivered',gtick:'Gift given',none:'No name found – try a slightly different spelling',more:'Show more',ph:'Name, mobile, sticker no., area… (Hindi / English)',env:'Envelope',sfam:'With family'}};
-function setData(g,d){G=g;D=d;ZSUB={};G.forEach(x=>{ZSUB[x[0]+x[2]]=(ZSUB[x[0]+x[2]]||0)+1});
+function nfv(v){const s=String(v??'').trim(); if(!s) return ''; const u=s.toUpperCase().replace(/[\s.]/g,'');
+  if(u.startsWith('WF')||u==='W/F'||['SAPARIVAAR','SAPARIVAR','SPARIVAR','FAMILY','सपरिवार'].includes(u)) return 'सपरिवार';
+  if(['TICK','HAAN','HA','YES','Y','✓','✔','√','OK'].includes(u)) return '✓'; if(['0','-','–','NO','N','NA','NAHI'].includes(u)) return '';
+  if(/^\d+$/.test(u)) return +u>2?'सपरिवार':String(+u); return s;}
+function setData(g,d){G=g;D=d;D.forEach(r=>{ if(Array.isArray(r[10])) r[10]=r[10].map(nfv); });ZSUB={};G.forEach(x=>{ZSUB[x[0]+x[2]]=(ZSUB[x[0]+x[2]]||0)+1});
   IX=D.map(r=>{const x=G[r[1]];return{hi:nHi([r[3],r[7],x[4]].join(' ')),en:nEn([r[4],r[8],x[5]].join(' ')),hw:toks([r[3],r[7],x[4]].join(' '),1),ew:toks([r[4],r[8],x[5]].join(' '),0),
     mob:(r[9]||'').replace(/\D/g,''),no:String(r[2]).toLowerCase()}});
   ZONES=[...new Set(G.map(x=>x[2]+'|'+x[3]))].map(z=>z.split('|')); HEADS=[...new Set(D.map(r=>r[5]+'|'+r[6]).filter(h=>h!=='|'))].map(h=>h.split('|'));}
@@ -165,7 +230,7 @@ function render(){if(!D.length)return;const t=T[L], q=Q.trim(), hits=[];
     h+=`<div class="g ${r[12]==='✓'?'pc':''}"><div class="t1"><div class="nb">${hl(r[2])}</div><div style="flex:1"><div class="nm">${hl(hi?r[3]:r[4])}</div>
       <div class="sub2">${hl(hi?r[7]:r[8])}${(hi?r[5]:r[6])?' · '+esc(hi?r[5]:r[6]):''}</div>${mobs}</div></div><div class="fn">${f}</div>${meta?`<div class="meta">${meta}</div>`:''}
       ${note?`<div class="note">${esc(note)}</div>`:''}<div class="act"><button class="tk ${s.d?'on':''}" data-tk="${i}">${s.d?'✓ ':''}${t.tick}${s.d?`<small>${esc(s.dBy||'')} · ${s.dAt?tm(s.dAt):''}</small>`:''}</button>
-      <button class="tk ${s.g?'on':''}" data-gk="${i}">${s.g?'✓ ':''}${t.gtick}${s.g?`<small>${esc(s.gBy||'')} · ${s.gAt?tm(s.gAt):''}</small>`:''}</button></div></div>`;}
+      <button class="tk ${s.g?'on':''}" data-gk="${i}">${s.g?'✓ ':''}${t.gtick}${s.g?`<small>${esc(s.gBy||'')} · ${s.gAt?tm(s.gAt):''}</small>`:''}</button>${ME.admin?`<button class="tk ed" data-edit="${esc(r[0])}">✏️ सुधारें</button>`:''}</div></div>`;}
   if(la>=0)h+='</div>'; if(lz)h+='</div>'; if(shown>LIMIT)h+=`<button class="more" id="more">${t.more} (${shown-LIMIT})</button>`;
   $('#out').innerHTML=h;}
 let rt; const rerender=()=>{clearTimeout(rt);rt=setTimeout(render,60)};
@@ -181,19 +246,21 @@ const PEN={'✓':'✓','होल्ड':'Hold','बन चुका':'Already m
 let EDIT=null;                                       // rid being edited, or 'new'
 function edResults(){ const q=$('#eq').value.trim(); if(q.length<1){ $('#eres').innerHTML=''; return }
   const hits=[]; for(let i=0;i<D.length&&hits.length<8;i++) if(match(i,q)) hits.push(i);
-  $('#eres').innerHTML = hits.length ? hits.map(i=>{const r=D[i];return `<div class="req"><div class="w"><b>${esc(r[2])} · ${esc(r[3])}</b><small>${esc(r[7])}${r[9]?' · '+esc(r[9].split('\n')[0]):''}</small></div><button class="ok" data-ed="${esc(r[0])}">सुधारें</button></div>`}).join('') : '<p class="muted">कोई नाम नहीं मिला</p>'; }
+  $('#eres').innerHTML = hits.length ? hits.map(i=>{const r=D[i];return `<div class="req"><div class="w"><b>${esc(r[2])} · ${esc(nmL(r))}</b><small>${esc(arL(r,G[r[1]]))}${r[9]?' · '+esc(r[9].split('\n')[0]):''}</small></div><button class="ok" data-ed="${esc(r[0])}">सुधारें</button></div>`}).join('') : '<p class="muted">कोई नाम नहीं मिला</p>'; }
 function fillGroups(sel){ $('#f-g').innerHTML = G.map((g,i)=>`<option value="${i}" ${i===sel?'selected':''}>${esc(g[0].replace(/^\d+\.\s*/,'').split('(')[0].trim())} › ${esc(g[2])}${g[2]!==g[4]?' › '+esc(g[4]):''}</option>`).join('');
   $('#dl-hh').innerHTML=HEADS.map(h=>`<option value="${esc(h[0])}">`).join(''); $('#dl-he').innerHTML=HEADS.map(h=>`<option value="${esc(h[1])}">`).join(''); }
 function edOpen(rid){ const r = rid==='new' ? null : D.find(x=>x[0]===rid); EDIT = rid; $('#ef').style.display='block'; $('#f-err').textContent='';
   $('#ef-t').textContent = r ? 'सुधार रहे हैं: '+r[3] : 'नया नाम – सब भरकर "सेव करें" दबाएँ'; fillGroups(r ? r[1] : 0); $('#f-del').style.display = r ? 'block' : 'none';
   const v = (id,x)=>{ $(id).value = x ?? '' }; v('#f-no', r?r[2]:''); v('#f-hi', r?r[3]:''); v('#f-en', r?r[4]:''); v('#f-hh', r?r[5]:''); v('#f-he', r?r[6]:'');
   v('#f-ah', r?r[7]:''); v('#f-ae', r?r[8]:''); v('#f-mob', r?r[9]:''); for(let k=0;k<4;k++) v('#f-f'+k, r?r[10][k]:''); v('#f-gift', r&&r[11]?r[11]:'');
-  v('#f-pc', r?r[12]:'✓'); v('#f-env', r?r[14]:''); v('#f-nh', r?r[15]:''); v('#f-ne', r?r[16]:''); $('#ef').scrollIntoView({behavior:'smooth'}); }
+  v('#f-pc', r?r[12]:'✓'); v('#f-env', r?r[14]:''); v('#f-nh', r?r[15]:''); v('#f-ne', r?r[16]:'');
+  const sh=$('#ed-sheet'); if(sh){ sh.classList.add('on'); document.body.style.overflow='hidden'; sh.scrollTop=0; } else $('#ef').scrollIntoView({behavior:'smooth'}); }
+function edClose(){ $('#ef').style.display='none'; const sh=$('#ed-sheet'); if(sh){ sh.classList.remove('on'); document.body.style.overflow=''; } }
 async function writeChunk(i, rows){ await setDoc(doc(db,'list','c'+i), {d: JSON.stringify(rows)}); }
 async function edSave(){ const hi=$('#f-hi').value.trim(); if(!hi){ $('#f-err').textContent='हिंदी नाम ज़रूरी है'; return }
   const pc=$('#f-pc').value, gi=+$('#f-g').value;
   const row=[EDIT==='new' ? 'N'+Date.now().toString(36) : EDIT, gi, $('#f-no').value.trim()||'–', hi, $('#f-en').value.trim(), $('#f-hh').value.trim(), $('#f-he').value.trim(),
-    $('#f-ah').value.trim(), $('#f-ae').value.trim(), $('#f-mob').value.trim(), [0,1,2,3].map(k=>$('#f-f'+k).value.trim()), parseInt($('#f-gift').value)||0, pc, PEN[pc]??pc, $('#f-env').value,
+    $('#f-ah').value.trim(), $('#f-ae').value.trim(), $('#f-mob').value.trim(), [0,1,2,3].map(k=>nfv($('#f-f'+k).value)), parseInt($('#f-gift').value)||0, pc, PEN[pc]??pc, $('#f-env').value,
     $('#f-nh').value.trim(), $('#f-ne').value.trim()];
   $('#f-save').disabled=true; $('#f-err').textContent='सेव हो रहा है…';
   try{ const n=META.chunks; let ci=-1, ri=-1;
@@ -204,32 +271,297 @@ async function edSave(){ const hi=$('#f-hi').value.trim(); if(!hi){ $('#f-err').
     const total = CH.slice(0,n).reduce((a,c)=>a+c.length,0) + (EDIT==='new'?1:0);
     await updateDoc(doc(db,'list','meta'), {v: META.v.split(' · ')[0]+' · बदला '+tm(Date.now()), n: total, chunks: (EDIT==='new' && CH[n-1].length>=100) ? n+1 : n, at: serverTimestamp()});
     await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:(EDIT==='new'?'नाम जोड़ा: ':'नाम सुधारा: ')+hi, no:row[2]});
-    toast(EDIT==='new'?'नया नाम जुड़ गया':'सुधार सेव हो गया'); $('#ef').style.display='none'; $('#eq').value=''; edResults(); $('#f-err').textContent=''; }
+    toast(EDIT==='new'?'नया नाम जुड़ गया':'सुधार सेव हो गया'); edClose(); if($('#eq')){ $('#eq').value=''; edResults(); } $('#f-err').textContent=''; }
   catch(e){ $('#f-err').textContent='सेव नहीं हुआ: '+(e.message||e); } $('#f-save').disabled=false; }
 async function edDel(){ const r=D.find(x=>x[0]===EDIT); if(!r||!confirm(r[3]+' को सूची से हटाएँ?')) return;
   for(let i=0;i<META.chunks;i++){ const j=CH[i].findIndex(x=>x[0]===EDIT); if(j>=0){ await writeChunk(i, CH[i].filter((_,k)=>k!==j)); break } }
   await updateDoc(doc(db,'list','meta'), {n: D.length-1, v: META.v.split(' · ')[0]+' · बदला '+tm(Date.now()), at: serverTimestamp()});
-  await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'नाम हटाया: '+r[3], no:r[2]}); toast('हटा दिया'); $('#ef').style.display='none'; }
+  await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'नाम हटाया: '+r[3], no:r[2]}); toast('हटा दिया'); edClose(); }
 function save(name, text, type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500); }
 const today = () => new Date().toISOString().slice(0,10);
 function dlCsv(){ const q = v => '"'+String(v??'').replace(/"/g,'""')+'"';
-  const head=['क्रम','नं.','नाम','Name','हेडिंग','क्षेत्र / पता','Area / Address','मोबाइल','18 विनायक','20 तिलक-स्वागत','21 गीत-भोज','21 शुभ विवाह','गिफ्ट','प्रोग्राम कार्ड','लिफ़ाफ़ा','पहुँचा','पहुँचा – किसने / कब','गिफ्ट दिया','गिफ्ट – किसने / कब','भाग','ज़ोन / शहर','क्षेत्र समूह','नोट'];
+  const head=['क्रम','नं.','नाम','Name','हेडिंग','क्षेत्र / पता','Area / Address','मोबाइल','18 विनायक','20 तिलक-स्वागत','21 गीत-भोज','21 शुभ विवाह','गिफ्ट','प्रोग्राम कार्ड','लिफ़ाफ़ा','पहुँचा','पहुँचा – किसने / कब','गिफ्ट दिया','गिफ्ट – किसने / कब','WhatsApp भेजा','भाग','ज़ोन / शहर','क्षेत्र समूह','नोट'];
   const lines=[head.map(q).join(',')]; D.forEach((r,i)=>{ const g=G[r[1]], s=ST[r[0]]||{};
-    lines.push([i+1,r[2],r[3],r[4],r[5],r[7],r[8],r[9].replace(/\n/g,' / '),...r[10],r[11]||'',r[12],r[14],s.d?'✓':'',s.d?(s.dBy||'')+' '+(s.dAt?tm(s.dAt):''):'',s.g?'✓':'',s.g?(s.gBy||'')+' '+(s.gAt?tm(s.gAt):''):'',g[0],g[2],g[4],r[15]].map(q).join(',')); });
+    lines.push([i+1,r[2],r[3],r[4],r[5],r[7],r[8],r[9].replace(/\n/g,' / '),...r[10],r[11]||'',r[12],r[14],s.d?'✓':'',s.d?(s.dBy||'')+' '+(s.dAt?tm(s.dAt):''):'',s.g?'✓':'',s.g?(s.gBy||'')+' '+(s.gAt?tm(s.gAt):''):'',Object.entries(s).filter(([k,x])=>/^w\d+$/.test(k)&&x).map(([k,x])=>k.slice(1)+' ('+(x.by||'')+' '+(x.at?tm(x.at):'')+')').join(' / '),g[0],g[2],g[4],r[15]].map(q).join(',')); });
   save('ghar-ki-suchi '+today()+'.csv', '\ufeff'+lines.join('\r\n'), 'text/csv;charset=utf-8'); }
 function dlJson(){ save('ghar-suchi-data '+today()+'.json', JSON.stringify({app:'ghar-ki-suchi', v:META?META.v:'', G, D, ST}), 'application/json'); }
+
+
+// ---------- WhatsApp desk v3 (7 Nov) – campaigns, phone + computer, sender rights, ① log, report (Excel / PDF), ntfy milestones
+const WV={A:'सिर्फ़ 20 नवम्बर',B:'20 + 21 शुभ विवाह',C:'20 + 21 सभी कार्यक्रम',all:'सब','20':'सिर्फ़ 20 नवम्बर','2021':'20–21 नवम्बर'};
+const WSRC={A:'einvite-A.html',B:'einvite-B.html',C:'einvite-C.html'}, WFROM='99298 26404';
+const SECN={jo:'जोधपुर – कार्ड वाले',ba:'बाहर – कार्ड वाले',ej:'जोधपुर – E-card',eb:'बाहर – E-card'}, FNN=['18 विनायक','20 तिलक-स्वागत','21 गीत-भोज','21 शुभ विवाह'];
+const WMSG0=`॥ श्री गणेशाय नमः ॥
+
+आदरणीय {name},
+सादर नमस्कार 🙏
+
+आदित्य संग खुशबू के शुभ विवाह के मंगल अवसर पर आप सादर आमंत्रित हैं।
+निमंत्रण पत्र साथ में भेजा है – फ़ाइल पर टैप करके खोलें।
+
+शुभेच्छु – बिड़ला परिवार`;
+const INV={id:'inv',title:'ई-निमंत्रण',mode:'abc',site:true,who:['ej','eb'],fn:'',active:false,msg:WMSG0,msgOut:''};   // on hold until the admin turns it on (config/public.invOn)
+let CAMPS=[INV], CAMP=INV, WVER='A', WST='left', WALL=false, WQ='', WZN='', WE=[], WEK={}, WLIM=60, WNTFY='';
+const WF={}, WFL={}, W1=new Set();
+const WMOB=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+let WMODE=(()=>{ try{ const m=localStorage.getItem('waMode'); if(m==='ph'||m==='web'||m==='app') return m; }catch(_){} return WMOB?'ph':'web'; })();
+const WMODES={ph:'📱 फ़ोन',web:'💻 WhatsApp Web',app:'💻 WhatsApp ऐप'};
+const fon=v=>v&&v!=='–';
+const NSLOT='<p class="f-nm"></p>';                   // empty name slot on the e-invite front (gold sticker)
+const wfname=nm=>'सादर आमंत्रण - '+String(nm).replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim()+' - बिड़ला परिवार.html';
+const wout_=r=>['ba','eb'].includes(G[r[1]][6]);
+function nmL(r){ return L==='en'&&r[4]?r[4]:r[3]; }
+function arL(r,g){ return L==='en'?(r[8]||g[5]||r[7]):(r[7]||g[4]); }
+function areaL(g){ return L==='en'?g[3]+(g[5]&&g[5]!==g[3]?' › '+g[5]:''):g[2]+(g[4]&&g[4]!==g[2]?' › '+g[4]:''); }
+function applyLang(){ document.querySelectorAll('[data-en]').forEach(el=>{ if(el.dataset.hi===undefined) el.dataset.hi=el.innerHTML; el.innerHTML=L==='en'?el.dataset.en:el.dataset.hi; });
+  document.querySelectorAll('[data-al]').forEach(b=>b.classList.toggle('on',b.dataset.al===L)); }
+function setLang(l){ L=l; try{ localStorage.setItem('lang',l) }catch(_){} applyLang(); wrender(); if(typeof edResults==='function'&&$('#eq')&&$('#eq').value) edResults(); }
+document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-al]'); if(b) setLang(b.dataset.al); });
+try{ if(localStorage.getItem('lang')==='en') L='en'; }catch(_){} setTimeout(applyLang,0);
+function wver2(r){const f=r[10]||[]; return (fon(f[2])||fon(f[3]))?'2021':fon(f[1])?'20':'';}
+function wver(r){const f=r[10]||[]; const k=[1,2,3].map(i=>fon(f[i])?1:0).join(''); return k==='100'?'A':k==='101'?'B':k==='111'?'C':'';}
+function wnums(m){return String(m||'').split(/[\n,\/;]+/).map(x=>x.replace(/\D/g,'')).filter(Boolean).map(n=>n.length===12&&n.startsWith('91')?n.slice(2):n);}
+const wkey=(c,p,n)=>c.id==='inv'?p+n:p+c.id+'_'+n;
+const wre=c=>c.id==='inv'?/^[wc]\d{10}$/:new RegExp('^[wc]'+c.id+'_\\d{10}$');
+const wgroups=c=>c.mode==='abc'?['A','B','C']:c.mode==='two'?['20','2021']:['all'];
+const wsplit=c=>c.mode==='abc'||c.mode==='two';
+const wsecs=c=>(c.id==='inv'&&WALL)?['jo','ba','ej','eb']:(c.who||[]);
+function wbuild(c, rep){ const out=[], K={}, seen={}, secs=wsecs(c), re=wre(c);
+  D.forEach((r,i)=>{ const sec=G[r[1]][6]; if(sec==='ho') return; const s0=ST[r[0]];
+    const touched=rep&&s0&&Object.keys(s0).some(k=>re.test(k)&&s0[k]);
+    if(!touched){ if(!secs.includes(sec)) return; if(c.fn!==''&&c.fn!=null&&!fon((r[10]||[])[+c.fn])) return; }
+    const v=c.mode==='abc'?wver(r):c.mode==='two'?wver2(r):'all'; if(!v){ out.push({v:'-',i,why:'कार्यक्रम तय नहीं – कौन सी फ़ाइल जाए?'}); return }
+    const ns=wnums(r[9]); if(!ns.length){ out.push({v:'x',fv:v,i,why:'मोबाइल नंबर नहीं है'}); return }
+    ns.forEach((n,k)=>{ if(!/^[6-9]\d{9}$/.test(n)){ out.push({v:'x',fv:v,i,why:'नंबर ग़लत लगता है: '+n}); return }
+      const key=v+n; if(seen[key]){ seen[key].also.push(i); return }
+      const e={v,i,n,k,multi:ns.length>1,also:[],key}; seen[key]=e; K[key]=e; out.push(e); }); });
+  return [out,K]; }
+function wst_(c,e,p){ const k=wkey(c,p,e.n); for(const i of [e.i,...e.also]){ const s=ST[D[i][0]]; if(s&&s[k]) return s[k]; } return null; }
+const wsent=e=>wst_(CAMP,e,'w'), wchat=e=>wst_(CAMP,e,'c');
+function wcount(c){ const [R]=wbuild(c,true); const x={t:0,s:0,bad:0,g:{}}; R.forEach(e=>{ if(!e.n){ x.bad++; return } x.t++; const gg=x.g[e.v]=x.g[e.v]||[0,0]; gg[0]++; if(wst_(c,e,'w')){ x.s++; gg[1]++; } }); return x; }
+function wmsg(e){ const r=D[e.i], m=(wout_(r)&&CAMP.msgOut)?CAMP.msgOut:CAMP.msg||''; return m.replace(/\{name\}/g, r[3]); }
+function wlink(e){ const t=encodeURIComponent(wmsg(e));
+  return WMODE==='web'?'https://web.whatsapp.com/send?phone=91'+e.n+'&text='+t : WMODE==='app'?'whatsapp://send?phone=91'+e.n+'&text='+t : 'https://wa.me/91'+e.n+'?text='+t; }
+// ---------- files: e-invite from the site, everything else from Firestore parts
+function b64d(s){ const bin=atob(s), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u; }
+function b64e(u){ let s=''; for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000)); return btoa(s); }
+const isHtml=it=>/html/.test(it.type||'')||/\.html?$/i.test(it.name||'');
+async function blobGet(id){ const m=await getDoc(doc(db,'blobs',id)); if(!m.exists()) throw new Error('nofile'); const d=m.data(), parts=[];
+  for(let i=0;i<d.n;i++){ const p=await getDoc(doc(db,'blobs',id+'_'+i)); parts.push(b64d(p.data().d)); }
+  const it={name:d.name,type:d.type||'application/octet-stream',size:d.size,blob:new Blob(parts,{type:d.type||'application/octet-stream'})};
+  if(isHtml(it)) it.text=await it.blob.text(); return it; }
+const wfk=(c,g)=>c.id+':'+g;
+async function wload(c,g){ const k=wfk(c,g); if(WF[k]||WFL[k]===1) return; if(c.mode==='none'){ WF[k]=[]; return }
+  WFL[k]=1; wfs();
+  try{ let items=[];
+    if(c.site){ const r=await fetch(WSRC[g],{cache:'no-cache'}); if(!r.ok) throw new Error(r.status); const t=await r.text(); items=[{inv:true,type:'text/html',text:t,size:t.length}]; }
+    else for(const id of ((c.files||{})[g]||[])) items.push(await blobGet(id));
+    WF[k]=items; WFL[k]=0; }catch(e){ WFL[k]='err'; } wfs(); }
+function wfilesFor(e){ const nm=D[e.i][3]||'', cls=nm.length>46?'f-nm l3':nm.length>30?'f-nm l2':'f-nm';
+  return (WF[wfk(CAMP,e.v)]||[]).map(it=>{ if(it.text!=null){ const pers=it.text.includes(NSLOT);
+      const t=pers?it.text.replace(NSLOT,'<p class="'+cls+'"><span>'+esc(nm)+'</span></p>'):it.text;
+      return new File([t], it.inv?wfname(nm):it.name, {type:'text/html'}); }
+    return new File([it.blob], it.name, {type:it.type}); }); }
+function wfs(){ const el=$('#wf'); if(!el) return; const c=CAMP, g=WVER; if(c.mode==='none'){ el.className='wf'; el.textContent='इस अभियान में कोई फ़ाइल नहीं – सिर्फ़ संदेश जाएगा।'; return }
+  if(!wgroups(c).includes(g)){ el.textContent=''; return } const k=wfk(c,g), it=WF[k]; el.className='wf'+(WFL[k]==='err'?' bad':'');
+  if(it){ const mb=it.reduce((a,x)=>a+(x.size||0),0)/1e6, pers=it.some(x=>x.text&&x.text.includes(NSLOT));
+    el.innerHTML = it.length ? `${c.mode==='abc'?'फ़ाइल '+g+' ':c.mode==='two'?WV[g]+' – ':''}तैयार ✓ (${it.length} फ़ाइल · ${mb.toFixed(1)} MB)${pers?' · हर फ़ाइल पर मेहमान का नाम':''}` : '⚠ इस हिस्से में कोई फ़ाइल नहीं डाली गई'; }
+  else el.innerHTML = WFL[k]==='err' ? (c.site?`⚠ फ़ाइल ${g} नहीं मिली – GitHub पर <b>${WSRC[g]}</b> अपलोड करें`:'⚠ फ़ाइल नहीं खुली – नेट देखें') : 'फ़ाइल लोड हो रही है…'; }
+const wimg1=()=>{ const it=WF[wfk(CAMP,WVER)]||[]; return WMODE!=='ph'&&it.length===1&&/^image\//.test(it[0].type||'')&&navigator.clipboard&&window.ClipboardItem; };
+function wsteps(){ $('#wmd').innerHTML=Object.entries(WMODES).map(([k,t])=>`<button class="${WMODE===k?'on':''}" data-wm="${k}">${t}</button>`).join('');
+  $('#wtitle').textContent='कैसे भेजें – '+CAMP.title; const none=CAMP.mode==='none';
+  const s1 = WMODE==='ph' ? `<li><b>① संदेश</b> दबाएँ → WhatsApp में उनकी चैट खुलेगी, संदेश लिखा मिलेगा → <b>भेजें</b> → वापस इस पेज पर आएँ।</li>`
+                          : `<li><b>① संदेश</b> दबाएँ → ${WMODE==='web'?'<b>WhatsApp Web</b> के टैब':'<b>WhatsApp ऐप</b>'} में उनकी चैट खुलेगी, संदेश लिखा मिलेगा → <b>Enter</b> दबाएँ।</li>`;
+  const s2 = none ? '' : WMODE==='ph' ? `<li><b>② फ़ाइल</b> दबाएँ → <b>WhatsApp</b> चुनें → सबसे ऊपर वही चैट होगी, उसे चुनें → <b>भेजें</b>। फ़ाइल जाते ही ✓ अपने-आप लग जाएगा।</li>`
+    : wimg1() ? `<li><b>② फ़ोटो कॉपी</b> दबाएँ → WhatsApp चैट में <b>Ctrl + V</b> (Mac पर ⌘ + V) → <b>Enter</b>।</li>`
+    : `<li><b>② फ़ाइल</b> दबाएँ → फ़ाइल <b>Downloads</b> में आ जाएगी → WhatsApp चैट में <b>📎 → Document / फ़ोटो</b> → Downloads में सबसे ऊपर वाली फ़ाइल चुनें → <b>भेजें</b> (या फ़ाइल को खींचकर चैट में छोड़ दें)।</li>`;
+  $('#wsteps').innerHTML = s1 + s2 + `<li>${WMODE==='ph'&&!none?'नहीं लगा तो':'भेज दिया तो'} <b>✓ भेजा</b> दबाएँ → अगला नाम ऊपर आ जाएगा।</li>`; }
+function wcpRender(){ const list=CAMPS.filter(c=>c.active||ME.admin);
+  $('#wcp').innerHTML=list.map(c=>{ const x=wcount(c); return `<button class="chip cp ${CAMP.id===c.id?'on':''} ${c.active?'':'off'}" data-wc="${c.id}">📢 ${esc(c.title)} (${x.s}/${x.t})${c.active?'':' · बंद'}</button>`; }).join(''); }
+function wrender(){ if(!D.length) return; if(window.campList) window.campList();
+  if($('#s-wr').classList.contains('on')) wreport();
+  if(!$('#s-wa').classList.contains('on')) return;
+  if(!ME.admin&&!CAMP.active){ $('#wcp').innerHTML=''; $('#wc1').innerHTML=''; $('#wc2').innerHTML=''; $('#wst').innerHTML=''; $('#wf').textContent='';
+    $('#wout').innerHTML='<div class="empty">अभी भेजने के लिए कोई अभियान चालू नहीं है – शिवम जी चालू करेंगे तो यहीं दिखेगा।</div>'; return }
+  [WE,WEK]=wbuild(CAMP,false); const gs=wgroups(CAMP), c={x:0,'-':0}; gs.forEach(g=>c[g]=[0,0]);
+  WE.forEach(e=>{ if(!e.n){ c[e.v]++; return } c[e.v][0]++; if(wsent(e)) c[e.v][1]++; });
+  if(!gs.includes(WVER)&&WVER!=='x'&&WVER!=='-') WVER=gs[0];
+  wcpRender();
+  $('#wc1').innerHTML=gs.map(v=>`<button class="chip ${WVER===v?'on':''}" data-wv="${v}">${CAMP.mode==='abc'?v+' · ':''}${WV[v]} (${c[v][1]}/${c[v][0]})</button>`).join('')+
+    `<button class="chip ${WVER==='x'?'on':''}" data-wv="x">⚠ नंबर ठीक करें (${c.x})</button>`+(wsplit(CAMP)?`<button class="chip ${WVER==='-'?'on':''}" data-wv="-">⚠ फ़ाइल तय नहीं (${c['-']})</button>`:'');
+  $('#wc2').innerHTML=[['left','बाकी'],['done','भेज दिए ✓'],['all','सब']].map(([k,t])=>`<button class="chip ${WST===k?'on':''}" data-ws="${k}">${t}</button>`).join('')+
+    `<select class="sel" id="wzn"><option value="">सारे ज़ोन / शहर</option>${ZONES.map(z=>`<option value="${esc(z[1])}" ${WZN===z[1]?'selected':''}>${esc(L==='en'?z[1]:z[0])}</option>`).join('')}</select>`+
+    (CAMP.id==='inv'?`<button class="chip ${WALL?'on':''}" data-wall="1">कार्ड वाले मेहमान भी</button>`:'');
+  const q=WQ.trim(); const list=WE.filter(e=>e.v===WVER).filter(e=>{ if(WZN&&G[D[e.i][1]][3]!==WZN) return false;
+    if(e.n){ const s=wsent(e); if(WST==='left'&&s) return false; if(WST==='done'&&!s) return false; } return !q||match(e.i,q); });
+  $('#wst').innerHTML = c[WVER]&&Array.isArray(c[WVER]) ? `<span>${CAMP.mode==='abc'?'फ़ाइल '+WVER+': ':''}भेजे <b>${c[WVER][1]}</b></span>·<span>बाकी <b>${c[WVER][0]-c[WVER][1]}</b></span>·<span>कुल <b>${c[WVER][0]}</b></span>·<span>दिख रहे <b>${list.length}</b></span>` : `<span>दिख रहे <b>${list.length}</b></span>`;
+  wfs(); const canEd=ME.admin&&typeof edOpen==='function', none=CAMP.mode==='none', copy=wimg1();
+  $('#wout').innerHTML = list.slice(0,WLIM).map(e=>{ const r=D[e.i], g=G[r[1]];
+    if(!e.n) return `<div class="g"><div class="t1"><div class="nb">${esc(r[2])}</div><div style="flex:1"><div class="nm">${esc(nmL(r))}</div><div class="sub2">${esc(arL(r,g))}${e.fv&&e.fv!=='all'?' · फ़ाइल '+e.fv:''}</div><div class="note">${esc(e.why)}</div></div></div>${canEd?`<div class="act"><button class="tk" data-wed="${esc(r[0])}">सुधारें</button></div>`:'<div class="w1n">शिवम जी को बताएँ – वे एडमिन पेज से ठीक करेंगे।</div>'}</div>`;
+    const s=wsent(e), c1=wchat(e);
+    return `<div class="g wa ${s?'sent':''}"><div class="t1"><div class="nb">${esc(r[2])}</div><div style="flex:1"><div class="nm">${esc(nmL(r))}</div>
+      <div class="sub2">${esc(arL(r,g))}${wout_(r)?' · बाहर':''}${e.multi?` · इस मेहमान का ${e.k+1}वाँ नंबर`:''}${e.also.length?' · यही नंबर '+(e.also.length+1)+' नाम में':''}</div><div class="mob">${e.n.slice(0,5)} ${e.n.slice(5)}</div>
+      ${c1&&!s?`<div class="w1n">① संदेश खोला: ${esc(c1.by||'')} · ${c1.at?tm(c1.at):''}</div>`:''}</div></div>
+      <div class="act"><a class="tk ${W1.has(CAMP.id+e.key)||c1?'w1d':''}" href="${wlink(e)}" ${WMODE==='web'?'target="wawin"':''} data-w1="${e.key}">① संदेश</a>${none?'':`<button class="tk" data-w2="${e.key}">${copy?'② फ़ोटो कॉपी':'② फ़ाइल'}</button>`}
+      <button class="tk ${s?'on':''}" data-w3="${e.key}">${s?'✓ भेजा':'भेजा ✓'}${s?`<small>${esc(s.by||'')} · ${s.at?tm(s.at):''}</small>`:''}</button></div></div>`; }).join('')
+    + (list.length>WLIM?`<button class="more" id="wmore">और दिखाएँ (${list.length-WLIM})</button>`:'') || `<div class="empty">${WST==='left'&&c[WVER]&&Array.isArray(c[WVER])?'इस हिस्से के सबको भेज दिया ✓':'कोई नाम नहीं'}</div>`; }
+let wt; const wrr=()=>{clearTimeout(wt);wt=setTimeout(wrender,80)};
+function wnotify(e){ if(!WNTFY) return; const x=wcount(CAMP), g=x.g[e.v]||[0,0], done=g[0]&&g[1]===g[0];
+  if(x.s%25!==0&&!done) return;
+  fetch('https://ntfy.sh',{method:'POST',body:JSON.stringify({topic:WNTFY,title:'WhatsApp – '+CAMP.title+': '+x.s+' भेजे',
+    message:Object.entries(x.g).map(([k,v])=>(k==='all'?'':(k.length>1?WV[k]:k)+' ')+v[1]+'/'+v[0]).join(' · ')+(done?' · '+(e.v==='all'?'':e.v+' ')+'पूरा ✓':'')+' · अभी: '+ME.name,tags:['outbox_tray'],priority:3,click:'https://shivaam1000.github.io/ADITYA-KA-SHUBH-VIVAH--LIST-/admin.html'})}).catch(()=>{}); }
+async function wmark(e,on){ const k=wkey(CAMP,'w',e.n), val=on?{by:ME.name,at:Date.now()}:null, rids=on?[e.i]:[e.i,...e.also];
+  for(const i of rids){ const rid=D[i][0]; ST[rid]=Object.assign({},ST[rid],{[k]:val}); } wrender();
+  try{ for(const i of rids){ const rid=D[i][0]; await updateDoc(doc(db,'status',sKey(rid)), {[rid+'.'+k]: val}); }
+    addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:(on?'WhatsApp भेजा (':'WhatsApp ✓ हटाया (')+CAMP.title+(e.v!=='all'?' '+e.v:'')+')', no:D[e.i][2], nm:D[e.i][3]});
+    if(on) wnotify(e); }
+  catch(err){ toast('सेव नहीं हुआ – नेट देखें'); } }
+function wchatmark(e){ const rid=D[e.i][0], k=wkey(CAMP,'c',e.n), val={by:ME.name,at:Date.now()}; ST[rid]=Object.assign({},ST[rid],{[k]:val});
+  updateDoc(doc(db,'status',sKey(rid)), {[rid+'.'+k]: val}).catch(()=>{}); }
+// ---------- report (current campaign + overview of all)
+const wd=ms=>new Date(ms).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+function wreport(){ const C=CAMP, [R]=wbuild(C,true), gs=wgroups(C), fs={}, by={}, day={}, ar={}, rows=[]; gs.forEach(g=>fs[g]=[0,0]); let nx=0, nf=0;
+  R.forEach(e=>{ const r=D[e.i], g=G[r[1]], area=areaL(g);
+    if(!e.n){ e.v==='x'?nx++:nf++; rows.push({e,r,g,area,st:e.v==='x'?'⚠ नंबर ठीक करें':'⚠ फ़ाइल तय नहीं',why:e.why}); return }
+    const s=wst_(C,e,'w'), c1=wst_(C,e,'c'); fs[e.v][0]++; ar[area]=ar[area]||[0,0]; ar[area][0]++;
+    if(s){ fs[e.v][1]++; ar[area][1]++; const b=s.by||'—'; by[b]=by[b]||{g:{},n:0,f:s.at,l:s.at}; by[b].g[e.v]=(by[b].g[e.v]||0)+1; by[b].n++; by[b].f=Math.min(by[b].f,s.at); by[b].l=Math.max(by[b].l,s.at);
+      const dk=wd(s.at); day[dk]=day[dk]||{n:0,t:s.at}; day[dk].n++; day[dk].t=Math.min(day[dk].t,s.at); }
+    rows.push({e,r,g,area,s,c1,st:s?'✓ भेजा':c1?'① संदेश खोला, फ़ाइल बाकी':'बाकी'}); });
+  window._wrows=rows; const T=[0,0]; gs.forEach(v=>{T[0]+=fs[v][0];T[1]+=fs[v][1];}); const pc=(a,b)=>b?Math.round(a*100/b)+'%':'–';
+  const now=new Date().toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}), left=rows.filter(x=>x.e.n&&!x.s);
+  let h=`<div class="card"><h2>सभी अभियान</h2><div class="tw"><table class="rt"><tr><th>अभियान</th><th>कुल नंबर</th><th>भेजे ✓</th><th>बाकी</th><th>%</th></tr>`+
+    CAMPS.filter(c=>c.active||ME.admin).map(c=>{ const x=wcount(c); return `<tr${c.id===C.id?' class="tot"':''}><td>${esc(c.title)}${c.active?'':' (बंद)'}</td><td>${x.t}</td><td class="ok2">${x.s}</td><td class="no2">${x.t-x.s}</td><td>${pc(x.s,x.t)}</td></tr>`; }).join('')+'</table></div></div>';
+  h+=`<div class="card"><h2>WhatsApp रिपोर्ट – ${esc(C.title)}</h2><p class="muted">${now} · भेजने वाला नंबर ${WFROM}</p><div class="tw"><table class="rt">
+    <tr><th>${C.mode==='abc'?'फ़ाइल':'हिस्सा'}</th><th>कुल नंबर</th><th>भेजे ✓</th><th>बाकी</th><th>%</th></tr>`+
+    gs.map(v=>`<tr><td>${C.mode==='abc'?v+' · ':''}${WV[v]}</td><td>${fs[v][0]}</td><td class="ok2">${fs[v][1]}</td><td class="no2">${fs[v][0]-fs[v][1]}</td><td>${pc(fs[v][1],fs[v][0])}</td></tr>`).join('')+
+    (gs.length>1?`<tr class="tot"><td>कुल</td><td>${T[0]}</td><td>${T[1]}</td><td>${T[0]-T[1]}</td><td>${pc(T[1],T[0])}</td></tr>`:'')+`</table></div>
+    <p class="muted">⚠ नंबर ठीक करने हैं: <b>${nx}</b>${wsplit(C)?` · ⚠ फ़ाइल तय नहीं: <b>${nf}</b>`:''}</p></div>`;
+  const bys=Object.entries(by).sort((a,b)=>b[1].n-a[1].n);
+  h+=`<div class="card"><h2>किसने कितने भेजे</h2>${bys.length?`<div class="tw"><table class="rt"><tr><th>भेजने वाले</th>${gs.length>1?gs.map(g=>`<th>${g}</th>`).join(''):''}<th>कुल</th><th>पहला</th><th>आखिरी</th></tr>`+
+    bys.map(([b,x])=>`<tr><td>${esc(b)}</td>${gs.length>1?gs.map(g=>`<td>${x.g[g]||0}</td>`).join(''):''}<td><b>${x.n}</b></td><td class="n">${tm(x.f)}</td><td class="n">${tm(x.l)}</td></tr>`).join('')+'</table></div>':'<p class="muted">अभी किसी ने नहीं भेजा</p>'}</div>`;
+  const ds=Object.entries(day).sort((a,b)=>a[1].t-b[1].t);
+  h+=`<div class="card"><h2>दिन के हिसाब से</h2>${ds.length?`<div class="tw"><table class="rt"><tr><th>तारीख</th><th>भेजे</th></tr>`+ds.map(([d,x])=>`<tr><td>${d}</td><td>${x.n}</td></tr>`).join('')+'</table></div>':'<p class="muted">—</p>'}</div>`;
+  h+=`<div class="card"><h2>ज़ोन / क्षेत्र के हिसाब से</h2><div class="tw"><table class="rt"><tr><th>ज़ोन › क्षेत्र</th><th>कुल</th><th>भेजे</th><th>बाकी</th></tr>`+
+    Object.entries(ar).map(([a,x])=>`<tr><td>${esc(a)}</td><td>${x[0]}</td><td class="ok2">${x[1]}</td><td class="no2">${x[0]-x[1]}</td></tr>`).join('')+'</table></div></div>';
+  h+=`<details class="card" open><summary>बाकी मेहमान (${left.length})</summary><div class="tw"><table class="rt"><tr><th>#</th>${gs.length>1?'<th>फ़ाइल</th>':''}<th>नाम</th><th>मोबाइल</th><th>क्षेत्र</th><th>स्थिति</th></tr>`+
+    left.map((x,k)=>`<tr><td>${k+1}</td>${gs.length>1?`<td>${x.e.v}</td>`:''}<td>${esc(nmL(x.r))}</td><td class="n">${x.e.n}</td><td>${esc(x.area)}</td><td>${x.c1?'① खोला – '+esc(x.c1.by||''):'बाकी'}</td></tr>`).join('')+'</table></div></details>';
+  h+=`<details class="card"><summary>पूरी सूची (${rows.length})</summary><div class="tw"><table class="rt"><tr><th>#</th>${gs.length>1?'<th>फ़ाइल</th>':''}<th>नाम</th><th>मोबाइल</th><th>क्षेत्र</th><th>स्थिति</th><th>किसने / कब</th></tr>`+
+    rows.map((x,k)=>`<tr><td>${k+1}</td>${gs.length>1?`<td>${x.e.n?x.e.v:(x.e.fv||'–')}</td>`:''}<td>${esc(nmL(x.r))}</td><td class="n">${x.e.n||esc((x.r[9]||'').replace(/\n/g,', '))}</td><td>${esc(x.area)}</td><td>${esc(x.st)}</td><td>${x.s?esc(x.s.by||'')+' · '+tm(x.s.at):x.c1?'① '+esc(x.c1.by||'')+' · '+tm(x.c1.at):''}</td></tr>`).join('')+'</table></div></details>';
+  $('#wrep').innerHTML=h; }
+function wcsv(){ wreport(); const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const head=['क्रम','अभियान','फ़ाइल','नाम','Name','स्टिकर नं.','भाग','ज़ोन / शहर','क्षेत्र','मोबाइल','स्थिति','संदेश खोला – किसने','संदेश खोला – कब','भेजा – किसने','भेजा – कब','नोट'];
+  const L=[head.map(q).join(',')]; window._wrows.forEach((x,k)=>{ const g=x.g;
+    L.push([k+1,CAMP.title,x.e.n?(x.e.v==='all'?'':x.e.v):(x.e.fv&&x.e.fv!=='all'?x.e.fv:''),x.r[3],x.r[4],x.r[2],g[0],g[2],g[4],x.e.n||(x.r[9]||'').replace(/\n/g,' / '),x.st,x.c1?x.c1.by:'',x.c1?tm(x.c1.at):'',x.s?x.s.by:'',x.s?tm(x.s.at):'',x.why||''].map(q).join(',')); });
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+L.join('\r\n')],{type:'text/csv;charset=utf-8'}));
+  a.download='WhatsApp रिपोर्ट - '+CAMP.title.replace(/[\\/:*?"<>|]+/g,' ')+' - '+new Date().toLocaleDateString('en-CA')+'.csv'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},600); }
+function wpdf(){ wreport(); document.querySelectorAll('#wrep details').forEach(d=>d.open=true); setTimeout(()=>window.print(),150); }
+function wloadAll(){ wgroups(CAMP).reduce((p,g)=>p.then(()=>wload(CAMP,g)), Promise.resolve()); }
+function wpick(id){ const c=CAMPS.find(x=>x.id===id); if(!c) return; CAMP=c; WVER=wgroups(c)[0]; WST='left'; WLIM=60; WQ=''; $('#wq').value='';
+  $('#wm').value=c.msg||''; $('#wm2').value=c.msgOut||''; wsteps(); wrender(); wloadAll(); }
+function wopen(id){ show('s-wa'); const ro=!ME.admin; $('#wm').readOnly=ro; $('#wm2').readOnly=ro; $('#wm-save').style.display=ro?'none':'block';
+  if(!CAMP.active&&!ME.admin) CAMP=CAMPS.find(c=>c.active)||INV; wpick(id||CAMP.id); }
+$('#wout').addEventListener('click', ev=>{ const b=ev.target.closest('[data-w1],[data-w2],[data-w3],[data-wed],#wmore'); if(!b) return;
+  if(b.id==='wmore'){ WLIM+=60; wrender(); return }
+  if(b.dataset.wed){ show('s-admin'); edOpen(b.dataset.wed); return }
+  const e=WEK[b.dataset.w1||b.dataset.w2||b.dataset.w3]; if(!e) return;
+  if(b.dataset.w1){ W1.add(CAMP.id+e.key); b.classList.add('w1d'); wchatmark(e); return }          // the link itself opens WhatsApp
+  if(b.dataset.w3){ wmark(e, !wsent(e)); return }
+  const k=wfk(CAMP,e.v); if(!WF[k]){ toast(WFL[k]==='err'?'फ़ाइल नहीं मिली':'फ़ाइल अभी लोड हो रही है…'); if(WFL[k]==='err'){WFL[k]=0;wload(CAMP,e.v)} return }
+  const fs=wfilesFor(e); if(!fs.length){ toast('इस अभियान में फ़ाइल नहीं डाली गई'); return }
+  if(WMODE==='ph' && navigator.canShare && navigator.canShare({files:fs})){
+    navigator.share({files:fs}).then(()=>wmark(e,true)).catch(err=>{ if(err&&err.name!=='AbortError') toast('शेयर नहीं हुआ: '+(err.name||err)); }); return }
+  const card=b.closest('.g'); if(card) card.classList.add('dl');
+  if(wimg1()){ const f=fs[0], png=f.type==='image/png'?Promise.resolve(f):new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>{ const cv=document.createElement('canvas'); cv.width=im.naturalWidth; cv.height=im.naturalHeight;
+      cv.getContext('2d').drawImage(im,0,0); cv.toBlob(x=>x?res(x):rej(new Error('png')),'image/png'); }; im.onerror=rej; im.src=URL.createObjectURL(f); });
+    navigator.clipboard.write([new ClipboardItem({'image/png':png})]).then(()=>toast('फ़ोटो कॉपी हुई – WhatsApp चैट में Ctrl + V दबाएँ, फिर ✓ भेजा'))
+      .catch(()=>{ wdl(fs); toast('कॉपी नहीं हुई – फ़ोटो डाउनलोड कर दी, 📎 से लगाएँ'); }); return }
+  wdl(fs); toast((fs.length>1?fs.length+' फ़ाइलें':'फ़ाइल')+' डाउनलोड हुई – WhatsApp में 📎 से लगाकर भेजें, फिर ✓ भेजा दबाएँ'); });
+function wdl(fs){ fs.forEach((f,j)=>setTimeout(()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(f); a.download=f.name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500); }, j*350)); }
+$('#s-wa').addEventListener('click', ev=>{ const m=ev.target.closest('[data-wm]'); if(m){ WMODE=m.dataset.wm; try{ localStorage.setItem('waMode',WMODE) }catch(_){} wsteps(); wrender(); return }
+  const b=ev.target.closest('.chip'); if(!b) return;
+  if(b.dataset.wc){ wpick(b.dataset.wc); return }
+  if(b.dataset.wv){ WVER=b.dataset.wv; WLIM=60; if(wgroups(CAMP).includes(WVER)){ if(WFL[wfk(CAMP,WVER)]==='err') WFL[wfk(CAMP,WVER)]=0; wload(CAMP,WVER); } }
+  if(b.dataset.ws){ WST=b.dataset.ws; WLIM=60; } if(b.dataset.wall){ WALL=!WALL; } wsteps(); wrender(); });
+$('#s-wa').addEventListener('change', ev=>{ if(ev.target.id==='wzn'){ WZN=ev.target.value; WLIM=60; wrender(); } });
+let wqt; $('#wq').addEventListener('input', ev=>{ clearTimeout(wqt); wqt=setTimeout(()=>{ WQ=ev.target.value; WLIM=60; wrender(); },150); });
+$('#wa-back').onclick=()=>show('s-admin');
+$('#wr-open').onclick=()=>{ show('s-wr'); wreport(); }; $('#wr-back').onclick=()=>{ show('s-wa'); wrender(); };
+$('#wr-csv').onclick=wcsv; $('#wr-pdf').onclick=wpdf;
+$('#wm-save').onclick=async()=>{ const m=$('#wm').value.trim(), m2=$('#wm2').value.trim(); if(!m||!ME.admin) return;
+  try{ if(CAMP.id==='inv') await setDoc(doc(db,'config','public'), {waMsg:m, waMsgOut:m2}, {merge:true}); else await updateDoc(doc(db,'camps',CAMP.id), {msg:m, msgOut:m2});
+    CAMP.msg=m; CAMP.msgOut=m2; toast('संदेश सेव हो गया'); wrender(); }catch(e){ toast('सेव नहीं हुआ'); } };
+function wcfg(){ return new Promise(res=>{ let first=true; onSnapshot(doc(db,'config','public'), p=>{ const d=p.exists()?p.data():{}; INV.msg=d.waMsg||WMSG0; INV.msgOut=d.waMsgOut||''; WNTFY=d.ntfy||''; INV.active=!!d.invOn;
+    if(CAMP===INV&&!INV.active&&!ME.admin) CAMP=CAMPS.find(c=>c.active)||INV; if($('#s-wa').classList.contains('on')) wsteps();
+    if(first){ first=false; res(); } else wrr(); }, ()=>{ if(first){ first=false; res(); } }); }); }
+function wcamps(){ onSnapshot(collection(db,'camps'), s=>{ const a=s.docs.map(d=>Object.assign({id:d.id},d.data())).sort((x,y)=>(y.made||0)-(x.made||0));
+  CAMPS=[INV,...a]; const cur=CAMPS.find(c=>c.id===CAMP.id); CAMP=cur&&(cur.active||ME.admin)?cur:(CAMPS.find(c=>c.active)||INV);
+  if($('#s-wa').classList.contains('on')){ wsteps(); } wrr(); }, ()=>{}); }
+
+// ---------- admin: campaigns (create from the phone, files go into Firestore parts)
+let CMED=null;                                          // campaign id being edited, 'new', or null
+const cmFmt=c=>c.mode==='abc'?'A / B / C अलग फ़ाइल':c.mode==='two'?'सिर्फ़ 20 / 20–21 अलग फ़ोटो':c.mode==='none'?'सिर्फ़ संदेश':'एक फ़ाइल सबको';
+function campList(){ const el=$('#cm-list'); if(!el||!D.length) return;
+  el.innerHTML=CAMPS.map(c=>{ const x=wcount(c), nf=c.site?3:Object.values(c.files||{}).reduce((a,v)=>a+v.length,0);
+    return `<div class="cmr"><b>📢 ${esc(c.title)}</b> <span class="pill">${c.active?'चालू':'बंद'}</span>
+      <div class="tg">${(c.who||[]).map(w=>SECN[w]).join(', ')}${c.fn!==''&&c.fn!=null?' · सिर्फ़ '+FNN[+c.fn]:''} · ${cmFmt(c)}${c.mode!=='none'?' · '+nf+' फ़ाइल':''}</div>
+      <div class="tg">भेजे <b style="font-size:14px">${x.s}</b> / ${x.t}${x.bad?' · ⚠ '+x.bad+' ठीक करने हैं':''}</div>
+      <div class="bt"><button class="ok" style="background:#1E7D45" data-cmo="${c.id}">📲 खोलें</button>${c.site?`<button class="ok" style="background:var(--gd)" data-cma="${c.id}">${c.active?'होल्ड करें (बंद)':'चालू करें'}</button>`:`<button class="ok" data-cme="${c.id}">बदलें</button>
+      <button class="ok" style="background:var(--gd)" data-cma="${c.id}">${c.active?'बंद करें':'चालू करें'}</button><button class="nob" data-cmd="${c.id}">हटाएँ</button>`}</div></div>`; }).join(''); }
+window.campList=campList;
+function cmForm(id){ const c=id&&id!=='new'?CAMPS.find(x=>x.id===id):null; CMED=c?c.id:'new'; $('#cm-f').style.display='block'; $('#cm-err').textContent=''; $('#cm-pg').style.display='none';
+  $('#cm-ft').textContent=c?'बदल रहे हैं: '+c.title+' (नई फ़ाइल चुनेंगे तो पुरानी बदल जाएगी, नहीं चुनेंगे तो वही रहेगी)':'नया अभियान – सब भरकर "सेव करें" दबाएँ';
+  $('#cm-title').value=c?c.title:''; const who=c?c.who:['jo','ba','ej','eb'];
+  $('#cm-who').innerHTML=Object.entries(SECN).map(([k,t])=>`<label><input type="checkbox" value="${k}" ${who.includes(k)?'checked':''}> ${t}</label>`).join('');
+  $('#cm-fn').innerHTML='<option value="">सब (कोई भी कार्यक्रम)</option>'+FNN.map((f,i)=>`<option value="${i}" ${c&&c.fn!==''&&+c.fn===i?'selected':''}>${f}</option>`).join('');
+  $('#cm-mode').value=c?c.mode:'one'; cmMode(); ['all','20','2021','A','B','C'].forEach(g=>$('#cm-f-'+g).value='');
+  $('#cm-fnow').textContent=c&&c.mode!=='none'?'अभी: '+Object.entries(c.fnames||{}).map(([g,v])=>(g==='all'?'':(g.length>1?WV[g]:g)+': ')+v.join(', ')).join(' · '):'';
+  $('#cm-msg').value=c?c.msg||'':''; $('#cm-msg2').value=c?c.msgOut||'':''; $('#cm-act').checked=c?!!c.active:true; $('#cm-f').scrollIntoView({behavior:'smooth'}); }
+function cmMode(){ const m=$('#cm-mode').value; $('#cm-one').style.display=m==='one'?'block':'none'; $('#cm-two').style.display=m==='two'?'block':'none'; $('#cm-abc').style.display=m==='abc'?'block':'none'; }
+async function blobPut(file, step){ const id='b'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), u=new Uint8Array(await file.arrayBuffer()), CH=700000, n=Math.max(1,Math.ceil(u.length/CH));
+  for(let i=0;i<n;i++){ await setDoc(doc(db,'blobs',id+'_'+i), {d:b64e(u.subarray(i*CH,(i+1)*CH))}); step(); }
+  await setDoc(doc(db,'blobs',id), {name:file.name, type:file.type||(/\.html?$/i.test(file.name)?'text/html':'application/octet-stream'), size:u.length, n, at:serverTimestamp()}); return id; }
+async function blobDel(id){ try{ const m=await getDoc(doc(db,'blobs',id)); const n=m.exists()?m.data().n:0; for(let i=0;i<n;i++) await deleteDoc(doc(db,'blobs',id+'_'+i)); await deleteDoc(doc(db,'blobs',id)); }catch(_){} }
+async function cmSave(){ const title=$('#cm-title').value.trim(), mode=$('#cm-mode').value, msg=$('#cm-msg').value.trim(), msgOut=$('#cm-msg2').value.trim();
+  const who=[...document.querySelectorAll('#cm-who input:checked')].map(x=>x.value), fn=$('#cm-fn').value, err=t=>{ $('#cm-err').textContent=t; };
+  if(!title) return err('अभियान का नाम लिखें'); if(!who.length) return err('किसे भेजना है – कम से कम एक चुनें'); if(!msg) return err('संदेश लिखें');
+  const old=CMED!=='new'?CAMPS.find(x=>x.id===CMED):null, gs=mode==='abc'?['A','B','C']:mode==='two'?['20','2021']:mode==='one'?['all']:[], pick={};
+  gs.forEach(g=>{ const f=[...$('#cm-f-'+g).files]; if(f.length) pick[g]=f; });
+  const all=Object.values(pick).flat(); if(all.some(f=>f.size>30e6)) return err('कोई फ़ाइल 30 MB से बड़ी है – WhatsApp पर भी भारी पड़ेगी, छोटी फ़ाइल डालें');
+  if(!old&&mode!=='none'&&!all.length) return err('फ़ाइल चुनें');
+  const steps=all.reduce((a,f)=>a+Math.max(1,Math.ceil(f.size/700000)),0); let done=0; const bar=$('#cm-pg'), fill=bar.querySelector('i');
+  $('#cm-save').disabled=true; bar.style.display=steps?'block':'none'; err(steps?'फ़ाइल अपलोड हो रही है… पेज बंद न करें':'सेव हो रहा है…');
+  try{ const files=Object.assign({}, old&&old.mode===mode?old.files:{}), fnames=Object.assign({}, old&&old.mode===mode?old.fnames:{});
+    for(const g of Object.keys(pick)){ if(old&&old.mode===mode) for(const id of (old.files||{})[g]||[]) await blobDel(id);
+      files[g]=[]; fnames[g]=[]; for(const f of pick[g]){ files[g].push(await blobPut(f, ()=>{ done++; fill.style.width=Math.round(done*100/steps)+'%'; })); fnames[g].push(f.name); } }
+    if(old&&old.mode!==mode) for(const v of Object.values(old.files||{})) for(const id of v) await blobDel(id);
+    Object.keys(files).forEach(g=>{ if(!gs.includes(g)){ delete files[g]; delete fnames[g]; } });
+    const d={title, mode, who, fn, msg, msgOut, active:$('#cm-act').checked, files, fnames, by:ME.name, at:serverTimestamp()};
+    if(old) await updateDoc(doc(db,'camps',old.id), d); else { d.made=Date.now(); await setDoc(doc(db,'camps','k'+Date.now().toString(36)), d); }
+    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:(old?'अभियान बदला: ':'नया अभियान: ')+title});
+    toast(old?'अभियान बदल गया':'अभियान बन गया – इवेंट टीम को दिखने लगा'); $('#cm-f').style.display='none'; err(''); bar.style.display='none'; }
+  catch(e){ err('सेव नहीं हुआ: '+(e.message||e)); } $('#cm-save').disabled=false; }
+$('#cm-new').onclick=()=>cmForm('new'); $('#cm-x').onclick=()=>{ $('#cm-f').style.display='none'; }; $('#cm-mode').onchange=cmMode; $('#cm-save').onclick=cmSave;
+$('#cm-list').addEventListener('click', async ev=>{ const b=ev.target.closest('button'); if(!b) return;
+  if(b.dataset.cmo){ wopen(b.dataset.cmo); return } if(b.dataset.cme){ cmForm(b.dataset.cme); return }
+  const c=CAMPS.find(x=>x.id===(b.dataset.cma||b.dataset.cmd)); if(!c) return;
+  if(b.dataset.cma&&c.site){ await setDoc(doc(db,'config','public'), {invOn:!c.active}, {merge:true}); await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:c.active?'ई-निमंत्रण होल्ड किया':'ई-निमंत्रण चालू किया'}); toast(c.active?'ई-निमंत्रण होल्ड – इवेंट टीम को नहीं दिखेगा':'ई-निमंत्रण चालू'); return }
+  if(b.dataset.cma){ await updateDoc(doc(db,'camps',c.id), {active:!c.active}); toast(c.active?'बंद कर दिया – इवेंट टीम को नहीं दिखेगा':'चालू कर दिया'); return }
+  if(b.dataset.cmd){ if(!confirm(c.title+' अभियान हटाएँ? (भेजे हुए का रिकॉर्ड भी रिपोर्ट से हट जाएगा)')) return; b.disabled=true;
+    for(const v of Object.values(c.files||{})) for(const id of v) await blobDel(id); await deleteDoc(doc(db,'camps',c.id));
+    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'अभियान हटाया: '+c.title}); toast('हटा दिया'); } });
+
 async function open(){ show('s-admin'); $('#who').textContent='आप: '+ME.name+' · एडमिन';
-  for(let k=0;k<10;k++) onSnapshot(doc(db,'status','s'+k), s => { const v=s.data()||{}; for(const [rid,o] of Object.entries(v)) ST[rid]=o; });
-  subscribeList(m => { if(m) $('#up-v').textContent=`अभी सूची: ${D.length} नाम · अपडेट ${m.v}`; if($('#eq').value) edResults(); });
-  $('#eq').addEventListener('input', edResults); $('#e-new').onclick=()=>edOpen('new'); $('#f-save').onclick=edSave; $('#f-del').onclick=edDel; $('#f-x').onclick=()=>{$('#ef').style.display='none'};
+  for(let k=0;k<10;k++) onSnapshot(doc(db,'status','s'+k), s => { const v=s.data()||{}; for(const [rid,o] of Object.entries(v)) ST[rid]=o; wrr(); });
+  subscribeList(m => { if(m) $('#up-v').textContent=`अभी सूची: ${D.length} नाम · अपडेट ${m.v}`; if($('#eq').value) edResults(); wrr(); });
+  $('#eq').addEventListener('input', edResults); $('#e-new').onclick=()=>edOpen('new'); $('#f-save').onclick=edSave; $('#f-del').onclick=edDel; $('#f-x').onclick=edClose;
   $('#dl-csv').onclick=()=>{ if(D.length) dlCsv(); else toast('पहले सूची अपलोड करें') }; $('#dl-json').onclick=()=>{ if(D.length) dlJson(); else toast('पहले सूची अपलोड करें') };
-  const pub = await getDoc(doc(db,'config','public')); $('#nt').textContent = (pub.exists() && pub.data().ntfy) || '—';
+  const pub = await getDoc(doc(db,'config','public')); $('#nt').textContent = (pub.exists() && pub.data().ntfy) || '—'; await wcfg(); wcamps();
   $('#up-v').textContent='अभी कोई सूची नहीं डाली गई';
   onSnapshot(query(collection(db,'requests'), where('status','==','pending')), s => { const a=s.docs.map(d=>({id:d.id,...d.data()})); $('#rq-n').textContent=a.length+' नए';
     $('#rq').innerHTML = a.length ? a.map(r=>`<div class="req"><div class="w"><b>${esc(r.name)}</b><small>${esc(r.mobile)}${r.by?' · '+esc(r.by)+' ने भेजा':''}${r.at?' · '+tm(r.at.toMillis()):''}</small></div><button class="ok" data-ok="${r.id}">✓ मंज़ूर</button><button class="nob" data-no="${r.id}">✗</button></div>`).join('') : '<p class="muted">कोई नया अनुरोध नहीं</p>';
     window._rq = Object.fromEntries(a.map(r=>[r.id,r])); });
   onSnapshot(collection(db,'members'), s => { const a=s.docs.map(d=>({id:d.id,...d.data()})); $('#mb-n').textContent=a.length;
-    $('#mb').innerHTML = a.map(m=>`<div class="req"><div class="w"><b>${esc(m.name)}</b><small>${esc(m.mobile||'')}${m.admin?' · एडमिन':''}${m.id===ME.uid?' · यह फ़ोन':''}</small></div>${m.id===ME.uid?'':`<button class="nob" data-rm="${m.id}" data-nm="${esc(m.name)}">हटाएँ</button>`}</div>`).join(''); });
+    $('#mb').innerHTML = a.map(m=>`<div class="req"><div class="w"><b>${esc(m.name)}</b><small>${esc(m.mobile||'')}${m.admin?' · एडमिन':''}${m.wa&&!m.admin?' · <span style="color:#1E7D45">📲 WhatsApp भेज सकते हैं</span>':''}${m.id===ME.uid?' · यह फ़ोन':''}</small></div>${m.admin?'':`<button class="${m.wa?'nob':'ok'}" style="font-size:12.5px;padding:7px 9px" data-wa="${m.id}" data-on="${m.wa?1:0}" data-nm="${esc(m.name)}">${m.wa?'📲 अधिकार हटाएँ':'📲 WhatsApp अधिकार दें'}</button>`}${m.id===ME.uid?'':`<button class="nob" data-rm="${m.id}" data-nm="${esc(m.name)}">हटाएँ</button>`}</div>`).join(''); });
   onSnapshot(query(collection(db,'log'), orderBy('at','desc'), limit(100)), s => { const a=s.docs.map(d=>d.data());
     $('#log').innerHTML = a.length ? a.map(l=>`<div>${l.at?tm(l.at.toMillis()):''} · <b>${esc(l.name)}</b> · ${l.act==='d'?(l.on?'पहुँचा ✓':'पहुँचा हटाया'):l.act==='g'?(l.on?'गिफ्ट दिया ✓':'गिफ्ट हटाया'):esc(l.act)} ${l.no?'· '+esc(l.no):''} ${esc(l.nm||'')}</div>`).join('') : '<p class="muted">अभी कुछ नहीं</p>'; }); }
 document.addEventListener('click', async e => { const b=e.target.closest('button'); if(!b) return;
@@ -237,6 +569,9 @@ document.addEventListener('click', async e => { const b=e.target.closest('button
   if(b.dataset.ok){ const r=window._rq[b.dataset.ok]; b.disabled=true; const wb=writeBatch(db);
     wb.set(doc(db,'members',r.id), {name:r.name, mobile:r.mobile, by:r.by||'', at:serverTimestamp(), approvedBy:ME.uid}); wb.update(doc(db,'requests',r.id), {status:'approved'});
     wb.set(doc(collection(db,'log')), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'अनुमति दी: '+r.name}); await wb.commit(); toast(r.name+' को अनुमति दी'); }
+  if(b.dataset.wa){ const on=b.dataset.on!=='1'; b.disabled=true; try{ await updateDoc(doc(db,'members',b.dataset.wa), {wa:on});
+      await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:(on?'WhatsApp अधिकार दिया: ':'WhatsApp अधिकार हटाया: ')+b.dataset.nm}); toast(on?b.dataset.nm+' अब WhatsApp भेज सकते हैं':'WhatsApp अधिकार हटा दिया'); }
+      catch(err){ toast('नहीं हुआ – नेट देखें'); b.disabled=false; } return }
   if(b.dataset.no){ const r=window._rq[b.dataset.no]; await updateDoc(doc(db,'requests',r.id), {status:'rejected'}); toast('मना कर दिया'); }
   if(b.dataset.rm){ if(!confirm(b.dataset.nm+' की अनुमति हटाएँ?')) return; await deleteDoc(doc(db,'members',b.dataset.rm));
     try{ await updateDoc(doc(db,'requests',b.dataset.rm), {status:'rejected'}); }catch(_){} await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'अनुमति हटाई: '+b.dataset.nm}); toast('हटा दिया'); } });
@@ -255,7 +590,7 @@ $('#c-go').onclick = async () => { const code=$('#c-code').value.trim().toUpperC
   try{ await setDoc(doc(db,'config','admin'), {code, uids:arrayUnion(ME.uid)}, {merge:true}); }catch(e){ $('#c-err').textContent='कोड सही नहीं है'; return }
   const topic='ghar-suchi-cff568702d1b69';   // fixed: his ntfy app is subscribed to this, keep it even if the code changes
   await setDoc(doc(db,'config','public'), {ntfy:topic}, {merge:true});
-  await setDoc(doc(db,'members',ME.uid), {name, mobile:'', admin:true, at:serverTimestamp()}, {merge:true}); ME.name=name; open(); };
+  await setDoc(doc(db,'members',ME.uid), {name, mobile:'', admin:true, at:serverTimestamp()}, {merge:true}); ME.name=name; ME.admin=true; open(); };
 (async () => { try{ const u=await signIn(); ME.uid=u.uid;
     try{ await getDoc(doc(db,'config','admin')); const m=await getDoc(doc(db,'members',ME.uid)); ME.name=(m.exists()&&m.data().name)||'शिवम (एडमिन)'; ME.admin=true; open(); }
     catch(e){ show('s-code'); } }catch(e){ show('s-code'); $('#c-err').textContent='नेट देखें'; } })();

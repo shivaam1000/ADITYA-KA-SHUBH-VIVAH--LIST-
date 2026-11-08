@@ -189,19 +189,18 @@ const st=rid=>ST[rid]||{};
 //   aur agar nahi gaya ya fail hua toh wo waha aa jaye" -> each guest box shows its WhatsApp state per campaign (only for people with WhatsApp rights)
 let WCT={inv:'ई-निमंत्रण'}, WAF=false;
 const WAK=/^([wf])(?:([a-z0-9]+)_)?(\d{10})$/;
+const wmy=r=>ME.wall||(ME.heads||[]).includes(r[6]||r[5]);   // 8 Nov: family sender = own heading only; Sanjay ji (🌐) / team / admin = all
 function wstate(rid){ const s=ST[rid], o={}; if(!s) return o; for(const k in s){ const v=s[k], m=v&&WAK.exec(k); if(!m) continue; const c=m[2]||'inv'; if(WCT[c]==null) continue;
   const x=o[c]=o[c]||{}; if(m[1]==='w'){ if(!x.w||v.via!=='api') x.w=v; } else x.f=v; } return o; }
-const wfailR=rid=>Object.values(wstate(rid)).some(x=>x.f&&!x.w);
-function wline(r){ if(!ME.wr) return ''; const en=L==='en', a=Object.entries(wstate(r[0])).map(([c,x])=>x.w
+const wfailR=r=>wmy(r)&&Object.values(wstate(r[0])).some(x=>x.f&&!x.w);
+function wline(r){ if(!ME.wr||!wmy(r)) return ''; const en=L==='en', a=Object.entries(wstate(r[0])).map(([c,x])=>x.w
     ? `<span class="ok">📲 ${esc(WCT[c])}: ✓ ${x.w.via==='api'?(en?'sent by API':'API से गया'):esc(x.w.by||'')}${x.w.via==='team'?(en?' (event team)':' (इवेंट टीम)'):''}</span>`
-    : (!(ME.heads||[]).length||ME.heads.includes(r[6]||r[5]))   // family senders: the link only for guests of their own heading
-      ? `<a class="no" href="tebteam.html#c=${c}&q=${encodeURIComponent(r[2])}">📲 ${esc(WCT[c])}: ✗ ${en?'not sent – send now ›':'नहीं गया – अभी भेजें ›'}</a>`
-      : `<span class="no">📲 ${esc(WCT[c])}: ✗ ${en?'not sent':'नहीं गया'}</span>`);
+    : `<a class="no" href="tebteam.html#c=${c}&q=${encodeURIComponent(r[2])}">📲 ${esc(WCT[c])}: ✗ ${en?'not sent – send now ›':'नहीं गया – अभी भेजें ›'}</a>`);
   return a.length?`<div class="wal">${a.join('')}</div>`:''; }
 function render(){if(!D.length)return;const t=T[L], q=Q.trim(), hits=[];
   for(let i=0;i<D.length;i++){const r=D[i],g=G[r[1]],s=st(r[0]);
     if(SEC!=='all'&&g[6]!==SEC)continue; if(FN!==null&&!r[10][FN])continue; if(PC&&r[12]!=='✓')continue; if(GF&&!r[11])continue;
-    if(ZN&&g[3]!==ZN)continue; if(HD&&r[6]!==HD)continue; if(STF==='done'&&!s.d)continue; if(STF==='left'&&s.d)continue; if(WAF&&!wfailR(r[0]))continue; if(!match(i,q))continue; hits.push(i);}
+    if(ZN&&g[3]!==ZN)continue; if(HD&&r[6]!==HD)continue; if(STF==='done'&&!s.d)continue; if(STF==='left'&&s.d)continue; if(WAF&&!wfailR(r))continue; if(!match(i,q))continue; hits.push(i);}
   let done=0,gifts=0; for(const r of D){const s=st(r[0]); if(s.d)done++; if(s.g)gifts++;}
   $('#st').innerHTML=`<span>${t.tot} <b>${D.length}</b></span>·<span>${t.vis} <b>${hits.length}</b></span>·<span>${t.dn} <b>${done}</b></span>·<span>${t.lf} <b>${D.length-done}</b></span>·<span>${t.gf} <b>${gifts}</b></span>`;
   if(!hits.length){$('#out').innerHTML=`<div class="empty">${t.none}</div>`;return}
@@ -338,7 +337,7 @@ async function notify(name, by){ try{ const p = await getDoc(doc(db,'config','pu
 let started=false;
 // 8 Nov: "nahi dikh raha aisa kuch bhi – main page pe rakho" -> admin shortcuts on the list page (Deepawali on/off, API lists, links)
 const DVL_DOC={"title": "शुभ दीपावली", "mode": "two", "who": ["jo", "ba", "ej", "eb"], "fn": "", "msgOut": "", "files": {}, "msg": "आदरणीय {name},\nदीपों की ज्योति आपके जीवन को सुख, समृद्धि और मंगल से आलोकित करे।\nइस बार की दीपावली हमारे लिए विशेष है – आदित्य संग खुशबू के शुभ विवाह पर आपके आशीर्वाद की प्रतीक्षा रहेगी।\nशुभ दीपावली\n– बिड़ला परिवार", "fnames": {"20": ["सिर्फ़ 20 नवम्बर वाला वीडियो"], "2021": ["20-21 नवम्बर वाला वीडियो"]}, "sfiles": {"20": ["deepawali-20.mp4"], "2021": ["deepawali-2021.mp4"]}};
-async function admCard(){ let ok=ME.admin; try{ await getDoc(doc(db,'config','admin')); ok=true; }catch(_){} if(!ok) return; ME.admin=true; ME.wr=true; if(D.length){ chips(); rerender(); } $('#adm-card').style.display='block';
+async function admCard(){ let ok=ME.admin; try{ await getDoc(doc(db,'config','admin')); ok=true; }catch(_){} if(!ok) return; ME.admin=true; ME.wr=true; ME.wall=true; if(D.length){ chips(); rerender(); } $('#adm-card').style.display='block';
   onSnapshot(doc(db,'camps','kdvl'), s=>{ const d=s.exists()?s.data():null, b=$('#dvl-go');
     $('#dvl-st').innerHTML='🪔 <b>शुभ दीपावली</b> (वीडियो + संदेश, हेडिंग वार): '+(d?(d.active?'<b style="color:#1E7D45">चालू ✓</b>':'<b style="color:#8E1B0E">बंद</b>'):'अभी बना नहीं');
     b.textContent=d?(d.active?'होल्ड करें (बंद)':'▶ चालू करें'):'🪔 शुभ दीपावली अभियान बनाएँ और चालू करें'; b.dataset.st=d?(d.active?'on':'off'):'none'; }, ()=>{}); }
@@ -355,8 +354,8 @@ async function startList(){ if(started) return; started=true; show('s-load'); le
   for(let k=0;k<10;k++) onSnapshot(doc(db,'status','s'+k), s => { const v = s.data()||{}; for(const [rid,o] of Object.entries(v)) ST[rid]=o; rerender(); });
   onSnapshot(collection(db,'camps'), s => { const t={inv:'ई-निमंत्रण'}; s.docs.forEach(d=>{ t[d.id]=d.data().title||'WhatsApp'; }); WCT=t; rerender(); }, ()=>{});   // 8 Nov: campaign names for the WhatsApp line
   onSnapshot(doc(db,'members',ME.uid), s => { const wl=$('#wa-link'), tl=$('#tm-link'), dd=s.exists()?s.data():{}; if(wl){ const adm=dd.admin||ME.admin;   // 8 Nov: "normal logo ko ye event team wala nahi dikhna chahiye" – only senders see it, each with their own label
-    wl.style.display=(!adm&&(dd.wa||dd.team))?'block':'none'; const wr=!!(adm||dd.wa||dd.team); ME.heads=(!adm&&!dd.team&&Array.isArray(dd.heads))?dd.heads:[]; if(wr!==ME.wr){ ME.wr=wr; if(D.length){ chips(); rerender(); } }
-    wl.textContent=dd.team?'📲 WhatsApp पर भेजें (इवेंट टीम)':'📲 मेरे मेहमानों को WhatsApp भेजें'+(Array.isArray(dd.heads)&&dd.heads.length?' ('+dd.heads.length+' हेडिंग)':''); } if(tl) tl.style.display=dd.team?'block':'none'; if(!s.exists() && !ME.admin){ $('#no-h').textContent='अनुमति हटा दी गई'; $('#no-p').textContent='इस फ़ोन से सूची की अनुमति हटा दी गई है।'; show('s-no'); } }); }
+    wl.style.display=(!adm&&(dd.wa||dd.team))?'block':'none'; const wr=!!(adm||dd.wa||dd.team); ME.heads=Array.isArray(dd.heads)?dd.heads:[]; ME.wall=!!(adm||dd.team||dd.all); if(wr!==ME.wr||D.length){ ME.wr=wr; if(D.length){ chips(); rerender(); } }
+    wl.textContent=dd.team?'📲 WhatsApp पर भेजें (इवेंट टीम)':dd.all?'📲 सब मेहमानों को WhatsApp भेजें':'📲 मेरे मेहमानों को WhatsApp भेजें'+(Array.isArray(dd.heads)&&dd.heads.length?' ('+dd.heads.length+' हेडिंग)':''); } if(tl) tl.style.display=dd.team?'block':'none'; if(!s.exists() && !ME.admin){ $('#no-h').textContent='अनुमति हटा दी गई'; $('#no-p').textContent='इस फ़ोन से सूची की अनुमति हटा दी गई है।'; show('s-no'); } }); }
 async function tick(i, key){ const r=D[i], rid=r[0], s=st(rid), on=!s[key]; const sk=sKey(rid);
   const upd={}; upd[rid+'.'+key]=on; upd[rid+'.'+key+'By']=ME.name; upd[rid+'.'+key+'At']=Date.now();
   ST[rid]=Object.assign({},s,{[key]:on,[key+'By']:ME.name,[key+'At']:Date.now()}); render();

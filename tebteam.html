@@ -188,19 +188,18 @@ const st=rid=>ST[rid]||{};
 //   aur agar nahi gaya ya fail hua toh wo waha aa jaye" -> each guest box shows its WhatsApp state per campaign (only for people with WhatsApp rights)
 let WCT={inv:'ई-निमंत्रण'}, WAF=false;
 const WAK=/^([wf])(?:([a-z0-9]+)_)?(\d{10})$/;
+const wmy=r=>ME.wall||(ME.heads||[]).includes(r[6]||r[5]);   // 8 Nov: family sender = own heading only; Sanjay ji (🌐) / team / admin = all
 function wstate(rid){ const s=ST[rid], o={}; if(!s) return o; for(const k in s){ const v=s[k], m=v&&WAK.exec(k); if(!m) continue; const c=m[2]||'inv'; if(WCT[c]==null) continue;
   const x=o[c]=o[c]||{}; if(m[1]==='w'){ if(!x.w||v.via!=='api') x.w=v; } else x.f=v; } return o; }
-const wfailR=rid=>Object.values(wstate(rid)).some(x=>x.f&&!x.w);
-function wline(r){ if(!ME.wr) return ''; const en=L==='en', a=Object.entries(wstate(r[0])).map(([c,x])=>x.w
+const wfailR=r=>wmy(r)&&Object.values(wstate(r[0])).some(x=>x.f&&!x.w);
+function wline(r){ if(!ME.wr||!wmy(r)) return ''; const en=L==='en', a=Object.entries(wstate(r[0])).map(([c,x])=>x.w
     ? `<span class="ok">📲 ${esc(WCT[c])}: ✓ ${x.w.via==='api'?(en?'sent by API':'API से गया'):esc(x.w.by||'')}${x.w.via==='team'?(en?' (event team)':' (इवेंट टीम)'):''}</span>`
-    : (!(ME.heads||[]).length||ME.heads.includes(r[6]||r[5]))   // family senders: the link only for guests of their own heading
-      ? `<a class="no" href="tebteam.html#c=${c}&q=${encodeURIComponent(r[2])}">📲 ${esc(WCT[c])}: ✗ ${en?'not sent – send now ›':'नहीं गया – अभी भेजें ›'}</a>`
-      : `<span class="no">📲 ${esc(WCT[c])}: ✗ ${en?'not sent':'नहीं गया'}</span>`);
+    : `<a class="no" href="tebteam.html#c=${c}&q=${encodeURIComponent(r[2])}">📲 ${esc(WCT[c])}: ✗ ${en?'not sent – send now ›':'नहीं गया – अभी भेजें ›'}</a>`);
   return a.length?`<div class="wal">${a.join('')}</div>`:''; }
 function render(){if(!D.length)return;const t=T[L], q=Q.trim(), hits=[];
   for(let i=0;i<D.length;i++){const r=D[i],g=G[r[1]],s=st(r[0]);
     if(SEC!=='all'&&g[6]!==SEC)continue; if(FN!==null&&!r[10][FN])continue; if(PC&&r[12]!=='✓')continue; if(GF&&!r[11])continue;
-    if(ZN&&g[3]!==ZN)continue; if(HD&&r[6]!==HD)continue; if(STF==='done'&&!s.d)continue; if(STF==='left'&&s.d)continue; if(WAF&&!wfailR(r[0]))continue; if(!match(i,q))continue; hits.push(i);}
+    if(ZN&&g[3]!==ZN)continue; if(HD&&r[6]!==HD)continue; if(STF==='done'&&!s.d)continue; if(STF==='left'&&s.d)continue; if(WAF&&!wfailR(r))continue; if(!match(i,q))continue; hits.push(i);}
   let done=0,gifts=0; for(const r of D){const s=st(r[0]); if(s.d)done++; if(s.g)gifts++;}
   $('#st').innerHTML=`<span>${t.tot} <b>${D.length}</b></span>·<span>${t.vis} <b>${hits.length}</b></span>·<span>${t.dn} <b>${done}</b></span>·<span>${t.lf} <b>${D.length-done}</b></span>·<span>${t.gf} <b>${gifts}</b></span>`;
   if(!hits.length){$('#out').innerHTML=`<div class="empty">${t.none}</div>`;return}
@@ -310,8 +309,11 @@ const WMODES={ph:'📱 फ़ोन',web:'💻 WhatsApp Web',app:'💻 WhatsApp 
 let WHD='', WWANT='', WQ0='';   // 8 Nov: WWANT / WQ0 = campaign + search from a link in the list (tebteam.html#c=kdvl&q=O-22)
 function wwant(){ if(!WWANT) return; const c=CAMPS.find(x=>x.id===WWANT); if(!c) return; WWANT=''; wpick(c.id); if(WQ0){ WQ=WQ0; $('#wq').value=WQ0; WQ0=''; wrender(); const e=WE.find(x=>x.n&&match(x.i,WQ)); if(e&&e.v!==WVER){ WVER=e.v; wload(CAMP,WVER); wsteps(); wrender(); } } }
 const hk=r=>r[6]||r[5]||'';
-const MYH=()=>(!ME.mgr&&Array.isArray(ME.heads))?ME.heads:[];
-const wmine=R=>{ const h=MYH(); return h.length?R.filter(e=>h.includes(hk(D[e.i]))):R; };
+// 8 Nov (his words): "jaisi jiske invitation list me heading hai sirf usko wahi insan msg bhej sake / sirf sanjay birla hi aisa insan hai jisko sabko whatsapp bhejne ka right mile"
+//   + event team: "Team bhi sabko bheje".  No heading chosen -> nobody (before: everybody).
+const MYALL=()=>!!(ME.mgr||ME.all);
+const MYH=()=>MYALL()?[]:(Array.isArray(ME.heads)?ME.heads:[]);
+const wmine=R=>{ if(MYALL()) return R; const h=MYH(); return R.filter(e=>h.includes(hk(D[e.i]))); };
 function wheads(){ const m=new Map(); D.forEach(r=>{ const k=hk(r); if(!k) return; if(!m.has(k)) m.set(k,{k,hi:r[5]||k,en:r[6]||k,n:0}); m.get(k).n++; }); return [...m.values()].sort((a,b)=>b.n-a.n); }
 function headL(k){ const h=wheads().find(x=>x.k===k); return h?(L==='en'?h.en:h.hi):k; }
 const fon=v=>v&&v!=='–';
@@ -407,6 +409,8 @@ function wrender(){ if(!D.length) return; if(window.campList) window.campList();
   { const ac=$('#wapi-card'); if(ac){ ac.style.display=ME.admin?'block':'none'; $('#wapi-camp').innerHTML='अभियान: <b>'+esc(CAMP.title)+'</b> – रिपोर्ट इसी में लगेगी (दूसरे अभियान की हो तो ऊपर से वह अभियान चुनें)'; } }
   if(!ME.mgr&&!CAMP.active){ $('#wcp').innerHTML=''; $('#wc1').innerHTML=''; $('#wc2').innerHTML=''; $('#wst').innerHTML=''; $('#wf').textContent='';
     $('#wout').innerHTML='<div class="empty">अभी भेजने के लिए कोई अभियान चालू नहीं है – शिवम जी चालू करेंगे तो यहीं दिखेगा।</div>'; return }
+  if(!MYALL()&&!MYH().length){ $('#wc1').innerHTML=''; $('#wc2').innerHTML=''; $('#wst').innerHTML=''; $('#wfrom').innerHTML='';
+    $('#wout').innerHTML='<div class="empty">अभी आपकी कोई हेडिंग नहीं लगी – शिवम जी से हेडिंग लगवाएँ, फिर यहाँ आपके मेहमान दिखेंगे।</div>'; return }
   [WE,WEK]=wbuild(CAMP,false); WE=wmine(WE); const gs=wgroups(CAMP), c={x:0,'-':0}; gs.forEach(g=>c[g]=[0,0]);
   WE.forEach(e=>{ if(!e.n){ c[e.v]++; return } c[e.v][0]++; if(wsent(e)) c[e.v][1]++; });
   if(!gs.includes(WVER)&&WVER!=='x'&&WVER!=='-') WVER=gs[0];
@@ -423,7 +427,8 @@ function wrender(){ if(!D.length) return; if(window.campList) window.campList();
     if(e.n&&!q){ const s=wsent(e); if(WST==='left'&&s) return false; if(WST==='done'&&!s) return false; if(WST==='fail'&&(s||!wfail(e))) return false; } return !q||match(e.i,q); });
   if(WST==='left') list.sort((a,b)=>(wfail(b)&&!wsent(b)?1:0)-(wfail(a)&&!wsent(a)?1:0));   // 8 Nov: API-failed ones on top of बाकी   // 6 Nov: a search finds sent names too (to resend)
   $('#wst').innerHTML = c[WVER]&&Array.isArray(c[WVER]) ? `<span>${CAMP.mode==='abc'?'फ़ाइल '+WVER+': ':''}भेजे <b>${c[WVER][1]}</b></span>·<span>बाकी <b>${c[WVER][0]-c[WVER][1]}</b></span>·<span>कुल <b>${c[WVER][0]}</b></span>·<span>दिख रहे <b>${list.length}</b></span>` : `<span>दिख रहे <b>${list.length}</b></span>`;
-  { const mh=MYH(), el=$('#wfrom'); if(el) el.innerHTML = mh.length ? `अपने फ़ोन के WhatsApp से भेजें – आपके मेहमान: <b>${mh.map(k=>esc(headL(k))).join(', ')}</b>`
+  { const mh=MYH(), el=$('#wfrom'); if(el) el.innerHTML = (ME.all&&!ME.mgr) ? `अपने फ़ोन के WhatsApp से भेजें – आप <b>सब मेहमानों</b> को भेज सकते हैं (सारी हेडिंग)`
+      : mh.length ? `अपने फ़ोन के WhatsApp से भेजें – आपके मेहमान: <b>${mh.map(k=>esc(headL(k))).join(', ')}</b>`
       : `भेजने वाला WhatsApp नंबर: <b>${WFROM}</b> (RSVP वाला) – इसी नंबर का WhatsApp खुला होना चाहिए।`; }
   wfs(); const canEd=ME.admin&&typeof edOpen==='function', none=CAMP.mode==='none', copy=wimg1(), fast=wfast(), l2=w2lab();
   const le=WLAST&&WEK[WLAST], ls=le&&wsent(le);   // 6 Nov (his words): "naam select kiya lekin unko whatsapp bheja nahi / phir bhi sent aa raha hai / resend wala option bhi daldo"
@@ -480,7 +485,7 @@ function wreport(){ const op={}; document.querySelectorAll('#wrep details[id]').
   const now=new Date().toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}), left=rows.filter(x=>x.e.n&&!x.s);
   let h=`<div class="card"><h2>सभी अभियान</h2><div class="tw"><table class="rt"><tr><th>अभियान</th><th>कुल नंबर</th><th>भेजे ✓</th><th>बाकी</th><th>%</th></tr>`+
     CAMPS.filter(c=>c.active||ME.mgr).map(c=>{ const x=wcount(c); return `<tr${c.id===C.id?' class="tot"':''}><td>${esc(c.title)}${c.active?'':' (बंद)'}</td><td>${x.t}</td><td class="ok2">${x.s}</td><td class="no2">${x.t-x.s}</td><td>${pc(x.s,x.t)}</td></tr>`; }).join('')+'</table></div></div>';
-  h+=`<div class="card"><h2>WhatsApp रिपोर्ट – ${esc(C.title)}</h2><p class="muted">${now} · ${MYH().length?'हेडिंग: '+esc(MYH().map(headL).join(', ')):'भेजने वाला नंबर '+WFROM}</p><div class="tw"><table class="rt">
+  h+=`<div class="card"><h2>WhatsApp रिपोर्ट – ${esc(C.title)}</h2><p class="muted">${now} · ${(ME.all&&!ME.mgr)?'🌐 सब मेहमान':MYH().length?'हेडिंग: '+esc(MYH().map(headL).join(', ')):'भेजने वाला नंबर '+WFROM}</p><div class="tw"><table class="rt">
     <tr><th>${C.mode==='abc'?'फ़ाइल':'हिस्सा'}</th><th>कुल नंबर</th><th>भेजे ✓</th><th>बाकी</th><th>%</th></tr>`+
     gs.map(v=>`<tr><td>${C.mode==='abc'?v+' · ':''}${WV[v]}</td><td>${fs[v][0]}</td><td class="ok2">${fs[v][1]}</td><td class="no2">${fs[v][0]-fs[v][1]}</td><td>${pc(fs[v][1],fs[v][0])}</td></tr>`).join('')+
     (gs.length>1?`<tr class="tot"><td>कुल</td><td>${T[0]}</td><td>${T[1]}</td><td>${T[0]-T[1]}</td><td>${pc(T[1],T[0])}</td></tr>`:'')+`</table></div>
@@ -653,7 +658,7 @@ async function wstartPage(){ if(wstarted) return; wstarted=true; await wcfg(); w
 (async () => { try{ const u=await signIn(); ME.uid=u.uid;
     onSnapshot(doc(db,'members',ME.uid), s => { const d=s.exists()?s.data():null;
       if(!d){ noAccess('पहले सूची की अनुमति लें','इस फ़ोन / कंप्यूटर पर पहले "सूची खोलें" दबाकर नाम-मोबाइल से अनुमति माँगें। शिवम जी के ✓ और WhatsApp अधिकार देने के बाद यह पेज खुलेगा।'); return }
-      ME.name=d.name||''; ME.admin=!!d.admin; ME.team=!!d.team; ME.mgr=ME.admin||ME.team; ME.heads=Array.isArray(d.heads)?d.heads:[]; $('#who').textContent='आप: '+ME.name+(ME.admin?' · एडमिन':ME.team?' · ⭐ टीम':' · WhatsApp भेजने वाले');
+      ME.name=d.name||''; ME.admin=!!d.admin; ME.team=!!d.team; ME.mgr=ME.admin||ME.team; ME.heads=Array.isArray(d.heads)?d.heads:[]; ME.all=!!d.all; $('#who').textContent='आप: '+ME.name+(ME.admin?' · एडमिन':ME.team?' · ⭐ टीम':ME.all?' · 🌐 सबको भेजने वाले':' · WhatsApp भेजने वाले');
       if(!d.wa&&!d.admin&&!d.team){ noAccess('WhatsApp भेजने का अधिकार नहीं','सूची देखने की अनुमति है, पर WhatsApp भेजने का अधिकार शिवम जी ने अभी नहीं दिया। उनसे कहें – अधिकार मिलते ही यह पेज अपने-आप खुल जाएगा।'); return }
       if(wstarted&&!$('#s-wa').classList.contains('on')&&!$('#s-wr').classList.contains('on')) wopen(); else if(wstarted) wrr(); wstartPage(); });
   }catch(e){ noAccess('खुल नहीं पाया','नेट चालू करके पेज दोबारा खोलें।'); } })();

@@ -149,17 +149,17 @@ details.card>summary{font-family:"Martel";color:var(--ol);cursor:pointer;text-al
 <div class="bar"><div class="srow"><button class="nob" id="wa-back">← एडमिन</button><div class="sbox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8892E" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
 <input id="wq" type="text" autocomplete="off" placeholder="नाम / मोबाइल / स्टिकर नं."></div><div class="lang"><button data-al="hi" class="on">हिं</button><button data-al="en">EN</button></div></div>
 <div class="chips" id="wcp"></div><div class="chips" id="wc1"></div><div class="chips" id="wc2"></div><div class="stats" id="wst"></div></div>
-<div class="card"><h2 id="wtitle">कैसे भेजें</h2><div class="wmd" id="wmd"></div><ol class="wstp" id="wsteps"></ol>
-<p class="muted" style="margin:8px 0 0">नंबर सुरक्षित रखने के लिए: हर 30–40 के बाद 10 मिनट रुकें, सब एक ही बार में न भेजें।</p>
-<p class="wfrom" id="wfrom">भेजने वाला WhatsApp नंबर: <b>99298 26404</b> (RSVP वाला) – इसी नंबर का WhatsApp खुला होना चाहिए।</p><div class="wf" id="wf"></div></div>
 <details class="card" id="wapi-card" style="display:none"><summary>📥 API वाले की रिपोर्ट डालें</summary>
 <p class="muted" style="margin-top:8px">API वाले ने जो फ़ाइल भेजी (Excel या CSV) – फ़ोन या कंप्यूटर से यहाँ चुनें। जिनको गया उन पर <b>✓</b> अपने-आप लगेगा।
 जिनको नहीं गया / फ़ेल हुआ वे <b>बाकी</b> में लाल निशान के साथ रहेंगे – परिवार वाले या इवेंट टीम उन्हें यहीं से भेज देंगे।</p>
-<p class="wf" id="wapi-camp"></p>
+<label>किस अभियान की रिपोर्ट है?</label><select class="in" id="wapi-c"></select>
 <input type="file" class="in" id="wapi-f" accept=".csv,.xlsx,.txt,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
 <p class="muted" style="font-size:13px">फ़ाइल WhatsApp पर आई है? पहले उसे फ़ोन में Save / Download करें, फिर यहाँ चुनें।</p>
 <div id="wapi-out"></div>
 <button class="nob" id="wapi-undo" style="margin-top:10px;font-size:13.5px">↩ इस अभियान के सारे API वाले ✓ हटाएँ</button></details>
+<div class="card"><h2 id="wtitle">कैसे भेजें</h2><div class="wmd" id="wmd"></div><ol class="wstp" id="wsteps"></ol>
+<p class="muted" style="margin:8px 0 0">नंबर सुरक्षित रखने के लिए: हर 30–40 के बाद 10 मिनट रुकें, सब एक ही बार में न भेजें।</p>
+<p class="wfrom" id="wfrom">भेजने वाला WhatsApp नंबर: <b>99298 26404</b> (RSVP वाला) – इसी नंबर का WhatsApp खुला होना चाहिए।</p><div class="wf" id="wf"></div></div>
 <details class="card"><summary><span data-en="View / edit message">संदेश देखें / बदलें</span></summary>
 <label>संदेश – जोधपुर वाले मेहमान</label><textarea class="in" id="wm" rows="9"></textarea>
 <label>संदेश – बाहर वाले मेहमान (खाली छोड़ें तो ऊपर वाला ही जाएगा)</label><textarea class="in" id="wm2" rows="6"></textarea>
@@ -436,7 +436,9 @@ let WMODE=(()=>{ try{ const m=localStorage.getItem('waMode'); if(m==='ph'||m==='
 const WMODES={ph:'📱 फ़ोन',web:'💻 WhatsApp Web',app:'💻 WhatsApp ऐप'};
 // 7 Nov (his words): "agar family heading wise bhejna hai ... wo bhi github wale tareeke se" – each family member sends to his own heading's guests from his own phone
 let WHD='', WWANT='', WQ0='';   // 8 Nov: WWANT / WQ0 = campaign + search from a link in the list (tebteam.html#c=kdvl&q=O-22)
-function wwant(){ if(!WWANT) return; const c=CAMPS.find(x=>x.id===WWANT); if(!c) return; WWANT=''; wpick(c.id); if(WQ0){ WQ=WQ0; $('#wq').value=WQ0; WQ0=''; wrender(); const e=WE.find(x=>x.n&&match(x.i,WQ)); if(e&&e.v!==WVER){ WVER=e.v; wload(CAMP,WVER); wsteps(); wrender(); } } }
+function wwant(loaded){ if(WWANT==='*api'){ const c=CAMPS.find(x=>x.active&&x.id!=='inv')||CAMPS.find(x=>x.id!=='inv'); if(!c&&!loaded) return; WWANT='';
+    if(c) wpick(c.id); const d=$('#wapi-card'); if(d){ d.open=true; setTimeout(()=>{ const f=$('#wapi-f'); if(f) f.scrollIntoView({block:'center'}); },250); } return }
+  if(!WWANT) return; const c=CAMPS.find(x=>x.id===WWANT); if(!c) return; WWANT=''; wpick(c.id); if(WQ0){ WQ=WQ0; $('#wq').value=WQ0; WQ0=''; wrender(); const e=WE.find(x=>x.n&&match(x.i,WQ)); if(e&&e.v!==WVER){ WVER=e.v; wload(CAMP,WVER); wsteps(); wrender(); } } }
 const hk=r=>r[6]||r[5]||'';
 // 8 Nov (his words): "jaisi jiske invitation list me heading hai sirf usko wahi insan msg bhej sake / sirf sanjay birla hi aisa insan hai jisko sabko whatsapp bhejne ka right mile"
 //   + event team: "Team bhi sabko bheje".  No heading chosen -> nobody (before: everybody).
@@ -535,7 +537,8 @@ function wcpRender(){ const list=CAMPS.filter(c=>c.active||ME.mgr);
 function wrender(){ if(!D.length) return; if(window.campList) window.campList();
   if($('#s-wr').classList.contains('on')) wreport();
   if(!$('#s-wa').classList.contains('on')) return;
-  { const ac=$('#wapi-card'); if(ac){ ac.style.display=ME.admin?'block':'none'; $('#wapi-camp').innerHTML='अभियान: <b>'+esc(CAMP.title)+'</b> – रिपोर्ट इसी में लगेगी (दूसरे अभियान की हो तो ऊपर से वह अभियान चुनें)'; } }
+  { const ac=$('#wapi-card'), cs=$('#wapi-c'); if(ac){ ac.style.display=ME.admin?'block':'none'; const sig=CAMPS.map(c=>c.id+c.title).join('|')+'#'+CAMP.id;
+      if(cs.dataset.sig!==sig){ cs.dataset.sig=sig; cs.innerHTML=CAMPS.map(c=>`<option value="${c.id}" ${c.id===CAMP.id?'selected':''}>${esc(c.title)}${c.active?'':' (बंद)'}</option>`).join(''); } } }
   if(!ME.mgr&&!CAMP.active){ $('#wcp').innerHTML=''; $('#wc1').innerHTML=''; $('#wc2').innerHTML=''; $('#wst').innerHTML=''; $('#wf').textContent='';
     $('#wout').innerHTML='<div class="empty">अभी भेजने के लिए कोई अभियान चालू नहीं है – शिवम जी चालू करेंगे तो यहीं दिखेगा।</div>'; return }
   if(!MYALL()&&!MYH().length){ $('#wc1').innerHTML=''; $('#wc2').innerHTML=''; $('#wst').innerHTML=''; $('#wfrom').innerHTML='';
@@ -765,7 +768,7 @@ $('#wapi-f').onchange=async ev=>{ const f=ev.target.files[0]; if(!f) return; $('
       :m==='nonum'?'इस फ़ाइल में मोबाइल नंबर नहीं मिले – सही फ़ाइल चुनें।':m==='empty'?'फ़ाइल खाली है।':'फ़ाइल नहीं पढ़ पाए – CSV या .xlsx डालें। ('+esc(m)+')')+'</p>'; } };
 $('#wapi-out').addEventListener('change', ev=>{ if(!WRP) return; if(ev.target.id==='wapi-pc') WRP.pc=+ev.target.value; if(ev.target.id==='wapi-sc') WRP.sc=+ev.target.value; wapiPlan(); });
 $('#wapi-out').addEventListener('click', ev=>{ if(ev.target.id==='wapi-go') wapiGo(); });
-$('#wapi-undo').onclick=wapiUndo;
+$('#wapi-undo').onclick=wapiUndo; $('#wapi-c').onchange=ev=>wpick(ev.target.value);
 $('#wa-back').onclick=()=>show('s-admin');
 $('#wr-open').onclick=()=>{ show('s-wr'); wreport(); }; $('#wr-back').onclick=()=>{ show('s-wa'); wrender(); };
 $('#wr-csv').onclick=wcsv; $('#wr-pdf').onclick=wpdf; $('#wrq').oninput=ev=>{ WRQ=ev.target.value; wrqApply(); };
@@ -777,7 +780,7 @@ function wcfg(){ return new Promise(res=>{ let first=true; onSnapshot(doc(db,'co
     if(first){ first=false; res(); } else wrr(); }, ()=>{ if(first){ first=false; res(); } }); }); }
 function wcamps(){ onSnapshot(collection(db,'camps'), s=>{ const a=s.docs.map(d=>Object.assign({id:d.id},d.data())).sort((x,y)=>(y.made||0)-(x.made||0));
   CAMPS=[INV,...a]; const cur=CAMPS.find(c=>c.id===CAMP.id); CAMP=cur&&(cur.active||ME.mgr)?cur:(CAMPS.find(c=>c.active)||INV);
-  if($('#s-wa').classList.contains('on')){ wsteps(); } wrr(); wwant(); }, ()=>{}); }
+  if($('#s-wa').classList.contains('on')){ wsteps(); } wrr(); wwant(true); }, ()=>{}); }
 
 // ---------- admin: campaigns (create from the phone, files go into Firestore parts)
 let CMED=null;                                          // campaign id being edited, 'new', or null

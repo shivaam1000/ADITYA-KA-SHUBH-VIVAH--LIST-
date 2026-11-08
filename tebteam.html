@@ -40,6 +40,7 @@ label{display:block;font-size:14px;color:var(--mu);margin:10px 0 4px}
 .fn{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.f{font-size:12px;border-radius:8px;padding:2px 7px;background:#EEF1E2;color:var(--ol)}.f.off{background:#F3F1EA;color:#B3AC96;text-decoration:line-through}
 .f b{font-family:"Martel"}.meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:12.5px}.meta span{border-radius:8px;padding:1px 7px;background:#F6EAC9;color:#6B5520}
 .note{margin-top:5px;font-size:12.5px;color:var(--mr)}
+.wal{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:12.5px}.wal span,.wal a{border-radius:8px;padding:1px 8px;text-decoration:none}.wal .ok{background:#E3F1E6;color:#1E6B3A}.wal .no{background:#FBE3DF;color:#8E1B0E;font-weight:600}
 .act{display:flex;gap:7px;margin-top:8px}.tk{flex:1;border:1.4px solid var(--ol);background:#fff;color:var(--ol);border-radius:10px;padding:7px;font-size:14px}
 .tk.on{background:var(--ol);color:#fff}.tk small{display:block;font-size:11px;opacity:.88}.tk:disabled{opacity:.6}
 mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
@@ -66,6 +67,9 @@ details.card>summary{font-family:"Martel";color:var(--ol);cursor:pointer;text-al
  .card{box-shadow:none;border:0;padding:4px 0;margin:4px 0;break-inside:auto}.rt{font-size:10.5px}.rt tr{break-inside:avoid}details>summary{display:none}}
 .wlast{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#FFF6DA;border:1.5px solid var(--gd);border-radius:12px;padding:8px 12px;margin:4px 0 10px;font-size:14px}
 .wlast b{font-family:"Martel";color:var(--ol)}.wlast .tk{flex:0 0 auto;padding:7px 12px;margin:0}.wlast .sp{flex:1 1 auto}
+.wfx{color:var(--mr)!important;font-weight:600}.wapi{color:#1E7D45!important}.tk.nx{background:#1E7D45;color:#fff;border-color:#1E7D45;font-weight:600}
+#wapi-out .sm{display:flex;flex-direction:column;gap:4px;margin:10px 0;font-size:15px}#wapi-out .sm b{font-family:"Martel"}#wapi-out select{width:100%}
+#wapi-out .ok3{color:#1E7D45}#wapi-out .no3{color:var(--mr)}#wapi-out details{margin-top:6px;font-size:13.5px}
 </style>
 <div class="bar"><div class="srow"><button class="nob" id="wa-back">← सूची</button><div class="sbox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8892E" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
 <input id="wq" type="text" autocomplete="off" placeholder="नाम / मोबाइल / स्टिकर नं."></div><div class="lang"><button data-al="hi" class="on">हिं</button><button data-al="en">EN</button></div></div>
@@ -73,6 +77,14 @@ details.card>summary{font-family:"Martel";color:var(--ol);cursor:pointer;text-al
 <div class="card"><h2 id="wtitle">कैसे भेजें</h2><div class="wmd" id="wmd"></div><ol class="wstp" id="wsteps"></ol>
 <p class="muted" style="margin:8px 0 0">नंबर सुरक्षित रखने के लिए: हर 30–40 के बाद 10 मिनट रुकें, सब एक ही बार में न भेजें।</p>
 <p class="wfrom" id="wfrom">भेजने वाला WhatsApp नंबर: <b>99298 26404</b> (RSVP वाला) – इसी नंबर का WhatsApp खुला होना चाहिए।</p><div class="wf" id="wf"></div></div>
+<details class="card" id="wapi-card" style="display:none"><summary>📥 API वाले की रिपोर्ट डालें</summary>
+<p class="muted" style="margin-top:8px">API वाले ने जो फ़ाइल भेजी (Excel या CSV) – फ़ोन या कंप्यूटर से यहाँ चुनें। जिनको गया उन पर <b>✓</b> अपने-आप लगेगा।
+जिनको नहीं गया / फ़ेल हुआ वे <b>बाकी</b> में लाल निशान के साथ रहेंगे – परिवार वाले या इवेंट टीम उन्हें यहीं से भेज देंगे।</p>
+<p class="wf" id="wapi-camp"></p>
+<input type="file" class="in" id="wapi-f" accept=".csv,.xlsx,.txt,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+<p class="muted" style="font-size:13px">फ़ाइल WhatsApp पर आई है? पहले उसे फ़ोन में Save / Download करें, फिर यहाँ चुनें।</p>
+<div id="wapi-out"></div>
+<button class="nob" id="wapi-undo" style="margin-top:10px;font-size:13.5px">↩ इस अभियान के सारे API वाले ✓ हटाएँ</button></details>
 <details class="card"><summary><span data-en="View / edit message">संदेश देखें / बदलें</span></summary>
 <label>संदेश – जोधपुर वाले मेहमान</label><textarea class="in" id="wm" rows="9"></textarea>
 <label>संदेश – बाहर वाले मेहमान (खाली छोड़ें तो ऊपर वाला ही जाएगा)</label><textarea class="in" id="wm2" rows="6"></textarea>
@@ -138,7 +150,7 @@ function trWord(w){ let out='', i=0, pend=null, lastA=false, lastC=null;
   if(lastA&&w.length>2&&!/(dra|tra|shna|kra)$/.test(w)) out+='ा';
   return out; }
 function toHi(s){ return trTok(s).map(w=>{ if(w==='&') return 'एवं'; if(!/[A-Za-z]/.test(w)) return w; const k=w.toLowerCase().replace(/\./g,''); return TRD[k]||TRW[k]||trWord(k.replace(/[^a-z]/g,'')); }).join(' '); }
-let G=[],D=[],IX=[],ZSUB={},ZONES=[],HEADS=[], ST={}, ME={uid:'',name:'',admin:false,team:false,mgr:false};
+let G=[],D=[],IX=[],ZSUB={},ZONES=[],HEADS=[], ST={}, ME={uid:'',name:'',admin:false,team:false,mgr:false,wr:false};
 let L='hi', Q='', SEC='all', FN=null, STF='all', PC=false, GF=false, ZN='', HD='', LIMIT=400, OPEN=new Set();
 const T={hi:{sec:{all:'सब',jo:'जोधपुर',ba:'बाहर',ej:'E-card जोधपुर',eb:'E-card बाहर',ho:'होल्ड'},fn:['विनायक','तिलक-स्वागत','गीत-भोज','शुभ विवाह'],fs:['18 विनायक','20 तिलक','21 गीत-भोज','21 विवाह'],
   st:{all:'सब',done:'पहुँचा ✓',left:'बाकी'},pc:'प्रोग्राम कार्ड',gift:'गिफ्ट',zone:'सारे ज़ोन / शहर',head:'सारी हेडिंग',tot:'कुल',vis:'दिख रहे',dn:'पहुँचा',lf:'बाकी',gf:'गिफ्ट दिया',
@@ -167,18 +179,32 @@ function chips(){const t=T[L];
   $('#c1').innerHTML=Object.keys(t.sec).map(k=>`<button class="chip ${SEC===k?'on':''}" data-sec="${k}">${t.sec[k]}</button>`).join('')+t.fs.map((f,i)=>`<button class="chip ${FN===i?'on':''}" data-fn="${i}">${f}</button>`).join('');
   $('#c2').innerHTML=Object.keys(t.st).map(k=>`<button class="chip ${STF===k?'on':''}" data-st="${k}">${t.st[k]}</button>`).join('')+
    `<button class="chip ${PC?'on':''}" data-pc="1">${t.pc} ✓</button><button class="chip ${GF?'on':''}" data-gf="1">${t.gift}</button>`+
+   (ME.wr?`<button class="chip ${WAF?'on':''}" data-waf="1">${L==='en'?'📲 WhatsApp not sent':'📲 WhatsApp नहीं गया'}</button>`:'')+
    `<select class="sel" id="zn"><option value="">${t.zone}</option>${ZONES.map(z=>`<option value="${esc(z[1])}" ${ZN===z[1]?'selected':''}>${esc(L==='hi'?z[0]:z[1])}</option>`).join('')}</select>`+
    `<select class="sel" id="hd"><option value="">${t.head}</option>${HEADS.map(h=>`<option value="${esc(h[1])}" ${HD===h[1]?'selected':''}>${esc(L==='hi'?h[0]:h[1])}</option>`).join('')}</select>`;
   $('#q').placeholder=t.ph;}
 const st=rid=>ST[rid]||{};
+// 8 Nov (his words): "jaha pe abhi naam invitations etc etc show hota hai, jisme ye pata chalna chahiye ki event team se bhi msg gaya hai /
+//   aur agar nahi gaya ya fail hua toh wo waha aa jaye" -> each guest box shows its WhatsApp state per campaign (only for people with WhatsApp rights)
+let WCT={inv:'ई-निमंत्रण'}, WAF=false;
+const WAK=/^([wf])(?:([a-z0-9]+)_)?(\d{10})$/;
+function wstate(rid){ const s=ST[rid], o={}; if(!s) return o; for(const k in s){ const v=s[k], m=v&&WAK.exec(k); if(!m) continue; const c=m[2]||'inv'; if(WCT[c]==null) continue;
+  const x=o[c]=o[c]||{}; if(m[1]==='w'){ if(!x.w||v.via!=='api') x.w=v; } else x.f=v; } return o; }
+const wfailR=rid=>Object.values(wstate(rid)).some(x=>x.f&&!x.w);
+function wline(r){ if(!ME.wr) return ''; const en=L==='en', a=Object.entries(wstate(r[0])).map(([c,x])=>x.w
+    ? `<span class="ok">📲 ${esc(WCT[c])}: ✓ ${x.w.via==='api'?(en?'sent by API':'API से गया'):esc(x.w.by||'')}${x.w.via==='team'?(en?' (event team)':' (इवेंट टीम)'):''}</span>`
+    : (!(ME.heads||[]).length||ME.heads.includes(r[6]||r[5]))   // family senders: the link only for guests of their own heading
+      ? `<a class="no" href="tebteam.html#c=${c}&q=${encodeURIComponent(r[2])}">📲 ${esc(WCT[c])}: ✗ ${en?'not sent – send now ›':'नहीं गया – अभी भेजें ›'}</a>`
+      : `<span class="no">📲 ${esc(WCT[c])}: ✗ ${en?'not sent':'नहीं गया'}</span>`);
+  return a.length?`<div class="wal">${a.join('')}</div>`:''; }
 function render(){if(!D.length)return;const t=T[L], q=Q.trim(), hits=[];
   for(let i=0;i<D.length;i++){const r=D[i],g=G[r[1]],s=st(r[0]);
     if(SEC!=='all'&&g[6]!==SEC)continue; if(FN!==null&&!r[10][FN])continue; if(PC&&r[12]!=='✓')continue; if(GF&&!r[11])continue;
-    if(ZN&&g[3]!==ZN)continue; if(HD&&r[6]!==HD)continue; if(STF==='done'&&!s.d)continue; if(STF==='left'&&s.d)continue; if(!match(i,q))continue; hits.push(i);}
+    if(ZN&&g[3]!==ZN)continue; if(HD&&r[6]!==HD)continue; if(STF==='done'&&!s.d)continue; if(STF==='left'&&s.d)continue; if(WAF&&!wfailR(r[0]))continue; if(!match(i,q))continue; hits.push(i);}
   let done=0,gifts=0; for(const r of D){const s=st(r[0]); if(s.d)done++; if(s.g)gifts++;}
   $('#st').innerHTML=`<span>${t.tot} <b>${D.length}</b></span>·<span>${t.vis} <b>${hits.length}</b></span>·<span>${t.dn} <b>${done}</b></span>·<span>${t.lf} <b>${D.length-done}</b></span>·<span>${t.gf} <b>${gifts}</b></span>`;
   if(!hits.length){$('#out').innerHTML=`<div class="empty">${t.none}</div>`;return}
-  const auto=!!q||FN!==null||PC||GF||STF!=='all'||ZN||HD||SEC!=='all'; let h='',ls='',lz='',la=-1,shown=0,zop=true,aop=true;
+  const auto=!!q||FN!==null||PC||GF||WAF||STF!=='all'||ZN||HD||SEC!=='all'; let h='',ls='',lz='',la=-1,shown=0,zop=true,aop=true;
   const zc={},ac={}; for(const i of hits){const g=G[D[i][1]];zc[g[0]+g[2]]=(zc[g[0]+g[2]]||0)+1;ac[D[i][1]]=(ac[D[i][1]]||0)+1;}
   for(const i of hits){const r=D[i],g=G[r[1]],hi=L==='hi',s=st(r[0]);
     if(g[0]!==ls){if(la>=0)h+='</div>';if(lz)h+='</div>';la=-1;lz='';ls=g[0];h+=`<div class="sec">${esc(hi?g[0]:g[1])}</div>`;}
@@ -195,7 +221,7 @@ function render(){if(!D.length)return;const t=T[L], q=Q.trim(), hits=[];
     const mobs=(r[9]||'').split('\n').filter(Boolean).map(m=>`<a class="mob" href="tel:${m.replace(/[^+\d]/g,'')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="#4E5B2E"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg>${hl(m)}</a>`).join(' ');
     const note=hi?r[15]:r[16];
     h+=`<div class="g ${r[12]==='✓'?'pc':''}"><div class="t1"><div class="nb">${hl(r[2])}</div><div style="flex:1"><div class="nm">${hl(hi?r[3]:r[4])}</div>
-      <div class="sub2">${hl(hi?r[7]:r[8])}${(hi?r[5]:r[6])?' · '+esc(hi?r[5]:r[6]):''}</div>${mobs}</div></div><div class="fn">${f}</div>${meta?`<div class="meta">${meta}</div>`:''}
+      <div class="sub2">${hl(hi?r[7]:r[8])}${(hi?r[5]:r[6])?' · '+esc(hi?r[5]:r[6]):''}</div>${mobs}</div></div><div class="fn">${f}</div>${meta?`<div class="meta">${meta}</div>`:''}${wline(r)}
       ${note?`<div class="note">${esc(note)}</div>`:''}<div class="act"><button class="tk ${s.d?'on':''}" data-tk="${i}">${s.d?'✓ ':''}${t.tick}${s.d?`<small>${esc(s.dBy||'')} · ${s.dAt?tm(s.dAt):''}</small>`:''}</button>
       <button class="tk ${s.g?'on':''}" data-gk="${i}">${s.g?'✓ ':''}${t.gtick}${s.g?`<small>${esc(s.gBy||'')} · ${s.gAt?tm(s.gAt):''}</small>`:''}</button>${ME.admin?`<button class="tk ed" data-edit="${esc(r[0])}">✏️ सुधारें</button>`:''}</div></div>`;}
   if(la>=0)h+='</div>'; if(lz)h+='</div>'; if(shown>LIMIT)h+=`<button class="more" id="more">${t.more} (${shown-LIMIT})</button>`;
@@ -211,7 +237,7 @@ function dlFile(name, text, type){ const a=document.createElement('a'); a.href=U
 // 8 Nov: "jis naam ke aage 1 se zyada phone number hai usi same naam ko uske neeche wali row me phir se copy kardo – mere api wale ko problem ho rahi hai /
 //   sirf 20e ki list aur 20e and 21e ki list ... aur aage ke bhi invitation isi hisab se jaaye"  (same rules as Claude's 8 Nov Deepawali files)
 function apiRows(){ const on=v=>!(v==null||v===''||v===0||v==='0'||v==='–'), L={'20':[],'2021':[]}, seen={'20':new Set(),'2021':new Set()};
-  D.forEach(r=>{ if(G[r[1]][6]==='ho') return; const f=(r[10]||[]).map(on); const k=f[1]&&f[3]?'2021':(f[1]&&!f[2]&&!f[3]?'20':''); if(!k) return;
+  D.forEach(r=>{ const sc=G[r[1]][6]; if(sc==='ho') return; const f=(r[10]||[]).map(on); const k=((sc==='ba'||sc==='eb')&&!['तिंवरी','मथानिया'].includes(G[r[1]][4]))?'2021':f[1]&&f[3]?'2021':(f[1]&&!f[2]&&!f[3]?'20':''); if(!k) return;   /* 8 Nov: outside Jodhpur (not Tinwari / Mathania) = 20–21 */
     String(r[9]||'').split(/[\n,\/;]+/).forEach(p=>{ const d=p.replace(/\D/g,''); if(!d) return; let ph='';
       if(/^\s*\+/.test(p)&&!/^\s*\+91/.test(p)){ if(d.length>=10&&d.length<=15) ph=(d.startsWith('971')||d==='97567285651'?'+':'')+d; }   /* Dubai numbers with + */
       else { const n=d.length===12&&d.startsWith('91')?d.slice(2):d.length===11&&d.startsWith('0')?d.slice(1):d; if(/^[6-9]\d{9}$/.test(n)) ph=n; }   /* 8 Nov: no +91 / 91 in front */
@@ -281,7 +307,8 @@ const WMOB=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 let WMODE=(()=>{ try{ const m=localStorage.getItem('waMode'); if(m==='ph'||m==='web'||m==='app') return m; }catch(_){} return WMOB?'ph':'app'; })();   // 7 Nov: computer default = WhatsApp app (WhatsApp Web opens a new tab every time)
 const WMODES={ph:'📱 फ़ोन',web:'💻 WhatsApp Web',app:'💻 WhatsApp ऐप'};
 // 7 Nov (his words): "agar family heading wise bhejna hai ... wo bhi github wale tareeke se" – each family member sends to his own heading's guests from his own phone
-let WHD='';
+let WHD='', WWANT='', WQ0='';   // 8 Nov: WWANT / WQ0 = campaign + search from a link in the list (tebteam.html#c=kdvl&q=O-22)
+function wwant(){ if(!WWANT) return; const c=CAMPS.find(x=>x.id===WWANT); if(!c) return; WWANT=''; wpick(c.id); if(WQ0){ WQ=WQ0; $('#wq').value=WQ0; WQ0=''; wrender(); const e=WE.find(x=>x.n&&match(x.i,WQ)); if(e&&e.v!==WVER){ WVER=e.v; wload(CAMP,WVER); wsteps(); wrender(); } } }
 const hk=r=>r[6]||r[5]||'';
 const MYH=()=>(!ME.mgr&&Array.isArray(ME.heads))?ME.heads:[];
 const wmine=R=>{ const h=MYH(); return h.length?R.filter(e=>h.includes(hk(D[e.i]))):R; };
@@ -299,7 +326,8 @@ function applyLang(){ document.querySelectorAll('[data-en]').forEach(el=>{ if(el
 function setLang(l){ L=l; try{ localStorage.setItem('lang',l) }catch(_){} applyLang(); wrender(); if(typeof edResults==='function'&&$('#eq')&&$('#eq').value) edResults(); }
 document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-al]'); if(b) setLang(b.dataset.al); });
 try{ if(localStorage.getItem('lang')==='en') L='en'; }catch(_){} setTimeout(applyLang,0);
-function wver2(r){const f=r[10]||[]; return (fon(f[2])||fon(f[3]))?'2021':fon(f[1])?'20':'';}
+function wver2(r){const f=r[10]||[], g=G[r[1]]; if((g[6]==='ba'||g[6]==='eb')&&!['तिंवरी','मथानिया'].includes(g[4])) return '2021';   // 8 Nov: outside Jodhpur (not Tinwari / Mathania) always 20–21
+  return (fon(f[2])||fon(f[3]))?'2021':fon(f[1])?'20':'';}
 function wver(r){const f=r[10]||[]; const k=[1,2,3].map(i=>fon(f[i])?1:0).join(''); return k==='100'?'A':k==='101'?'B':k==='111'?'C':'';}
 function wnums(m){return String(m||'').split(/[\n,\/;]+/).map(x=>x.replace(/\D/g,'')).filter(Boolean).map(n=>n.length===12&&n.startsWith('91')?n.slice(2):n);}
 const wkey=(c,p,n)=>c.id==='inv'?p+n:p+c.id+'_'+n;
@@ -318,7 +346,11 @@ function wbuild(c, rep){ const out=[], K={}, seen={}, secs=wsecs(c), re=wre(c);
       const e={v,i,n,k,multi:ns.length>1,also:[],key}; seen[key]=e; K[key]=e; out.push(e); }); });
   return [out,K]; }
 function wst_(c,e,p){ const k=wkey(c,p,e.n); for(const i of [e.i,...e.also]){ const s=ST[D[i][0]]; if(s&&s[k]) return s[k]; } return null; }
-const wsent=e=>wst_(CAMP,e,'w'), wchat=e=>wst_(CAMP,e,'c');
+const wsent=e=>wst_(CAMP,e,'w'), wchat=e=>wst_(CAMP,e,'c'), wfail=e=>e.n?wst_(CAMP,e,'f'):null;   // 8 Nov: f = API वाले की रिपोर्ट में फ़ेल
+function w2kind(){ if(CAMP.site) return 'निमंत्रण'; const it=WF[wfk(CAMP,WVER)];   // 8 Nov: '② फ़ाइल' -> '② वीडियो भेजें' (what it really sends)
+  const t=it?it.map(x=>(x.type||'')+' '+(x.name||'')).join(' '):[...((CAMP.sfiles||{})[WVER]||[]),...((CAMP.fnames||{})[WVER]||[])].join(' ');
+  return /video|\.mp4|\.mov|\.3gp|वीडियो/i.test(t)?'वीडियो':/image|\.jpe?g|\.png|\.webp|फ़ोटो/i.test(t)?'फ़ोटो':'फ़ाइल'; }
+const w2lab=()=>'② '+w2kind()+(WMODE==='ph'?' भेजें':' डाउनलोड');
 function wcount(c){ const R=wmine(wbuild(c,true)[0]); const x={t:0,s:0,bad:0,g:{}}; R.forEach(e=>{ if(!e.n){ x.bad++; return } x.t++; const gg=x.g[e.v]=x.g[e.v]||[0,0]; gg[0]++; if(wst_(c,e,'w')){ x.s++; gg[1]++; } }); return x; }
 function wmsg(e){ const r=D[e.i], m=(wout_(r)&&CAMP.msgOut)?CAMP.msgOut:CAMP.msg||''; return m.replace(/\{name\}/g, r[3]); }
 function wlink(e){ const t=encodeURIComponent(wmsg(e));
@@ -359,18 +391,20 @@ function wsteps(){ $('#wmd').innerHTML=Object.entries(WMODES).map(([k,t])=>`<but
   $('#wtitle').textContent='कैसे भेजें – '+CAMP.title; const none=CAMP.mode==='none';
   const s1 = WMODE==='ph' ? `<li><b>① संदेश</b> दबाएँ → WhatsApp में उनकी चैट खुलेगी, संदेश लिखा मिलेगा → <b>भेजें</b> → वापस इस पेज पर आएँ।</li>`
                           : `<li><b>① संदेश</b> दबाएँ → ${WMODE==='web'?'<b>WhatsApp Web</b> के टैब':'<b>WhatsApp ऐप</b>'} में उनकी चैट खुलेगी, संदेश लिखा मिलेगा → <b>Enter</b> दबाएँ।</li>`;
-  const s2 = none ? '' : WMODE==='ph' ? `<li><b>② फ़ाइल</b> दबाएँ → <b>WhatsApp</b> चुनें → सबसे ऊपर वही चैट होगी, उसे चुनें → <b>भेजें</b>। फ़ाइल जाते ही ✓ अपने-आप लग जाएगा।</li>`
+  const s2 = none ? '' : WMODE==='ph' ? `<li><b>${w2lab()}</b> (हरा बटन) दबाएँ → <b>WhatsApp</b> चुनें → सबसे ऊपर वही चैट होगी, उसे चुनें → <b>भेजें</b>। ${w2kind()} इसी पेज से जाएगा – <b>गैलरी से चुनने की ज़रूरत नहीं</b>। जाते ही ✓ अपने-आप लग जाएगा।</li>`
     : wimg1() ? `<li><b>② फ़ोटो कॉपी</b> दबाएँ → WhatsApp चैट में <b>Ctrl + V</b> (Mac पर ⌘ + V) → <b>Enter</b>।</li>`
     : `<li><b>② फ़ाइल</b> दबाएँ → फ़ाइल <b>Downloads</b> में आ जाएगी → WhatsApp चैट में <b>📎 → Document / फ़ोटो</b> → Downloads में सबसे ऊपर वाली फ़ाइल चुनें → <b>भेजें</b> (या फ़ाइल को खींचकर चैट में छोड़ दें)।</li>`;
   if(wfast()){ $('#wsteps').innerHTML = `<li><b>📤 भेजें</b> दबाएँ → ${WMODE==='web'?'WhatsApp Web के टैब':'WhatsApp ऐप'} में उसी मेहमान की चैट खुलेगी, संदेश (नाम के साथ) लिखा होगा।</li>`+
       `<li><b>Enter</b> दबाएँ – संदेश चला जाएगा।</li>`+(none?'':`<li>फिर <b>Ctrl + V</b> (Mac पर ⌘ + V) → <b>Enter</b> – सही फ़ोटो (सिर्फ़ 20 / 20–21) अपने-आप चली जाएगी।</li>`)+
       `<li>इस पेज पर लौटें → अगले नाम का <b>📤 भेजें</b>। ✓ अपने-आप लग जाता है। WhatsApp पर नहीं गया तो ऊपर पीली पट्टी में <b>🔁 फिर से भेजें</b> या <b>↩ ✓ हटाएँ</b> दबाएँ।</li>`; return }
-  $('#wsteps').innerHTML = s1 + s2 + `<li>${WMODE==='ph'&&!none?'नहीं लगा तो':'भेज दिया तो'} <b>✓ भेजा</b> दबाएँ → अगला नाम ऊपर आ जाएगा।</li>`; }
+  $('#wsteps').innerHTML = s1 + s2 + (none&&WMODE==='ph' ? `<li>भेजकर इस पेज पर लौटें – <b>✓ अपने-आप</b> लग जाएगा। नहीं गया हो तो ऊपर पीली पट्टी में <b>↩ ✓ हटाएँ</b>।</li>`
+    : `<li>${WMODE==='ph'&&!none?'✓ नहीं लगा तो':'भेज दिया तो'} <b>✓ भेजा</b> दबाएँ → अगला नाम ऊपर आ जाएगा।</li>`); }
 function wcpRender(){ const list=CAMPS.filter(c=>c.active||ME.mgr);
   $('#wcp').innerHTML=list.map(c=>{ const x=wcount(c); return `<button class="chip cp ${CAMP.id===c.id?'on':''} ${c.active?'':'off'}" data-wc="${c.id}">📢 ${esc(c.title)} (${x.s}/${x.t})${c.active?'':' · बंद'}</button>`; }).join(''); }
 function wrender(){ if(!D.length) return; if(window.campList) window.campList();
   if($('#s-wr').classList.contains('on')) wreport();
   if(!$('#s-wa').classList.contains('on')) return;
+  { const ac=$('#wapi-card'); if(ac){ ac.style.display=ME.admin?'block':'none'; $('#wapi-camp').innerHTML='अभियान: <b>'+esc(CAMP.title)+'</b> – रिपोर्ट इसी में लगेगी (दूसरे अभियान की हो तो ऊपर से वह अभियान चुनें)'; } }
   if(!ME.mgr&&!CAMP.active){ $('#wcp').innerHTML=''; $('#wc1').innerHTML=''; $('#wc2').innerHTML=''; $('#wst').innerHTML=''; $('#wf').textContent='';
     $('#wout').innerHTML='<div class="empty">अभी भेजने के लिए कोई अभियान चालू नहीं है – शिवम जी चालू करेंगे तो यहीं दिखेगा।</div>'; return }
   [WE,WEK]=wbuild(CAMP,false); WE=wmine(WE); const gs=wgroups(CAMP), c={x:0,'-':0}; gs.forEach(g=>c[g]=[0,0]);
@@ -379,36 +413,44 @@ function wrender(){ if(!D.length) return; if(window.campList) window.campList();
   wcpRender();
   $('#wc1').innerHTML=gs.map(v=>`<button class="chip ${WVER===v?'on':''}" data-wv="${v}">${CAMP.mode==='abc'?v+' · ':''}${WV[v]} (${c[v][1]}/${c[v][0]})</button>`).join('')+
     `<button class="chip ${WVER==='x'?'on':''}" data-wv="x">⚠ नंबर ठीक करें (${c.x})</button>`+(wsplit(CAMP)?`<button class="chip ${WVER==='-'?'on':''}" data-wv="-">⚠ फ़ाइल तय नहीं (${c['-']})</button>`:'');
-  $('#wc2').innerHTML=[['left','बाकी'],['done','भेज दिए ✓'],['all','सब']].map(([k,t])=>`<button class="chip ${WST===k?'on':''}" data-ws="${k}">${t}</button>`).join('')+
+  const nfl=WE.filter(e=>e.n&&e.v===WVER&&!wsent(e)&&wfail(e)).length; if(WST==='fail'&&!nfl) WST='left';
+  $('#wc2').innerHTML=[['left','बाकी'],['done','भेज दिए ✓'],['all','सब'],...(nfl?[['fail','✗ API से नहीं गया ('+nfl+')']]:[])].map(([k,t])=>`<button class="chip ${WST===k?'on':''}" data-ws="${k}">${t}</button>`).join('')+
     `<select class="sel" id="wzn"><option value="">सारे ज़ोन / शहर</option>${ZONES.map(z=>`<option value="${esc(z[1])}" ${WZN===z[1]?'selected':''}>${esc(L==='en'?z[1]:z[0])}</option>`).join('')}</select>`+
     (()=>{ const mh=MYH(), hs=wheads().filter(h=>!mh.length||mh.includes(h.k)); if(WHD&&!hs.some(h=>h.k===WHD)) WHD='';
       return hs.length>1?`<select class="sel" id="whd"><option value="">सारी हेडिंग</option>${hs.map(h=>`<option value="${esc(h.k)}" ${WHD===h.k?'selected':''}>${esc(L==='en'?h.en:h.hi)} (${h.n})</option>`).join('')}</select>`:''; })()+
     (CAMP.id==='inv'?`<button class="chip ${WALL?'on':''}" data-wall="1">कार्ड वाले मेहमान भी</button>`:'');
   const q=WQ.trim(); const list=WE.filter(e=>e.v===WVER).filter(e=>{ if(WZN&&G[D[e.i][1]][3]!==WZN) return false; if(WHD&&hk(D[e.i])!==WHD) return false;
-    if(e.n&&!q){ const s=wsent(e); if(WST==='left'&&s) return false; if(WST==='done'&&!s) return false; } return !q||match(e.i,q); });   // 6 Nov: a search finds sent names too (to resend)
+    if(e.n&&!q){ const s=wsent(e); if(WST==='left'&&s) return false; if(WST==='done'&&!s) return false; if(WST==='fail'&&(s||!wfail(e))) return false; } return !q||match(e.i,q); });
+  if(WST==='left') list.sort((a,b)=>(wfail(b)&&!wsent(b)?1:0)-(wfail(a)&&!wsent(a)?1:0));   // 8 Nov: API-failed ones on top of बाकी   // 6 Nov: a search finds sent names too (to resend)
   $('#wst').innerHTML = c[WVER]&&Array.isArray(c[WVER]) ? `<span>${CAMP.mode==='abc'?'फ़ाइल '+WVER+': ':''}भेजे <b>${c[WVER][1]}</b></span>·<span>बाकी <b>${c[WVER][0]-c[WVER][1]}</b></span>·<span>कुल <b>${c[WVER][0]}</b></span>·<span>दिख रहे <b>${list.length}</b></span>` : `<span>दिख रहे <b>${list.length}</b></span>`;
   { const mh=MYH(), el=$('#wfrom'); if(el) el.innerHTML = mh.length ? `अपने फ़ोन के WhatsApp से भेजें – आपके मेहमान: <b>${mh.map(k=>esc(headL(k))).join(', ')}</b>`
       : `भेजने वाला WhatsApp नंबर: <b>${WFROM}</b> (RSVP वाला) – इसी नंबर का WhatsApp खुला होना चाहिए।`; }
-  wfs(); const canEd=ME.admin&&typeof edOpen==='function', none=CAMP.mode==='none', copy=wimg1(), fast=wfast();
+  wfs(); const canEd=ME.admin&&typeof edOpen==='function', none=CAMP.mode==='none', copy=wimg1(), fast=wfast(), l2=w2lab();
   const le=WLAST&&WEK[WLAST], ls=le&&wsent(le);   // 6 Nov (his words): "naam select kiya lekin unko whatsapp bheja nahi / phir bhi sent aa raha hai / resend wala option bhi daldo"
   const strip = ls ? `<div class="wlast"><span>आखिरी भेजा: <b>${esc(nmL(D[le.i]))}</b> · ${le.n.slice(0,5)} ${le.n.slice(5)}</span><span class="sp">WhatsApp पर नहीं गया?</span>`+
     `${fast?`<button class="tk" data-w4="${le.key}">🔁 फिर से भेजें</button>`:''}<button class="tk" data-w3="${le.key}">↩ ✓ हटाएँ</button></div>` : '';
   $('#wout').innerHTML = strip + list.slice(0,WLIM).map(e=>{ const r=D[e.i], g=G[r[1]];
     if(!e.n) return `<div class="g"><div class="t1"><div class="nb">${esc(r[2])}</div><div style="flex:1"><div class="nm">${esc(nmL(r))}</div><div class="sub2">${esc(arL(r,g))}${e.fv&&e.fv!=='all'?' · फ़ाइल '+e.fv:''}</div><div class="note">${esc(e.why)}</div></div></div>${canEd?`<div class="act"><button class="tk" data-wed="${esc(r[0])}">सुधारें</button></div>`:'<div class="w1n">शिवम जी को बताएँ – वे एडमिन पेज से ठीक करेंगे।</div>'}</div>`;
-    const s=wsent(e), c1=wchat(e);
+    const s=wsent(e), c1=wchat(e), fl=!s&&wfail(e), d1=W1.has(CAMP.id+e.key)||c1;
     return `<div class="g wa ${s?'sent':''}"><div class="t1"><div class="nb">${esc(r[2])}</div><div style="flex:1"><div class="nm">${esc(nmL(r))}</div>
       <div class="sub2">${esc(arL(r,g))}${wout_(r)?' · बाहर':''}${e.multi?` · इस मेहमान का ${e.k+1}वाँ नंबर`:''}${e.also.length?' · यही नंबर '+(e.also.length+1)+' नाम में':''}</div><div class="mob">${e.n.slice(0,5)} ${e.n.slice(5)}</div>
+      ${fl?`<div class="w1n wfx">✗ API से नहीं गया${fl.why?' – '+esc(fl.why):''} · यहीं से भेज दें</div>`:''}${s&&s.via==='api'?'<div class="w1n wapi">✓ API से गया</div>':''}
       ${c1&&!s?`<div class="w1n">① संदेश खोला: ${esc(c1.by||'')} · ${c1.at?tm(c1.at):''}</div>`:''}</div></div>
       <div class="act">${fast&&s?`<button class="tk big" data-w4="${e.key}">🔁 फिर से भेजें</button><button class="tk on" style="flex:0 0 auto" data-w3="${e.key}">↩ ✓ हटाएँ<small>${esc(s.by||'')} · ${s.at?tm(s.at):''}</small></button>`
-        :`${fast?`<button class="tk big" data-w4="${e.key}">📤 भेजें</button>`:`<a class="tk ${W1.has(CAMP.id+e.key)||c1?'w1d':''}" href="${wlink(e)}" ${WMODE==='web'?'target="wawin"':''} data-w1="${e.key}">① संदेश</a>${none?'':`<button class="tk" data-w2="${e.key}">${copy?'② फ़ोटो कॉपी':'② फ़ाइल'}</button>`}`}
+        :`${fast?`<button class="tk big" data-w4="${e.key}">📤 भेजें</button>`:`<a class="tk ${W1.has(CAMP.id+e.key)||c1?'w1d':''}" href="${wlink(e)}" ${WMODE==='web'?'target="wawin"':''} data-w1="${e.key}">① संदेश</a>${none?'':`<button class="tk ${d1&&WMODE==='ph'?'nx':''}" data-w2="${e.key}">${copy?'② फ़ोटो कॉपी':l2}</button>`}`}
       <button class="tk ${s?'on':''}" ${fast?'style="flex:0 0 auto"':''} data-w3="${e.key}">${s?'✓ भेजा':'भेजा ✓'}${s?`<small>${esc(s.by||'')} · ${s.at?tm(s.at):''}</small>`:''}</button>`}</div></div>`; }).join('')
     + (list.length>WLIM?`<button class="more" id="wmore">और दिखाएँ (${list.length-WLIM})</button>`:'') || `<div class="empty">${WST==='left'&&c[WVER]&&Array.isArray(c[WVER])?'इस हिस्से के सबको भेज दिया ✓':'कोई नाम नहीं'}</div>`; }
 let wt; const wrr=()=>{clearTimeout(wt);wt=setTimeout(wrender,80)};
+// 8 Nov (his words): "msg send hone ke baad uspe automatically sent aana chahiye / abhi manual karna padta hai"
+//   text-only campaign: ① opens WhatsApp; on coming back to this page ✓ goes on by itself (yellow strip: ↩ ✓ हटाएँ if it did not go)
+let WPEND='';
+function wback(){ if(document.visibilityState!=='visible'||!WPEND) return; const e=WEK[WPEND]; WPEND=''; if(e&&!wsent(e)&&CAMP.mode==='none'){ WLAST=e.key; wmark(e,true); } }
+document.addEventListener('visibilitychange', wback); window.addEventListener('focus', ()=>setTimeout(wback,300));
 function wnotify(e){ if(!WNTFY) return; const x=wcount(CAMP), g=x.g[e.v]||[0,0], done=g[0]&&g[1]===g[0];
   if(x.s%25!==0&&!done) return;
   fetch('https://ntfy.sh',{method:'POST',body:JSON.stringify({topic:WNTFY,title:'WhatsApp – '+CAMP.title+': '+x.s+' भेजे',
     message:Object.entries(x.g).map(([k,v])=>(k==='all'?'':(k.length>1?WV[k]:k)+' ')+v[1]+'/'+v[0]).join(' · ')+(done?' · '+(e.v==='all'?'':e.v+' ')+'पूरा ✓':'')+' · अभी: '+ME.name,tags:['outbox_tray'],priority:3,click:'https://adityakhhushboo.in/admin.html'})}).catch(()=>{}); }
-async function wmark(e,on){ const k=wkey(CAMP,'w',e.n), val=on?{by:ME.name,at:Date.now()}:null, rids=on?[e.i]:[e.i,...e.also];
+async function wmark(e,on){ const k=wkey(CAMP,'w',e.n), val=on?{by:ME.name,at:Date.now(),via:ME.admin?'adm':ME.team?'team':'fam'}:null, rids=on?[e.i]:[e.i,...e.also];
   for(const i of rids){ const rid=D[i][0]; ST[rid]=Object.assign({},ST[rid],{[k]:val}); } wrender();
   try{ for(const i of rids){ const rid=D[i][0]; await updateDoc(doc(db,'status',sKey(rid)), {[rid+'.'+k]: val}); }
     addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:(on?'WhatsApp भेजा (':'WhatsApp ✓ हटाया (')+CAMP.title+(e.v!=='all'?' '+e.v:'')+')', no:D[e.i][2], nm:D[e.i][3]});
@@ -433,7 +475,7 @@ function wreport(){ const op={}; document.querySelectorAll('#wrep details[id]').
     const hkk=hk(r)||'—'; hd[hkk]=hd[hkk]||[0,0]; hd[hkk][0]++;
     if(s){ fs[e.v][1]++; ar[area][1]++; hd[hkk][1]++; const b=s.by||'—'; by[b]=by[b]||{g:{},n:0,f:s.at,l:s.at}; by[b].g[e.v]=(by[b].g[e.v]||0)+1; by[b].n++; by[b].f=Math.min(by[b].f,s.at); by[b].l=Math.max(by[b].l,s.at);
       const dk=wd(s.at); day[dk]=day[dk]||{n:0,t:s.at}; day[dk].n++; day[dk].t=Math.min(day[dk].t,s.at); }
-    rows.push({e,r,g,area,s,c1,st:s?'✓ भेजा':c1?'① संदेश खोला, फ़ाइल बाकी':'बाकी'}); });
+    const fl=!s&&wst_(C,e,'f'); rows.push({e,r,g,area,s,c1,fl,st:s?(s.via==='api'?'✓ भेजा (API)':'✓ भेजा'):fl?'✗ API से नहीं गया'+(fl.why?' – '+fl.why:''):c1?'① संदेश खोला, फ़ाइल बाकी':'बाकी'}); });
   window._wrows=rows; const T=[0,0]; gs.forEach(v=>{T[0]+=fs[v][0];T[1]+=fs[v][1];}); const pc=(a,b)=>b?Math.round(a*100/b)+'%':'–';
   const now=new Date().toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}), left=rows.filter(x=>x.e.n&&!x.s);
   let h=`<div class="card"><h2>सभी अभियान</h2><div class="tw"><table class="rt"><tr><th>अभियान</th><th>कुल नंबर</th><th>भेजे ✓</th><th>बाकी</th><th>%</th></tr>`+
@@ -458,7 +500,7 @@ function wreport(){ const op={}; document.querySelectorAll('#wrep details[id]').
   h+=`<details class="card" id="wr-sent" open><summary>✓ जिन्हें भेज दिया (${sent.length})</summary>${sent.length?`<div class="tw"><table class="rt"><tr><th>#</th>${gs.length>1?'<th>फ़ाइल</th>':''}<th>नाम</th><th>मोबाइल</th><th>क्षेत्र</th><th>किसने भेजा</th><th>कब</th></tr>`+
     sent.map((x,k)=>`<tr data-q="${wrq_(x)}"><td>${k+1}</td>${gs.length>1?`<td>${x.e.v}</td>`:''}<td>${esc(nmL(x.r))}</td><td class="n">${x.e.n}</td><td>${esc(x.area)}</td><td>${esc(x.s.by||'')}</td><td class="n">${tm(x.s.at)}</td></tr>`).join('')+'</table></div>':'<p class="muted">अभी किसी ने नहीं भेजा</p>'}</details>`;
   h+=`<details class="card" id="wr-left" open><summary>बाकी मेहमान (${left.length})</summary><div class="tw"><table class="rt"><tr><th>#</th>${gs.length>1?'<th>फ़ाइल</th>':''}<th>नाम</th><th>मोबाइल</th><th>क्षेत्र</th><th>स्थिति</th></tr>`+
-    left.map((x,k)=>`<tr data-q="${wrq_(x)}"><td>${k+1}</td>${gs.length>1?`<td>${x.e.v}</td>`:''}<td>${esc(nmL(x.r))}</td><td class="n">${x.e.n}</td><td>${esc(x.area)}</td><td>${x.c1?'① खोला – '+esc(x.c1.by||''):'बाकी'}</td></tr>`).join('')+'</table></div></details>';
+    left.map((x,k)=>`<tr data-q="${wrq_(x)}"><td>${k+1}</td>${gs.length>1?`<td>${x.e.v}</td>`:''}<td>${esc(nmL(x.r))}</td><td class="n">${x.e.n}</td><td>${esc(x.area)}</td><td>${x.fl?'<span class="no2">'+esc(x.st)+'</span>':x.c1?'① खोला – '+esc(x.c1.by||''):'बाकी'}</td></tr>`).join('')+'</table></div></details>';
   h+=hz;
   h+=`<details class="card" id="wr-all"><summary>पूरी सूची (${rows.length})</summary><div class="tw"><table class="rt"><tr><th>#</th>${gs.length>1?'<th>फ़ाइल</th>':''}<th>नाम</th><th>मोबाइल</th><th>क्षेत्र</th><th>स्थिति</th><th>किसने / कब</th></tr>`+
     rows.map((x,k)=>`<tr data-q="${wrq_(x)}"><td>${k+1}</td>${gs.length>1?`<td>${x.e.n?x.e.v:(x.e.fv||'–')}</td>`:''}<td>${esc(nmL(x.r))}</td><td class="n">${x.e.n||esc((x.r[9]||'').replace(/\n/g,', '))}</td><td>${esc(x.area)}</td><td>${esc(x.st)}</td><td>${x.s?esc(x.s.by||'')+' · '+tm(x.s.at):x.c1?'① '+esc(x.c1.by||'')+' · '+tm(x.c1.at):''}</td></tr>`).join('')+'</table></div></details>';
@@ -472,7 +514,7 @@ function wcsv(){ wreport(); const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
 function wpdf(){ wreport(); document.querySelectorAll('#wrep details').forEach(d=>d.open=true); setTimeout(()=>window.print(),150); }
 function wloadAll(){ wgroups(CAMP).reduce((p,g)=>p.then(()=>wload(CAMP,g)), Promise.resolve()); }
 function wpick(id){ const c=CAMPS.find(x=>x.id===id); if(!c) return; if(CAMP.id!==id) WLAST=''; CAMP=c; WVER=wgroups(c)[0]; WST='left'; WLIM=60; WQ=''; $('#wq').value='';
-  $('#wm').value=c.msg||''; $('#wm2').value=c.msgOut||''; wsteps(); wrender(); wloadAll(); }
+  $('#wm').value=c.msg||''; $('#wm2').value=c.msgOut||''; wsteps(); wrender(); wloadAll(); if(WRP) wapiPlan(); }
 function wopen(id){ show('s-wa'); const ro=!ME.mgr; $('#wm').readOnly=ro; $('#wm2').readOnly=ro; $('#wm-save').style.display=ro?'none':'block';
   if(!CAMP.active&&!ME.mgr) CAMP=CAMPS.find(c=>c.active)||INV; wpick(id||CAMP.id); }
 $('#wout').addEventListener('click', ev=>{ const b=ev.target.closest('[data-w1],[data-w2],[data-w3],[data-w4],[data-wed],#wmore'); if(!b) return;
@@ -485,12 +527,13 @@ $('#wout').addEventListener('click', ev=>{ const b=ev.target.closest('[data-w1],
   if(b.id==='wmore'){ WLIM+=60; wrender(); return }
   if(b.dataset.wed){ show('s-admin'); edOpen(b.dataset.wed); return }
   const e=WEK[b.dataset.w1||b.dataset.w2||b.dataset.w3]; if(!e) return;
-  if(b.dataset.w1){ W1.add(CAMP.id+e.key); b.classList.add('w1d'); wchatmark(e); return }          // the link itself opens WhatsApp
+  if(b.dataset.w1){ W1.add(CAMP.id+e.key); b.classList.add('w1d'); wchatmark(e);          // the link itself opens WhatsApp
+    if(CAMP.mode==='none') WPEND=e.key; else { const b2=b.parentNode.querySelector('[data-w2]'); if(b2&&WMODE==='ph') b2.classList.add('nx'); } return }
   if(b.dataset.w3){ wmark(e, !wsent(e)); return }
   const k=wfk(CAMP,e.v); if(!WF[k]){ toast(WFL[k]==='err'?'फ़ाइल नहीं मिली':'फ़ाइल अभी लोड हो रही है…'); if(WFL[k]==='err'){WFL[k]=0;wload(CAMP,e.v)} return }
   const fs=wfilesFor(e); if(!fs.length){ toast('इस अभियान में फ़ाइल नहीं डाली गई'); return }
   if(WMODE==='ph' && navigator.canShare && navigator.canShare({files:fs})){
-    navigator.share({files:fs}).then(()=>wmark(e,true)).catch(err=>{ if(err&&err.name!=='AbortError') toast('शेयर नहीं हुआ: '+(err.name||err)); }); return }
+    navigator.share({files:fs}).then(()=>{ WLAST=e.key; wmark(e,true); }).catch(err=>{ if(err&&err.name!=='AbortError') toast('शेयर नहीं हुआ: '+(err.name||err)); }); return }
   const card=b.closest('.g'); if(card) card.classList.add('dl');
   if(wimg1()){ const f=fs[0], png=f.type==='image/png'?Promise.resolve(f):new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>{ const cv=document.createElement('canvas'); cv.width=im.naturalWidth; cv.height=im.naturalHeight;
       cv.getContext('2d').drawImage(im,0,0); cv.toBlob(x=>x?res(x):rej(new Error('png')),'image/png'); }; im.onerror=rej; im.src=URL.createObjectURL(f); });
@@ -505,6 +548,90 @@ $('#s-wa').addEventListener('click', ev=>{ const m=ev.target.closest('[data-wm]'
   if(b.dataset.ws){ WST=b.dataset.ws; WLIM=60; } if(b.dataset.wall){ WALL=!WALL; } wsteps(); wrender(); });
 $('#s-wa').addEventListener('change', ev=>{ if(ev.target.id==='wzn'){ WZN=ev.target.value; WLIM=60; wrender(); } if(ev.target.id==='whd'){ WHD=ev.target.value; WLIM=60; wrender(); } });
 let wqt; $('#wq').addEventListener('input', ev=>{ clearTimeout(wqt); wqt=setTimeout(()=>{ WQ=ev.target.value; WLIM=60; wrender(); },150); });
+// ---------- 8 Nov (his words): "mera whatsapp api wala vendor mujhe sent msgs ki file bhejega me usko upload karunga ... agar nahi gaya ya fail hua
+//   toh wo waha aa jaye uske baad me ya koi bhi family member ... us msg ko send karde ... wo file me mobile se bhi upload kar saku / bohot flexible banao"
+//   Any CSV / .xlsx: the number column and the status column are found by themselves (and can be changed from the two boxes).
+//   Sent / delivered / read -> ✓ (by 'API').  Failed / undelivered / not on WhatsApp -> red ✗ in बाकी.  No status column -> everyone in the file = sent.
+let WRP=null;
+const WAPI_BAD=/fail|undeliver|not ?deliver|not ?sent|error|reject|invalid|block|not ?on ?whats|not ?a ?whats|no ?whats|expire|unable|denied|bounce|opt.?out|फ़ेल|फेल|नहीं/i,
+      WAPI_OK=/deliver|read|seen|sent|success|\bok\b|done|played|भेजा|गया|पहुँच|पढ़/i;
+function wapiCls(v){ const t=String(v==null?'':v).trim(); if(!t) return ''; if(WAPI_BAD.test(t)) return 'bad'; if(WAPI_OK.test(t)) return 'ok'; return 'wait'; }
+function wapiNum(v){ let s=String(v==null?'':v).trim().replace(/\.0+$/,''); if(/^[\d.]+e\+?\d+$/i.test(s)) s=String(Math.round(+s)); const d=s.replace(/\D/g,'');
+  const n=d.length===12&&d.startsWith('91')?d.slice(2):d.length===11&&d.startsWith('0')?d.slice(1):d.length===13&&d.startsWith('091')?d.slice(3):d;
+  return /^[6-9]\d{9}$/.test(n)?n:''; }
+function wapiCsv(t){ t=t.replace(/^﻿/,''); const first=t.split(/\r?\n/,1)[0]||'';
+  const dl=[',',';','\t','|'].map(d=>[d,first.split(d).length]).sort((a,b)=>b[1]-a[1])[0][0], rows=[]; let row=[], f='', q=false;
+  for(let i=0;i<t.length;i++){ const ch=t[i];
+    if(q){ if(ch==='"'){ if(t[i+1]==='"'){ f+='"'; i++; } else q=false; } else f+=ch; continue }
+    if(ch==='"'&&f===''){ q=true; continue } if(ch===dl){ row.push(f); f=''; continue }
+    if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&t[i+1]==='\n') i++; row.push(f); rows.push(row); row=[]; f=''; continue } f+=ch; }
+  if(f!==''||row.length){ row.push(f); rows.push(row); } return rows.filter(r=>r.some(x=>String(x).trim())); }
+async function wapiXlsx(buf){ const u=new Uint8Array(buf), dv=new DataView(buf), td=new TextDecoder(); let e=u.length-22; while(e>=0&&dv.getUint32(e,true)!==0x06054b50) e--; if(e<0) throw new Error('zip');
+  const F={}; let p=dv.getUint32(e+16,true); for(let k=dv.getUint16(e+10,true);k>0;k--){ const nl=dv.getUint16(p+28,true);
+    F[td.decode(u.subarray(p+46,p+46+nl))]={m:dv.getUint16(p+10,true),cs:dv.getUint32(p+20,true),off:dv.getUint32(p+42,true)}; p+=46+nl+dv.getUint16(p+30,true)+dv.getUint16(p+32,true); }
+  const get=async nm=>{ const f=F[nm]; if(!f) return null; const st=f.off+30+dv.getUint16(f.off+26,true)+dv.getUint16(f.off+28,true), data=u.subarray(st,st+f.cs);
+    if(f.m===0) return td.decode(data); return await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text(); };
+  const X=t=>new DOMParser().parseFromString(t,'application/xml'), tg=(el,n)=>[...el.getElementsByTagNameNS('*',n)];
+  const ss=[], sx=await get('xl/sharedStrings.xml'); if(sx) tg(X(sx),'si').forEach(si=>ss.push(tg(si,'t').map(t=>t.textContent).join('')));
+  let sp='xl/worksheets/sheet1.xml'; try{ const wb=X(await get('xl/workbook.xml')), rl=X(await get('xl/_rels/workbook.xml.rels')), sh=tg(wb,'sheet')[0];
+    const id=[...sh.attributes].find(a=>a.localName==='id').value, t=tg(rl,'Relationship').find(r=>r.getAttribute('Id')===id).getAttribute('Target');
+    sp=t.startsWith('/')?t.slice(1):'xl/'+t.replace(/^\.\//,''); }catch(_){}
+  const sx2=await get(sp)||await get('xl/worksheets/sheet1.xml'); if(!sx2) throw new Error('sheet');
+  const ci=r=>{ let c=0; for(const ch of r.replace(/\d+/g,'').toUpperCase()) c=c*26+ch.charCodeAt(0)-64; return c-1; }, rows=[];
+  tg(X(sx2),'row').forEach(rw=>{ const a=[]; tg(rw,'c').forEach(c=>{ const t=c.getAttribute('t'), v=tg(c,'v')[0]; let x=t==='s'?(ss[+(v&&v.textContent)]||''):t==='inlineStr'?tg(c,'t').map(z=>z.textContent).join(''):(v?v.textContent:'');
+      if((!t||t==='n')&&/e/i.test(x)&&!isNaN(+x)) x=String(Math.round(+x)); a[c.getAttribute('r')?ci(c.getAttribute('r')):a.length]=x; }); rows.push(Array.from(a,x=>x==null?'':x)); });
+  return rows.filter(r=>r.some(x=>String(x).trim())); }
+function wapiDetect(rows){ const H=/phone|mobile|number|msisdn|contact|whats|recipient|^\s*to\s*$|destination|मोबाइल|नंबर|फ़ोन/i, S=/status|state|deliver|result|स्थिति/i, R=/reason|error|fail|remark|descr|comment|कारण/i;
+  let hdr=-1; for(let i=0;i<Math.min(10,rows.length);i++){ const r=rows[i]; if(r.some(x=>H.test(x)||S.test(x))&&!r.some(x=>wapiNum(x))){ hdr=i; break } }
+  const body=rows.slice(hdr+1), nc=Math.max(...rows.map(r=>r.length)), hd=hdr>=0?rows[hdr]:[];
+  let pc=-1, pb=0; for(let c=0;c<nc;c++){ const k=body.filter(r=>wapiNum(r[c])).length+(H.test(hd[c]||'')?0.5:0); if(k>pb){ pb=k; pc=c; } }
+  let sc=hd.findIndex(x=>/status|स्थिति/i.test(x||'')); if(sc<0) sc=hd.findIndex(x=>S.test(x||''));
+  if(sc<0){ let sb=0; for(let c=0;c<nc;c++){ if(c===pc) continue; const k=body.filter(r=>/ok|bad/.test(wapiCls(r[c]))).length; if(k>sb){ sb=k; sc=c; } } }
+  return {hdr, pc, sc, rc:hd.findIndex((x,c)=>c!==sc&&c!==pc&&R.test(x||'')), nc}; }
+function wapiPlan(){ const out=$('#wapi-out'); if(!WRP){ out.innerHTML=''; return } const {rows,hdr,pc,sc,rc,nc,name}=WRP, hd=hdr>=0?rows[hdr]:[], body=rows.slice(hdr+1);
+  const byN={}; wbuild(CAMP,true)[0].forEach(e=>{ if(e.n) (byN[e.n]=byN[e.n]||[]).push(e); });
+  const NM={}; D.forEach(r=>wnums(r[9]).forEach(n=>{ NM[n]=NM[n]||r[3]; }));
+  const best={}, rank={ok:3,bad:2,wait:1,'':0};
+  body.forEach(r=>{ const n=wapiNum(r[pc]); if(!n) return; const z=sc>=0?(wapiCls(r[sc])||'wait'):'ok', why=String((rc>=0?r[rc]:z==='bad'?r[sc]:'')||'').trim().slice(0,80);
+    if(!best[n]||rank[z]>rank[best[n].z]) best[n]={z,why}; });
+  const P={ok:[],bad:[],wait:0,none:[],had:0};
+  Object.entries(best).forEach(([n,x])=>{ const es=byN[n]; if(!es){ P.none.push(n); return }
+    es.forEach(e=>{ if(x.z==='ok'){ if(wsent(e)) P.had++; else P.ok.push([e,x]); } else if(x.z==='bad'){ if(!wsent(e)) P.bad.push([e,x]); } else P.wait++; }); });
+  WRP.P=P; const smp=c=>{ const v=body.map(r=>String(r[c]||'').trim()).find(Boolean); return v?' – जैसे: '+v.slice(0,24):''; };
+  const opt=(sel,none)=>(none?`<option value="-1" ${sel<0?'selected':''}>${none}</option>`:'')+Array.from({length:nc},(_,c)=>`<option value="${c}" ${sel===c?'selected':''}>${esc(String(hd[c]||'').trim()||'कॉलम '+(c+1))}${esc(smp(c))}</option>`).join('');
+  out.innerHTML=`<p class="muted" style="margin-top:10px">फ़ाइल: <b>${esc(name)}</b> · ${body.length} पंक्तियाँ · ${Object.keys(best).length} नंबर</p>
+    <label>मोबाइल नंबर वाला कॉलम</label><select class="in" id="wapi-pc">${opt(pc)}</select>
+    <label>स्थिति (Status) वाला कॉलम</label><select class="in" id="wapi-sc">${opt(sc,'कोई नहीं – फ़ाइल के सारे नंबरों को "गया" मानें')}</select>
+    <div class="sm"><span class="ok3">✓ गया: <b>${P.ok.length}</b>${P.had?` (और ${P.had} पर पहले से ✓ था)`:''}</span>
+    <span class="no3">✗ नहीं गया / फ़ेल: <b>${P.bad.length}</b>${P.bad.length?' – ये "बाकी" में सबसे ऊपर, लाल निशान के साथ':''}</span>
+    ${P.wait?`<span>⏳ अभी पता नहीं (pending): <b>${P.wait}</b> – इन पर कुछ नहीं बदलेगा</span>`:''}
+    ${P.none.length?`<span>? "${esc(CAMP.title)}" की सूची में नहीं मिले: <b>${P.none.length}</b></span>`:''}</div>
+    ${P.none.length?`<details><summary>जो नंबर नहीं मिले (${P.none.length})</summary><p>${P.none.slice(0,400).map(n=>esc(n)+(NM[n]?' ('+esc(NM[n])+')':'')).join(', ')}</p></details>`:''}
+    <button class="btn" id="wapi-go" ${P.ok.length||P.bad.length?'':'disabled'}>✓ "${esc(CAMP.title)}" में लगाएँ</button>`; }
+async function wapiGo(){ const P=WRP&&WRP.P; if(!P) return; const b=$('#wapi-go'); b.disabled=true; b.textContent='लग रहा है…';
+  const rep='r'+Date.now().toString(36), at=Date.now(), U={}, put=(rid,k,v)=>{ const sk=sKey(rid); (U[sk]=U[sk]||{})[rid+'.'+k]=v; ST[rid]=Object.assign({},ST[rid],{[k]:v}); };
+  P.ok.forEach(([e])=>{ put(D[e.i][0], wkey(CAMP,'w',e.n), {by:'API',at,via:'api',rep}); const fk=wkey(CAMP,'f',e.n); [e.i,...e.also].forEach(i=>{ const r2=D[i][0]; if(ST[r2]&&ST[r2][fk]) put(r2,fk,null); }); });
+  P.bad.forEach(([e,x])=>put(D[e.i][0], wkey(CAMP,'f',e.n), {at,why:x.why||'',rep}));
+  try{ for(const [sk,u] of Object.entries(U)) await updateDoc(doc(db,'status',sk),u);
+    addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'API रिपोर्ट डाली ('+CAMP.title+'): ✓ '+P.ok.length+' · ✗ '+P.bad.length+' · '+WRP.name});
+    $('#wapi-out').innerHTML=`<p class="wf">लग गया – ✓ ${P.ok.length} पर ✓ · ✗ ${P.bad.length} "बाकी" में लाल निशान के साथ</p>`; WRP=null; $('#wapi-f').value=''; toast('API रिपोर्ट लग गई ✓'); wrender(); }
+  catch(err){ toast('सेव नहीं हुआ – नेट देखें'); b.disabled=false; b.textContent='फिर से दबाएँ'; } }
+async function wapiUndo(){ if(!confirm('"'+CAMP.title+'" में API रिपोर्ट से लगे सारे ✓ और ✗ हटाएँ?\n(परिवार / इवेंट टीम के लगाए ✓ नहीं हटेंगे)')) return;
+  const re=new RegExp('^[wf]'+(CAMP.id==='inv'?'':CAMP.id+'_')+'\\d{10}$'), U={}; let n=0;
+  for(const [rid,s] of Object.entries(ST)){ if(!s) continue; for(const [k,v] of Object.entries(s)) if(v&&re.test(k)&&(k[0]==='f'||v.via==='api')){ const sk=sKey(rid); (U[sk]=U[sk]||{})[rid+'.'+k]=null; ST[rid]=Object.assign({},ST[rid],{[k]:null}); n++; } }
+  if(!n){ toast('इस अभियान में API वाला कोई ✓ / ✗ नहीं है'); return }
+  try{ for(const [sk,u] of Object.entries(U)) await updateDoc(doc(db,'status',sk),u); addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'API रिपोर्ट हटाई ('+CAMP.title+'): '+n});
+    toast(n+' हटाए'); wrender(); }catch(e){ toast('नहीं हुआ – नेट देखें'); } }
+$('#wapi-f').onchange=async ev=>{ const f=ev.target.files[0]; if(!f) return; $('#wapi-out').innerHTML='<p class="muted">फ़ाइल पढ़ रहे हैं…</p>';
+  try{ const buf=await f.arrayBuffer(), u=new Uint8Array(buf);
+    if(u[0]===0xD0&&u[1]===0xCF) throw new Error('xls');
+    const rows=u[0]===0x50&&u[1]===0x4B ? await wapiXlsx(buf) : wapiCsv(new TextDecoder(u[0]===0xFF&&u[1]===0xFE?'utf-16le':'utf-8').decode(u)); if(!rows.length) throw new Error('empty');
+    WRP=Object.assign({name:f.name, rows}, wapiDetect(rows)); if(WRP.pc<0) throw new Error('nonum'); wapiPlan(); }
+  catch(err){ WRP=null; const m=err.message||String(err); $('#wapi-out').innerHTML='<p class="wf bad">'+(m==='xls'?'यह पुरानी Excel (.xls) फ़ाइल है – Excel में खोलकर Save As → CSV या .xlsx करके डालें।'
+      :m==='nonum'?'इस फ़ाइल में मोबाइल नंबर नहीं मिले – सही फ़ाइल चुनें।':m==='empty'?'फ़ाइल खाली है।':'फ़ाइल नहीं पढ़ पाए – CSV या .xlsx डालें। ('+esc(m)+')')+'</p>'; } };
+$('#wapi-out').addEventListener('change', ev=>{ if(!WRP) return; if(ev.target.id==='wapi-pc') WRP.pc=+ev.target.value; if(ev.target.id==='wapi-sc') WRP.sc=+ev.target.value; wapiPlan(); });
+$('#wapi-out').addEventListener('click', ev=>{ if(ev.target.id==='wapi-go') wapiGo(); });
+$('#wapi-undo').onclick=wapiUndo;
 $('#wa-back').onclick=()=>{location.href='./'};
 $('#wr-open').onclick=()=>{ show('s-wr'); wreport(); }; $('#wr-back').onclick=()=>{ show('s-wa'); wrender(); };
 $('#wr-csv').onclick=wcsv; $('#wr-pdf').onclick=wpdf; $('#wrq').oninput=ev=>{ WRQ=ev.target.value; wrqApply(); };
@@ -516,13 +643,13 @@ function wcfg(){ return new Promise(res=>{ let first=true; onSnapshot(doc(db,'co
     if(first){ first=false; res(); } else wrr(); }, ()=>{ if(first){ first=false; res(); } }); }); }
 function wcamps(){ onSnapshot(collection(db,'camps'), s=>{ const a=s.docs.map(d=>Object.assign({id:d.id},d.data())).sort((x,y)=>(y.made||0)-(x.made||0));
   CAMPS=[INV,...a]; const cur=CAMPS.find(c=>c.id===CAMP.id); CAMP=cur&&(cur.active||ME.mgr)?cur:(CAMPS.find(c=>c.active)||INV);
-  if($('#s-wa').classList.contains('on')){ wsteps(); } wrr(); }, ()=>{}); }
+  if($('#s-wa').classList.contains('on')){ wsteps(); } wrr(); wwant(); }, ()=>{}); }
 
 function noAccess(h,p){ $('#no-h').textContent=h; $('#no-p').textContent=p; show('s-no'); }
 let wstarted=false;
 async function wstartPage(){ if(wstarted) return; wstarted=true; await wcfg(); wcamps();
   for(let k=0;k<10;k++) onSnapshot(doc(db,'status','s'+k), s => { const v=s.data()||{}; for(const [rid,o] of Object.entries(v)) ST[rid]=o; wrr(); });
-  let first=true; subscribeList(m => { if(!m){ noAccess('सूची अभी अपलोड नहीं हुई','शिवम जी एडमिन पेज से सूची डालेंगे।'); return } if(first){ first=false; wopen(); } else wrr(); }); }
+  let first=true; subscribeList(m => { if(!m){ noAccess('सूची अभी अपलोड नहीं हुई','शिवम जी एडमिन पेज से सूची डालेंगे।'); return } if(first){ first=false; const hp=new URLSearchParams(location.hash.slice(1)); WWANT=hp.get('c')||''; WQ0=hp.get('q')||''; wopen(); wwant(); } else wrr(); }); }
 (async () => { try{ const u=await signIn(); ME.uid=u.uid;
     onSnapshot(doc(db,'members',ME.uid), s => { const d=s.exists()?s.data():null;
       if(!d){ noAccess('पहले सूची की अनुमति लें','इस फ़ोन / कंप्यूटर पर पहले "सूची खोलें" दबाकर नाम-मोबाइल से अनुमति माँगें। शिवम जी के ✓ और WhatsApp अधिकार देने के बाद यह पेज खुलेगा।'); return }

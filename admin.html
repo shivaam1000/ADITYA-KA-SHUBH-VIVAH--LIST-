@@ -221,11 +221,18 @@ function ed1(a,b){if(Math.abs(a.length-b.length)>1)return false;let i=0,j=0,e=0;
 // 1) words learned from the list itself (English ↔ corrected Hindi, word by word), 2) common words, 3) sound rules for new words
 const TRW={shri:'श्री',shree:'श्री',sri:'श्री',shrimati:'श्रीमती',smt:'श्रीमती',mrs:'श्रीमती',mr:'श्री',ji:'जी',jee:'जी',sa:'सा',dr:'डॉ.',and:'एवं','&':'एवं',
   miss:'सुश्री',ms:'सुश्री',sushri:'सुश्री',kumari:'कुमारी',family:'परिवार',parivar:'परिवार',parivaar:'परिवार',saparivar:'सपरिवार',saparivaar:'सपरिवार',
-  kanwarsahab:'कँवरसाहब',kanwarsa:'कँवरसा',shahji:'शाहजी',shah:'शाह',seth:'सेठ',ms_:'मै.',nagar:'नगर',road:'रोड',colony:'कॉलोनी',jodhpur:'जोधपुर'};
-let TRD={};
+  kanwarsahab:'कँवरसाहब',kanwarsa:'कँवरसा',shahji:'शाहजी',shah:'शाह',seth:'सेठ',ms_:'मै.',nagar:'नगर',road:'रोड',colony:'कॉलोनी',jodhpur:'जोधपुर',
+  kumar:'कुमार',singh:'सिंह',sharma:'शर्मा',gupta:'गुप्ता',jain:'जैन',agarwal:'अग्रवाल',aggarwal:'अग्रवाल',agrawal:'अग्रवाल',agarwala:'अग्रवाल',bansal:'बंसल',goyal:'गोयल',goel:'गोयल',garg:'गर्ग',
+  mittal:'मित्तल',singhal:'सिंघल',jindal:'जिंदल',verma:'वर्मा',arora:'अरोड़ा',malhotra:'मल्होत्रा',kapoor:'कपूर',kapur:'कपूर',chopra:'चोपड़ा',bhatia:'भाटिया',sethi:'सेठी',chhabra:'छाबड़ा',chabbra:'छाबड़ा',chabra:'छाबड़ा',
+  khanna:'खन्ना',mehta:'मेहता',ahmad:'अहमद',ahmed:'अहमद',khan:'ख़ान',mohammad:'मोहम्मद',mohammed:'मोहम्मद',mohd:'मोहम्मद',bilal:'बिलाल',maheshwari:'माहेश्वरी',mathur:'माथुर',saxena:'सक्सेना',
+  srivastava:'श्रीवास्तव',tiwari:'तिवारी',mishra:'मिश्रा',pandey:'पांडे',yadav:'यादव',chaudhary:'चौधरी',choudhary:'चौधरी',patel:'पटेल',joshi:'जोशी',vyas:'व्यास',kothari:'कोठारी',soni:'सोनी',modi:'मोदी',
+  sunil:'सुनील',anil:'अनिल',sushil:'सुशील',kapil:'कपिल',nikhil:'निखिल',abhishek:'अभिषेक',krishan:'कृष्ण',krishna:'कृष्ण',vineet:'विनीत',puneet:'पुनीत',naveen:'नवीन',praveen:'प्रवीण',pal:'पाल',
+  nagpur:'नागपुर',indore:'इंदौर',bhopal:'भोपाल',lucknow:'लखनऊ',kanpur:'कानपुर',chennai:'चेन्नई',noida:'नोएडा',gurugram:'गुरुग्राम',faridabad:'फ़रीदाबाद',ghaziabad:'ग़ाज़ियाबाद',ludhiana:'लुधियाना',chandigarh:'चंडीगढ़',vadodara:'वडोदरा',rajkot:'राजकोट',nashik:'नासिक',patna:'पटना',raipur:'रायपुर',udaipur:'उदयपुर',hisar:'हिसार',sirsa:'सिरसा',ganganagar:'गंगानगर',hanumangarh:'हनुमानगढ़'};
+let TRD={}; const TRV0=new Set(Object.values(TRW));
 function trTok(s){ return String(s||'').replace(/&/g,' & ').split(/\s+/).map(w=>w.replace(/^[^A-Za-z0-9&ऀ-ॿ]+/,'').replace(/[^A-Za-z0-9&ऀ-ॿ.]+$/,'')).filter(Boolean); }
 function trBuild(rows){ const C={}; const add=(en,hi)=>{ const a=trTok(en).map(w=>w.toLowerCase().replace(/\./g,'')), b=trTok(hi);
-    if(!a.length||a.length!==b.length) return; a.forEach((w,k)=>{ if(!/[a-z]/.test(w)||/[A-Za-z]/.test(b[k])) return; const o=C[w]=C[w]||{}; o[b[k]]=(o[b[k]]||0)+1; }); };
+    if(!a.length||a.length!==b.length||a.some((w,k)=>(TRW[w]&&TRW[w]!==b[k])||(TRV0.has(b[k])&&TRW[w]!==b[k]))) return;
+    a.forEach((w,k)=>{ if(!/[a-z]/.test(w)||/[A-Za-z]/.test(b[k])||b[k].length>w.length+3) return; const o=C[w]=C[w]||{}; o[b[k]]=(o[b[k]]||0)+1; }); };
   rows.forEach(r=>{ if(!/[A-Za-z]/.test(r[3]||'')) add(r[4],r[3]); add(r[8],r[7]); add(r[6],r[5]); });
   const M={}; for(const [w,o] of Object.entries(C)) M[w]=Object.entries(o).sort((x,y)=>y[1]-x[1])[0][0]; return M; }
 const TRC=[['chh','छ'],['ksh','क्ष'],['shn','ष्ण'],['shth','ष्ठ'],['sht','ष्ट'],['shp','ष्प'],['shk','ष्क'],['kh','ख'],['gh','घ'],['ch','च'],['jh','झ'],['th','थ'],['dh','ध'],['ph','फ'],['bh','भ'],['sh','श'],['gy','ज्ञ'],
@@ -246,7 +253,7 @@ function trWord(w){ let out='', i=0, pend=null, lastA=false, lastC=null;
     i+=hit[1].length; }
   if(lastA&&w.length>2&&!/(dra|tra|shna|kra)$/.test(w)) out+='ा';
   return out; }
-function toHi(s){ return trTok(s).map(w=>{ if(w==='&') return 'एवं'; if(!/[A-Za-z]/.test(w)) return w; const k=w.toLowerCase().replace(/\./g,''); return TRD[k]||TRW[k]||trWord(k.replace(/[^a-z]/g,'')); }).join(' '); }
+function toHi(s){ return trTok(s).map(w=>{ if(w==='&') return 'एवं'; if(!/[A-Za-z]/.test(w)) return w; const k=w.toLowerCase().replace(/\./g,''); return TRD[k]||TRW[k]||trWord(k.replace(/[^a-z]/g,'').replace(/^(.{3,}[bcdfghjklmnpqstvz])er$/,'$1ar')); }).join(' '); }
 let G=[],D=[],IX=[],ZSUB={},ZONES=[],HEADS=[], ST={}, ME={uid:'',name:'',admin:false,team:false,mgr:false,wr:false};
 let L='hi', Q='', SEC='all', FN=null, STF='all', PC=false, GF=false, ZN='', HD='', LIMIT=400, OPEN=new Set();
 const T={hi:{sec:{all:'सब',jo:'जोधपुर',ba:'बाहर',ej:'E-card जोधपुर',eb:'E-card बाहर',ho:'होल्ड'},fn:['विनायक','तिलक-स्वागत','गीत-भोज','शुभ विवाह'],fs:['18 विनायक','20 तिलक','21 गीत-भोज','21 विवाह'],

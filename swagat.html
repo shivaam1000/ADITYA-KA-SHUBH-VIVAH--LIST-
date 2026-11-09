@@ -98,7 +98,7 @@ function trS(s){ if(!EN||!s||!/[ऀ-ॿ]/.test(s)) return s;
   s=s.replace(/(\d+) परिवार/g,(m,n)=>n==='1'?'1 family':n+' families').replace(/(\d+) दिन बाकी/g,'$1 days to go').replace(/(\d+) \/ (\d+) हो गए/g,'$1 / $2 done');
   return s.replace(TXRE,(m,a,b)=>a+TXMAP.get(b)); }
 const TXSKIP=new Set(['SCRIPT','STYLE','TEXTAREA']);
-function trNode(n){ if(!EN) return; if(n.nodeType===3){ const v=n.nodeValue, t=trS(v); if(t!==v) n.nodeValue=t; return; } if(n.nodeType!==1||TXSKIP.has(n.tagName)) return;
+function trNode(n){ if(!EN) return; if(n.nodeType===3){ const v=n.nodeValue, t=trS(v); if(t!==v) n.nodeValue=t; return; } if(n.nodeType!==1||TXSKIP.has(n.tagName)||(n.hasAttribute&&n.hasAttribute('data-notx'))) return;   // 9 Nov: names stay as written
   ['placeholder','aria-label','title'].forEach(a=>{ if(n.hasAttribute&&n.hasAttribute(a)){ const v=n.getAttribute(a), t=trS(v); if(t!==v) n.setAttribute(a,t); } });
   if(n.tagName==='INPUT'&&(n.type==='button'||n.readOnly)&&/[ऀ-ॿ]/.test(n.value)) n.value=trS(n.value);
   if(n.tagName==='OPTION'){ const t=trS(n.textContent); if(t!==n.textContent) n.textContent=t; return; }
@@ -164,7 +164,7 @@ const PL=[['मेहरानगढ़ किला','Mehrangarh Fort','शह�
   ['तूरजी का झालरा','Toorji ka Jhalra','पुरानी सुंदर बावड़ी','Beautiful old stepwell','Toorji Ka Jhalra Jodhpur'],
   ['मंडोर उद्यान','Mandore Garden','पुरानी राजधानी – बगीचे और छतरियाँ','The old capital – gardens and cenotaphs','Mandore Garden Jodhpur']];
 function render(){ const g=GP, a=g.arr||{}, d=g.dep||{}, p=g.pick||{}, dr=g.drop||{}; let h='';
-  h+=`<div class="gc"><p class="hi">आदरणीय ${esc(g.name)}</p><p class="lead">आदित्य संग खुशबू के शुभ विवाह में जोधपुर पधारने के लिए आपका हार्दिक आभार।<br>आपके कार्यक्रम, ठहरने और आने-जाने की पूरी जानकारी यहाँ है।</p></div>`;
+  h+=`<div class="gc"><p class="hi">आदरणीय <span data-notx>${esc(EN&&g.en?g.en:g.name)}</span></p><p class="lead">आदित्य संग खुशबू के शुभ विवाह में जोधपुर पधारने के लिए आपका हार्दिक आभार।<br>आपके कार्यक्रम, ठहरने और आने-जाने की पूरी जानकारी यहाँ है।</p></div>`;
   if((g.ev||[]).length){ h+=`<div class="gc"><h2>📅 आपके कार्यक्रम</h2>`+g.ev.map(e=>{ const x=dt(e.d); return `<div class="ev"><div class="db"><i>${MN[x.getMonth()]}</i><b>${x.getDate()}</b><small>${WD[x.getDay()]}</small></div>
       <div class="ew"><b>${esc(e.title)}</b>${e.t?`<span>🕰 ${tHi(e.t)}</span>`:''}${e.place?`<span>📍 ${esc(e.place)}</span>`:''}${/^https?:\/\//.test(e.map||'')?`<div class="bt"><a href="${esc(e.map)}" target="_blank" rel="noopener">🗺 रास्ता देखें</a></div>`:''}</div></div>`; }).join('')
     +(g.inv?`<div class="bt" style="margin-top:10px"><a class="pr" href="${SITE}einvite-${g.inv}.html#n=${encodeURIComponent(g.name)}" target="_blank" rel="noopener">📜 निमंत्रण पत्र देखें</a></div>`:'')+`</div>`; }
@@ -202,6 +202,6 @@ async function send(){ const o={}; ['ppl','ad','ati','am','ano','ap','dd','dt','
 document.addEventListener('click',e=>{ if(e.target.closest('#q-tkb')){ $('#q-tkf').click(); return; } const b=e.target.closest('[data-a]'); if(!b) return; if(b.dataset.a==='edit'){ EDIT=true; render(); } if(b.dataset.a==='send') send(); });
 document.addEventListener('change',e=>{ if(e.target.id==='q-tkf'){ const fs=[...e.target.files]; e.target.value=''; if(fs.length) gTk(fs); } });
 (async()=>{ try{ if(tok.length<12) throw new Error('no token'); await signIn(); const s=await getDoc(doc(db,'gp',tok)); if(!s.exists()) throw new Error('no page');
-    GP=s.data(); try{ const q=await getDoc(doc(db,'gq',tok)); GQ=q.exists()?q.data():null; }catch(_){} document.title='स्वागत · '+GP.name; render(); show('s-g'); }
+    GP=s.data(); try{ const q=await getDoc(doc(db,'gq',tok)); GQ=q.exists()?q.data():null; }catch(_){} document.title=(EN?'Welcome · ':'स्वागत · ')+(EN&&GP.en?GP.en:GP.name); render(); show('s-g'); }
   catch(e){ console.warn(e); show('s-no'); } })();
 </script></body></html>

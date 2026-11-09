@@ -148,6 +148,7 @@ details.card>summary{font-family:"Martel";color:var(--ol);cursor:pointer;text-al
 @media print{@page{size:A4;margin:10mm}body{background:#fff}.hd,.toast,#s-wr .bar,#s-wa{display:none!important}.scr{display:none!important}#s-wr{display:block!important}
  .card{box-shadow:none;border:0;padding:4px 0;margin:4px 0;break-inside:auto}.rt{font-size:10.5px}.rt tr{break-inside:avoid}details>summary{display:none}}
 .wlast{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#FFF6DA;border:1.5px solid var(--gd);border-radius:12px;padding:8px 12px;margin:4px 0 10px;font-size:14px}
+.wlim{grid-column:1/-1;background:#EEF6E2;border:1.5px solid #B9D59A;border-radius:12px;padding:8px 12px;margin:4px 0 8px;font-size:14.5px;line-height:1.5}.wlim.stop{background:#FDECEA;border-color:#D9A19B;color:#7A1F17;font-size:15.5px}.wlim b{font-family:"Martel"}#wout.wlock [data-w1],#wout.wlock [data-w4]{opacity:.38;filter:grayscale(1)}
 .wlast b{font-family:"Martel";color:var(--ol)}.wlast .tk{flex:0 0 auto;padding:7px 12px;margin:0}.wlast .sp{flex:1 1 auto}
 .w1n{font-size:14px}.rt{font-size:14.5px}.wstp{font-size:15.5px}.wfrom{font-size:15px}.wmd button{font-size:15px}.wlast{font-size:15px}#wapi-out .sm{font-size:16px}
 .wfx{color:var(--mr)!important;font-weight:600}.wnx{color:#1E6B3A!important;background:#E3F1E6;border-radius:8px;padding:4px 8px;margin-top:5px}.wapi{color:#1E7D45!important}.tk.nx{background:#1E7D45;color:#fff;border-color:#1E7D45;font-weight:600}
@@ -590,7 +591,7 @@ function wrender(){ if(!D.length) return; if(window.campList) window.campList();
   const le=WLAST&&WEK[WLAST], ls=le&&wsent(le);   // 6 Nov (his words): "naam select kiya lekin unko whatsapp bheja nahi / phir bhi sent aa raha hai / resend wala option bhi daldo"
   const strip = ls ? `<div class="wlast"><span>आखिरी भेजा: <b>${esc(nmL(D[le.i]))}</b> · ${le.n.slice(0,5)} ${le.n.slice(5)}</span><span class="sp">WhatsApp पर नहीं गया?</span>`+
     `${fast?`<button class="tk" data-w4="${le.key}">🔁 फिर से भेजें</button>`:''}<button class="tk" data-w3="${le.key}">↩ ✓ हटाएँ</button></div>` : '';
-  $('#wout').innerHTML = strip + list.slice(0,WLIM).map(e=>{ const r=D[e.i], g=G[r[1]];
+  $('#wout').innerHTML = wlBar() + strip + list.slice(0,WLIM).map(e=>{ const r=D[e.i], g=G[r[1]];
     if(!e.n) return `<div class="g"><div class="t1"><div class="nb">${esc(r[2])}</div><div style="flex:1"><div class="nm">${esc(nmL(r))}</div><div class="sub2">${esc(arL(r,g))}${e.fv&&e.fv!=='all'?' · फ़ाइल '+e.fv:''}</div><div class="note">${esc(e.why)}</div></div></div>${canEd?`<div class="act"><button class="tk" data-wed="${esc(r[0])}">सुधारें</button></div>`:'<div class="w1n">शिवम जी को बताएँ – वे एडमिन पेज से ठीक करेंगे।</div>'}</div>`;
     const s=wsent(e), c1=wchat(e), fl=!s&&wfail(e), d1=W1.has(CAMP.id+e.key)||c1;
     return `<div class="g wa ${s?'sent':''}"><div class="t1"><div class="nb">${esc(r[2])}</div><div style="flex:1"><div class="nm">${esc(nmL(r))}</div>
@@ -678,7 +679,23 @@ function wpick(id){ const c=CAMPS.find(x=>x.id===id); if(!c) return; if(CAMP.id!
   $('#wm').value=c.msg||''; $('#wm2').value=c.msgOut||''; wsteps(); wrender(); wloadAll(); if(WRP) wapiPlan(); }
 function wopen(id){ show('s-wa'); const ro=!ME.mgr; $('#wm').readOnly=ro; $('#wm2').readOnly=ro; $('#wm-save').style.display=ro?'none':'block';
   if(!CAMP.active&&!ME.mgr) CAMP=CAMPS.find(c=>c.active)||INV; wpick(id||CAMP.id); }
+// 9 Nov (his words): "sanjay birla ne kal se leke ab tak 300+ whatsapp msgs bheje / ab unka account restrict bata raha hai" -> "rok toh lagana hi hai"
+// per phone: after every 20 new chats (within 30 min) a 15-minute break, and at most 60 a day – keeps the sender's WhatsApp number safe
+const WL_N=20, WL_WIN=30*60e3, WL_BRK=15*60e3, WL_DAY=60;
+const wlDay=()=>{ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); };
+function wlGet(){ let o={}; try{ o=JSON.parse(localStorage.getItem('waLim')||'{}')||{}; }catch(_){} if(o.d!==wlDay()){ o={d:wlDay(),n:0,s:[],p:o.p||0}; } o.s=(o.s||[]).filter(t=>Date.now()-t<WL_WIN); return o; }
+function wlPut(o){ try{ localStorage.setItem('waLim',JSON.stringify(o)); }catch(_){} }
+function wlState(){ const o=wlGet(), now=Date.now(); if(o.n>=WL_DAY) return {k:'day',o}; if(o.p>now) return {k:'brk',o,left:o.p-now}; return {k:'ok',o}; }
+function wlAdd(){ const o=wlGet(), now=Date.now(); o.n++; o.s.push(now); if(o.s.length>=WL_N){ o.p=now+WL_BRK; o.s=[]; } wlPut(o); }
+const wlMMSS=ms=>{ const t=Math.ceil(ms/1000); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); };
+function wlBar(){ const st=wlState(), en=L==='en', o=st.o; $('#wout').classList.toggle('wlock',st.k!=='ok');
+  if(st.k==='day') return `<div class="wlim stop">✋ ${en?`Today’s ${WL_DAY} messages from this phone are done – please send the rest tomorrow. This keeps your WhatsApp number safe.`:`इस फ़ोन से आज के ${WL_DAY} संदेश पूरे – बाकी कल भेजें। इससे आपका WhatsApp नंबर सुरक्षित रहेगा।`}</div>`;
+  if(st.k==='brk') return `<div class="wlim stop">⏳ ${en?'15-minute break – keeps your WhatsApp number safe.':'15 मिनट का ब्रेक – इससे आपका WhatsApp नंबर सुरक्षित रहेगा।'} <b id="wl-t">${wlMMSS(st.left)}</b> ${en?'left':'बाकी'}</div>`;
+  const nb=WL_N-o.s.length; return `<div class="wlim">📊 ${en?`Sent from this phone today: <b>${o.n} / ${WL_DAY}</b> · break after ${nb} more`:`इस फ़ोन से आज भेजे: <b>${o.n} / ${WL_DAY}</b> · ${nb} और के बाद 15 मिनट का ब्रेक`}</div>`; }
+setInterval(()=>{ const t=document.getElementById('wl-t'); if(!t) return; const st=wlState(); if(st.k==='brk') t.textContent=wlMMSS(st.left); else wrender(); },1000);
 $('#wout').addEventListener('click', ev=>{ const b=ev.target.closest('[data-w1],[data-w2],[data-w3],[data-w4],[data-wed],#wmore'); if(!b) return;
+  if(b.dataset.w1||b.dataset.w4){ const st=wlState(); if(st.k!=='ok'){ ev.preventDefault(); toast(st.k==='day'?(L==='en'?'Today’s limit is done – send tomorrow':'आज की सीमा पूरी – कल भेजें'):(L==='en'?'Break – please wait ':'ब्रेक चल रहा है – रुकें ')+(st.left?wlMMSS(st.left):'')); return; }
+    wlAdd(); if(wlState().k!=='ok') setTimeout(wrender,400); else { const bar=document.querySelector('#wout .wlim'); if(bar) bar.outerHTML=wlBar(); } }
   if(b.dataset.w4){ const e=WEK[b.dataset.w4]; if(!e) return; b.disabled=true; WLAST=e.key;
     const go=()=>{ const url=wlink(e); if(WMODE==='web') window.open(url,'wawin'); else location.href=url; wchatmark(e); wmark(e,true); };
     if(CAMP.mode==='none'){ go(); return }

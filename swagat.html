@@ -195,9 +195,9 @@ async function send(){ const o={}; ['ppl','ad','ati','am','ano','ap','dd','dt','
   try{ const tk=[]; for(const f of TKF){ const k=Date.now().toString(36)+Math.random().toString(36).slice(2,5), u=new Uint8Array(await f.arrayBuffer()), CH=700000, n=Math.max(1,Math.ceil(u.length/CH));
       for(let i=0;i<n;i++){ b.textContent=(EN?'Sending ticket… ':'टिकट भेज रहे हैं… ')+Math.round((i+1)*100/n)+'%'; await setDoc(doc(db,'gq',tok,'f',k+'_'+i),{d:b64e(u.subarray(i*CH,(i+1)*CH))}); }
       tk.push({k,name:f.name.slice(0,80),type:f.type||'',size:u.length,n}); }
-    o.tk=[...((GQ&&GQ.tk)||[]),...tk].slice(-6);
+    const tkAll=[...((GQ&&GQ.tk)||[]),...tk].slice(-6); if(tkAll.length) o.tk=tkAll;   // no tk field when there is no ticket (works with older rules too)
     await setDoc(doc(db,'gq',tok),o); GQ=o; EDIT=false; TKF=[]; TKS=''; render(); toast('धन्यवाद – जानकारी मिल गई ✓');
-    if(GP.nt) fetch('https://ntfy.sh',{method:'POST',body:JSON.stringify({topic:GP.nt,title:'📩 मेहमान की यात्रा जानकारी',message:GP.name+': आगमन '+(o.ad?dHi(o.ad)+' '+tHi(o.ati):'?')+(o.ano?' · '+o.ano:'')+(o.dd?' · वापसी '+dHi(o.dd):'')+(o.tk.length?' · 🎫 टिकट':''),click:SITE+'tebmanagement.html',tags:['envelope_with_arrow']})}).catch(()=>{}); }
+    if(GP.nt) fetch('https://ntfy.sh',{method:'POST',body:JSON.stringify({topic:GP.nt,title:'📩 मेहमान की यात्रा जानकारी',message:GP.name+': आगमन '+(o.ad?dHi(o.ad)+' '+tHi(o.ati):'?')+(o.ano?' · '+o.ano:'')+(o.dd?' · वापसी '+dHi(o.dd):'')+(tk.length?' · 🎫 टिकट':''),click:SITE+'tebmanagement.html',tags:['envelope_with_arrow']})}).catch(()=>{}); }
   catch(e){ console.error(e); $('#q-err').textContent='भेज नहीं पाए – नेट देखकर फिर दबाएँ'; b.disabled=false; b.textContent=EN?'Send details':'जानकारी भेजें'; } }
 document.addEventListener('click',e=>{ if(e.target.closest('#q-tkb')){ $('#q-tkf').click(); return; } const b=e.target.closest('[data-a]'); if(!b) return; if(b.dataset.a==='edit'){ EDIT=true; render(); } if(b.dataset.a==='send') send(); });
 document.addEventListener('change',e=>{ if(e.target.id==='q-tkf'){ const fs=[...e.target.files]; e.target.value=''; if(fs.length) gTk(fs); } });

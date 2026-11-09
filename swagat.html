@@ -71,6 +71,17 @@ mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 .two{display:flex;gap:8px}.two>div{flex:1;min-width:0}
 .ok2{background:#EEF6E2;border:1px solid #B9D59A;border-radius:12px;padding:10px;font-size:14px;margin-top:8px}
 .ft{text-align:center;color:var(--mu);font-size:13px;margin:18px 0}.tks{font-size:13.5px;color:var(--mu);margin:2px 0 8px;line-height:1.45}
+.upz{display:flex;align-items:center;gap:12px;width:100%;border:0;border-radius:16px;padding:12px 14px;margin:14px 0 4px;background:linear-gradient(135deg,#2A6A9B,#1A4A70);color:#fff;text-align:left;box-shadow:0 6px 18px rgba(26,74,112,.22);cursor:pointer;font-family:inherit}
+.upz .i{font-size:26px;flex:none}.upz .t{flex:1;min-width:0}.upz b{display:block;font-family:"Martel";font-size:16px;color:#fff;line-height:1.35}.upz small{display:block;font-size:12.5px;opacity:.92;line-height:1.4;margin-top:1px;word-break:break-word}
+.upz .go{flex:none;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px}
+.upz.done{background:#fff;color:var(--ink);border:1.6px solid #2E8B57;box-shadow:0 2px 10px rgba(46,139,87,.12)}.upz.done b{color:#1E7D45}.upz.done .go{background:#EEF6E2;color:#1E7D45}
+.tr2{display:flex;gap:12px;padding:12px 0;border-top:1px dashed #E7DDC2}.gc h2+.tr2{border-top:0;padding-top:4px}
+.tr2 .ic{flex:none;width:44px;height:44px;border-radius:13px;background:#F4EEDC;border:1px solid #E7DDC2;display:flex;align-items:center;justify-content:center;font-size:23px}
+.tr2 .tx{flex:1;min-width:0}.tr2 .lb{font-size:12.5px;color:var(--mu);letter-spacing:.02em}.tr2 .mn{font-family:"Martel";font-size:16px;color:var(--ol);line-height:1.4}.tr2 .sb{font-size:14px;color:var(--ink);margin-top:2px;line-height:1.45}
+.tr2 .wait{font-size:14px}.pill{display:inline-block;margin-top:5px;font-size:12px;border:1px solid #D8CDAE;border-radius:20px;padding:1px 9px;color:#7A5A10;background:#FBF6E8;letter-spacing:.03em}
+.fm2{margin-top:12px;border-top:1.5px solid var(--gd);padding-top:10px}.fm2 .fh{font-family:"Martel";color:var(--mr);font-size:15px;text-align:center;margin-bottom:2px}
+.fm2 .fsec{font-family:"Martel";font-size:14px;color:var(--ol);margin:12px 0 2px;padding-bottom:3px;border-bottom:1px dashed #E7DDC2}
+.in.fg{background:#E3F1E6!important;border-color:#9CC79F!important}.lnk{display:block;margin:8px auto 0;background:none;border:0;color:var(--mu);text-decoration:underline;font-size:14px;font-family:inherit}
 .lgsw{display:flex;border:1.5px solid var(--ol);border-radius:14px;overflow:hidden}.lgsw button{border:0;background:#fff;padding:3px 10px;font-size:13px;font-weight:700;color:var(--ol)}
 html:not([lang=en]) .lgsw [data-lang=hi],html[lang=en] .lgsw [data-lang=en]{background:var(--ol);color:#fff}
 </style>
@@ -147,26 +158,51 @@ function parseTicket(raw){ const up=' '+String(raw||'').toUpperCase().replace(/[
   if(o.ad||o.dd) found.push('तारीख'); if(o.at||o.dt) found.push('समय'); o.found=found; return o; }
 async function ticketRead(file){ const isPdf=/pdf/.test(file.type)||/\.pdf$/i.test(file.name); const txt=isPdf?await pdfText(file):await imgText(file); return parseTicket(txt); }
 
-let TKF=[], TKS='';   // 9 Nov: "mehmaan khud ticket daale" – tickets chosen on this page, sent with the form
-async function gTk(fs){ const st=$('#q-tks'), say=(t,c)=>{ TKS=t; if(st){ st.textContent=t; st.style.color=c||''; } };
-  const big=fs.some(f=>f.size>10e6); fs=fs.filter(f=>f.size<=10e6).slice(0,Math.max(0,4-TKF.length));
-  if(!fs.length){ say(big?(EN?'The file is too big (up to 10 MB)':'फ़ाइल बहुत बड़ी है (10 MB तक)'):(EN?'Up to 4 tickets':'4 टिकट तक'),'var(--mr)'); return; }
-  let got=0; for(const f of fs){ say(EN?'Reading the ticket… (a photo takes 10–20 seconds)':'टिकट पढ़ रहे हैं… (फ़ोटो हो तो 10–20 सेकंड)','#7A5A10'); TKF.push(f);
-    try{ const p=await ticketRead(f); gFill(p); if(p.found.length) got++; }catch(e){ console.warn(e); } }
-  say(got?(EN?'✓ Filled from the ticket – please check the green boxes once, then press Send':'✓ टिकट से भर गया – हरे खाने एक बार देख लें, फिर “जानकारी भेजें” दबाएँ'):(EN?'Could not read the ticket – please fill it in by hand. The ticket will still reach us.':'टिकट पढ़ नहीं पाए – हाथ से भर दें, टिकट फिर भी हमें मिल जाएगा'),got?'#1E7D45':'var(--mr)'); const f0=$('#q-ad'); if(f0) f0.scrollIntoView({behavior:'smooth',block:'center'}); }
-function gFill(p){ const set=(k,v)=>{ const el=$('#q-'+k); if(el&&v){ el.value=v; el.style.background='#E3F1E6'; } };
-  if(p.dir==='dep'){ set('dd',p.dd); set('dt',p.dt); set('dno',p.no); } else { set('ad',p.ad); set('ati',p.at); set('am',p.am); set('ano',p.no); set('ap',p.ap); }
-  if(p.ppl&&!$('#q-ppl').value) set('ppl',p.ppl); }
-function render(){ const g=GP, a=g.arr||{}, d=g.dep||{}, p=g.pick||{}, dr=g.drop||{}; let h='';
+// 9 Nov (his words): "return travel details ka bhi fill box … jaisa upar hai same waisa neeche bhi rahe / koshish ye karni hai ki guest ko likhna na pade /
+//   kuch chizein automatically fill ho jaaye / 🚆 Your travel yaha pe emoji flight/train/car / sab kuch aisa hona chahiye ki 1000000% professional dikhe"
+let TK={arr:[],dep:[]}, TKS={arr:'',dep:''}, TKC={arr:'',dep:''}, FV=null, FG=new Set();
+const FL=/^(6E|AI|UK|SG|IX|QP|I5|G8)\s?-?\d/i;
+const modeOf=(m,no)=>{ m=String(m||''); no=String(no||'').trim(); if(/फ़्लाइट|फ्लाइट|flight/i.test(m)||FL.test(no)) return 'fl'; if(/ट्रेन|train/i.test(m)||/^\d{5}\b/.test(no)) return 'tr'; if(/बस|bus/i.test(m)) return 'bus'; if(/गाड़ी|car/i.test(m)) return 'car'; return ''; };
+const ICA={fl:'🛬',tr:'🚆',bus:'🚌',car:'🚗'}, ICD={fl:'🛫',tr:'🚆',bus:'🚌',car:'🚗'}, ICH={fl:'✈️',tr:'🚆',bus:'🚌',car:'🚗'};
+const MLB=k=>({fl:EN?'Flight':'फ़्लाइट',tr:EN?'Train':'ट्रेन',bus:EN?'Bus':'बस',car:EN?'By car':'अपनी गाड़ी'}[k]||'');
+const nice=s=>String(s||'').replace(/\b[A-Z]{3,}\b/g,w=>/^(PNR|EXP|SF|AC)$/.test(w)?(w==='EXP'?'Exp':w):w[0]+w.slice(1).toLowerCase());
+function noParts(no){ const s=String(no||''); const m=/PNR\s*([A-Z0-9]{6,10})/i.exec(s); return {no:nice(s.replace(/\s*·?\s*PNR\s*[A-Z0-9]{6,10}/i,'').trim()), pnr:m?m[1]:''}; }
+function trRow2(kind,ic,lab,main,sub,pnr,extra){ return `<div class="tr2"><div class="ic">${ic}</div><div class="tx"><div class="lb">${lab}</div>${main}${sub?`<div class="sb">${sub}</div>`:''}${pnr?`<span class="pill">PNR ${esc(pnr)}</span>`:''}${extra||''}</div></div>`; }
+function upBtn(dir){ const sent=((GQ&&GQ.tk)||[]).filter(t=>(t.dir||'arr')===dir).length, have=TK[dir].length, done=have||sent;
+  const t=dir==='arr'?(EN?'Arrival ticket':'आने का टिकट'):(EN?'Return ticket':'वापसी का टिकट');
+  const main=done?`✓ ${t} ${have?(EN?'added':'मिल गया'):(EN?'sent':'भेज दिया')}`:`${dir==='arr'?(EN?'Add your arrival ticket':'आने का टिकट डालें'):(EN?'Add your return ticket':'वापसी का टिकट डालें')}`;
+  const sub=done?(have?esc(TK[dir].map(f=>f.name).join(', ')):(EN?'Press again to add another ticket':'दूसरा टिकट हो तो फिर दबाएँ')):(EN?'PDF or photo – date, time, train / flight fill in by themselves':'PDF या फ़ोटो – तारीख़, समय, ट्रेन / फ़्लाइट अपने-आप भर जाएँगे');
+  return `<button type="button" class="upz${done?' done':''}" data-up="${dir}"><span class="i">🎫</span><span class="t"><b>${main}</b><small data-notx>${sub}</small></span><span class="go">${done?'↻':'＋'}</span></button><input type="file" id="up-${dir}" accept="application/pdf,image/*" multiple style="display:none">${TKS[dir]?`<p class="tks" style="color:${TKC[dir]}">${esc(TKS[dir])}</p>`:''}`; }
+function fvInit(){ const A=GP.arr||{}, D=GP.dep||{}; FV=Object.assign({ppl:GP.ppl||'',ad:A.ad||'',ati:A.ati||'',am:A.am||'',ano:A.ano||'',ap:A.ap||'',dd:D.dd||'',dt:D.dt||'',dno:D.dno||'',ph:GP.ph||'',note:''},GQ||{}); delete FV.tk; delete FV.at; if(!FV.ad&&!FV.dd) FV.ad='2026-11-20'; if(!FV.am) FV.am='ट्रेन'; FG=new Set(); }
+async function gTk(fs,dir){ const say=(t,c)=>{ TKS[dir]=t; TKC[dir]=c||''; render(); };
+  const big=fs.some(f=>f.size>10e6); fs=fs.filter(f=>f.size<=10e6).slice(0,Math.max(0,3-TK[dir].length));
+  if(!fs.length){ say(big?(EN?'The file is too big (up to 10 MB)':'फ़ाइल बहुत बड़ी है (10 MB तक)'):(EN?'Up to 3 tickets':'3 टिकट तक'),'var(--mr)'); return; }
+  if(!FV) fvInit(); EDIT=true; let got=0;
+  for(const f of fs){ say(EN?'Reading the ticket… (a photo takes 10–20 seconds)':'टिकट पढ़ रहे हैं… (फ़ोटो हो तो 10–20 सेकंड)','#7A5A10'); TK[dir].push(f);
+    try{ const p=await ticketRead(f); if(gFill(p,dir)) got++; }catch(e){ console.warn(e); } }
+  say(got?(EN?'✓ Read from the ticket – please check the green boxes below once, then press “Send details”':'✓ टिकट से भर गया – नीचे हरे खाने एक बार देख लें, फिर “जानकारी भेजें” दबाएँ'):(EN?'Could not read this ticket – please fill the boxes below. The ticket will still reach us.':'यह टिकट पढ़ नहीं पाए – नीचे खाने भर दें, टिकट फिर भी हमें मिल जाएगा'),got?'#1E7D45':'var(--mr)');
+  const f0=$(dir==='dep'?'#q-dd':'#q-ad'); if(f0) f0.scrollIntoView({behavior:'smooth',block:'center'}); }
+function gFill(p,dir){ const set=(k,v)=>{ if(v){ FV[k]=String(v); FG.add(k); } }; let n=0;
+  if(dir==='dep'){ set('dd',p.dd||p.ad); set('dt',p.dt); set('dno',p.no); n=+!!(p.dd||p.ad||p.no); }
+  else { set('ad',p.ad||p.dd); set('ati',p.at); set('am',p.am); set('ano',p.no); set('ap',p.ap); n=+!!(p.ad||p.dd||p.no); }
+  if(p.ppl&&!FV.ppl) set('ppl',p.ppl); return n; }
+function render(){ const g=GP, p=g.pick||{}, dr=g.drop||{}; let h='';
+  const fresh=GQ&&(GQ.at||0)>(g.at||0), a=fresh?{ad:GQ.ad,ati:GQ.ati,am:GQ.am,ano:GQ.ano,ap:GQ.ap}:(g.arr||{}), d=fresh?{dd:GQ.dd,dt:GQ.dt,dno:GQ.dno}:(g.dep||{});
+  const ma=modeOf(a.am,a.ano), md=modeOf('',d.dno), an=noParts(a.ano), dn=noParts(d.dno), wait=t=>`<div class="wait">${t}</div>`;
   h+=`<div class="gc"><p class="hi">आदरणीय <span data-notx>${esc(EN&&g.en?g.en:g.name)}</span></p><p class="lead">आदित्य संग खुशबू के शुभ विवाह में जोधपुर पधारने के लिए आपका हार्दिक आभार।<br>आपके कार्यक्रम, ठहरने और आने-जाने की पूरी जानकारी यहाँ है।</p></div>`;
-  h+=`<button type="button" class="btn" id="q-tkb" style="background:#1F5C8B;margin:12px 0 2px">🎫 ${EN?'Fill from ticket (PDF / photo)':'टिकट से भरें (PDF / फ़ोटो)'}</button><input type="file" id="q-tkf" accept="application/pdf,image/*" multiple style="display:none"><p class="tks" id="q-tks" style="text-align:center">${esc(TKS||(EN?'Add your train / flight ticket – your travel details fill in by themselves':'अपना ट्रेन / फ़्लाइट टिकट डालें – यात्रा की जानकारी अपने-आप भर जाएगी'))}</p>`;   // 9 Nov (his words): "fill from ticket wali blue line sabse upar … uske neeche your travel … then your programme block"
-  h+=`<div class="gc"><h2>🚆 आपकी यात्रा</h2>
-    <div class="ln"><i>⬇</i><div><b>आगमन</b><br>${a.ad?`${dHi(a.ad)}${a.ati?' · '+tHi(a.ati):''}<small>${[a.am,a.ano,a.ap].filter(Boolean).map(esc).join(' · ')}</small>`:'<span class="wait">अपनी आने की जानकारी नीचे भेज दीजिए</span>'}</div></div>
-    <div class="ln"><i>🚗</i><div><b>आपको लेने</b><br>${p.name?`<span data-notx>${esc(p.name)}</span>${p.car?`<small>गाड़ी: <span data-notx>${esc(p.car)}</span></small>`:''}<div class="bt">${call(p.ph)}</div>`:'<span class="wait">हमारी टीम जल्द बताएगी कि कौन लेने आएगा</span>'}</div></div>
-    <div class="ln"><i>🏨</i><div><b>ठहरने की व्यवस्था</b><br>${g.hotel?`<span data-notx>${esc(g.hotel)}</span>${g.room?` · कमरा <b>${esc(g.room)}</b>`:''}<div class="bt"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(g.hotel+' Jodhpur')}" target="_blank" rel="noopener">🗺 होटल का रास्ता</a></div>`:'<span class="wait">जल्द बताई जाएगी</span>'}</div></div>
-    <div class="ln"><i>⬆</i><div><b>वापसी</b><br>${d.dd?`${dHi(d.dd)}${d.dt?' · '+tHi(d.dt):''}<small>${[d.dno,dr.name?'छोड़ने: '+dr.name:''].filter(Boolean).map(esc).join(' · ')}</small>${dr.ph?`<div class="bt">${call(dr.ph)}</div>`:''}`:'<span class="wait">अपनी वापसी की जानकारी नीचे भेज दीजिए</span>'}</div></div>
-    ${GQ&&!EDIT?`<div class="ok2">✓ आपकी भेजी जानकारी हमें मिल गई है – धन्यवाद! हमारी टीम इसी हिसाब से व्यवस्था करेगी।${(GQ.tk||[]).length?`<br>🎫 ${EN?'Ticket received':'टिकट मिल गया'}${GQ.tk.length>1?' ('+GQ.tk.length+')':''}`:''}<div class="bt"><button data-a="edit">✍ जानकारी बदलें</button></div></div>`
-      :EDIT?form():`<div class="bt" style="margin-top:10px"><button class="pr" data-a="edit">✍ ${a.ad||d.dd?'जानकारी बदलनी हो तो यहाँ भेजें':'अपनी यात्रा की जानकारी भेजें'}</button></div>`}</div>`;
+  h+=upBtn('arr');
+  h+=`<div class="gc"><h2>${ICH[ma]||'🧳'} ${EN?'Your travel':'आपकी यात्रा'}</h2>`
+    +trRow2('a',ICA[ma]||'⬇',EN?'Arrival':'आगमन',a.ad?`<div class="mn">${dHi(a.ad)}${a.ati?' · '+tHi(a.ati):''}</div>`:wait(EN?'Add your arrival ticket above, or send the details below':'ऊपर आने का टिकट डालें, या नीचे जानकारी भेजें'),
+      a.ad?[ma?`${ICH[ma]} ${MLB(ma)}`:'',an.no?`<span data-notx>${esc(an.no)}</span>`:'',a.ap?esc(a.ap):''].filter(Boolean).join(' · '):'',a.ad?an.pnr:'')
+    +trRow2('p','🚗',EN?'Your pickup':'आपको लेने',p.name?`<div class="mn" data-notx>${esc(p.name)}</div>`:wait(EN?'Our team will share who is coming to pick you up':'हमारी टीम जल्द बताएगी कि कौन लेने आएगा'),
+      p.name&&p.car?`${EN?'Car':'गाड़ी'}: <span data-notx>${esc(p.car)}</span>`:'','',p.name&&p.ph?`<div class="bt">${call(p.ph)}</div>`:'')
+    +trRow2('h','🏨',EN?'Your stay':'ठहरने की व्यवस्था',g.hotel?`<div class="mn"><span data-notx>${esc(g.hotel)}</span>${g.room?` · ${EN?'Room':'कमरा'} ${esc(g.room)}`:''}</div>`:wait(EN?'Will be shared soon':'जल्द बताई जाएगी'),'','',
+      g.hotel?`<div class="bt"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(g.hotel+' Jodhpur')}" target="_blank" rel="noopener">🗺 ${EN?'Hotel directions':'होटल का रास्ता'}</a></div>`:'')
+    +trRow2('d',ICD[md]||'⬆',EN?'Return':'वापसी',d.dd?`<div class="mn">${dHi(d.dd)}${d.dt?' · '+tHi(d.dt):''}</div>`:wait(EN?'Add your return ticket below, or send the details':'नीचे वापसी का टिकट डालें, या जानकारी भेजें'),
+      d.dd?[md?`${ICH[md]} ${MLB(md)}`:'',dn.no?`<span data-notx>${esc(dn.no)}</span>`:'',dr.name?`${EN?'Drop':'छोड़ने'}: <span data-notx>${esc(dr.name)}</span>`:''].filter(Boolean).join(' · '):'',d.dd?dn.pnr:'',d.dd&&dr.ph?`<div class="bt">${call(dr.ph)}</div>`:'')
+    +(EDIT?form():GQ?`<div class="ok2">✓ ${EN?'We have received your details – thank you! Our team will arrange everything accordingly.':'आपकी भेजी जानकारी हमें मिल गई है – धन्यवाद! हमारी टीम इसी हिसाब से व्यवस्था करेगी।'}<div class="bt"><button data-a="edit">✍ ${EN?'Change details':'जानकारी बदलें'}</button></div></div>`
+      :`<div class="bt" style="margin-top:12px"><button class="pr" data-a="edit">✍ ${a.ad||d.dd?(EN?'Need a change? Send it here':'जानकारी बदलनी हो तो यहाँ भेजें'):(EN?'Send travel details without a ticket':'बिना टिकट के जानकारी भेजें')}</button></div>`)+`</div>`;
+  h+=upBtn('dep');
   if((g.ev||[]).length){ h+=`<div class="gc"><h2>📅 आपके कार्यक्रम</h2>`+g.ev.map(e=>{ const x=dt(e.d); return `<div class="ev"><div class="db"><i>${MN[x.getMonth()]}</i><b>${x.getDate()}</b><small>${WD[x.getDay()]}</small></div>
       <div class="ew"><b>${esc(e.title)}</b>${e.t?`<span>🕰 ${tHi(e.t)}</span>`:''}${e.place?`<span>📍 ${esc(e.place)}</span>`:''}${/^https?:\/\//.test(e.map||'')?`<div class="bt"><a href="${esc(e.map)}" target="_blank" rel="noopener">🗺 रास्ता देखें</a></div>`:''}</div></div>`; }).join('')
     +(g.inv?`<div class="bt" style="margin-top:10px"><a class="pr" href="${SITE}einvite-${g.inv}.html#n=${encodeURIComponent(g.name)}" target="_blank" rel="noopener">📜 निमंत्रण पत्र देखें</a></div>`:'')+`</div>`; }
@@ -174,26 +210,37 @@ function render(){ const g=GP, a=g.arr||{}, d=g.dep||{}, p=g.pick||{}, dr=g.drop
     ${p.name&&p.ph?`<div class="ln"><i>🚗</i><div>आपको लेने आने वाले: <span data-notx>${esc(p.name)}</span><div class="bt">${call(p.ph)}</div></div></div>`:''}</div>`;
   h+=`<div class="gc"><h2>🎺 बारात लाइव</h2><p style="margin:0;font-size:15px">21 नवम्बर को बारात कहाँ तक पहुँची – यहाँ लाइव देखें।</p><div class="bt"><a href="${BARAAT}" target="_blank" rel="noopener">बारात लाइव खोलें</a></div></div>`;
   $('#out').innerHTML=h; }
-function form(){ const A=GP.arr||{}, D=GP.dep||{}; const q=Object.assign({ppl:GP.ppl||'',ad:A.ad||'2026-11-20',ati:A.ati||'',am:A.am||'ट्रेन',ano:A.ano||'',ap:A.ap||'',dd:D.dd||'',dt:D.dt||'',dno:D.dno||''},GQ||{}); const v=k=>esc(q[k]??'');
-  return `<div style="margin-top:10px;border-top:1.5px solid var(--gd);padding-top:8px"><label>कितने लोग आ रहे हैं</label><input class="in" id="q-ppl" inputmode="numeric" value="${v('ppl')}">
-   <div class="two"><div><label>आने की तारीख</label><input class="in" id="q-ad" type="date" value="${v('ad')}"></div><div><label>समय</label><input class="in" id="q-ati" type="time" value="${v('ati')}"></div></div>
-   <div class="two"><div><label>कैसे आ रहे हैं</label><select class="in" id="q-am">${MODES.map(m=>`<option value="${m}"${m===q.am?' selected':''}>${m}</option>`).join('')}</select></div><div><label>ट्रेन / फ़्लाइट नंबर</label><input class="in" id="q-ano" value="${v('ano')}"></div></div>
-   <label>कहाँ उतरेंगे</label><input class="in" id="q-ap" list="q-apl" value="${v('ap')}" placeholder="जैसे: जोधपुर स्टेशन, एयरपोर्ट"><datalist id="q-apl"><option value="जोधपुर रेलवे स्टेशन"><option value="भगत की कोठी स्टेशन"><option value="राई का बाग स्टेशन"><option value="जोधपुर एयरपोर्ट"><option value="बस स्टैंड"></datalist>
-   <div class="two"><div><label>वापसी की तारीख</label><input class="in" id="q-dd" type="date" value="${v('dd')}"></div><div><label>समय</label><input class="in" id="q-dt" type="time" value="${v('dt')}"></div></div>
-   <label>वापसी ट्रेन / फ़्लाइट</label><input class="in" id="q-dno" value="${v('dno')}"><label>आपका मोबाइल</label><input class="in" id="q-ph" type="tel" value="${v('ph')}">
+function form(){ if(!FV) fvInit(); const v=k=>esc(FV[k]??''), c=k=>FG.has(k)?' fg':'';
+  const OPT=[['ट्रेन','🚆 ट्रेन'],['फ़्लाइट','✈️ फ़्लाइट'],['बस','🚌 बस'],['गाड़ी','🚗 अपनी गाड़ी'],['अन्य','अन्य']];
+  return `<div class="fm2"><div class="fh">${EN?'Please check and send':'एक बार देखकर भेज दें'}</div>
+   <div class="fsec">⬇ ${EN?'Arrival':'आगमन'}</div>
+   <div class="two"><div><label>आने की तारीख</label><input class="in${c('ad')}" id="q-ad" type="date" value="${v('ad')}"></div><div><label>समय</label><input class="in${c('ati')}" id="q-ati" type="time" value="${v('ati')}"></div></div>
+   <div class="two"><div><label>कैसे आ रहे हैं</label><select class="in${c('am')}" id="q-am">${OPT.map(([m,l])=>`<option value="${m}"${m===FV.am?' selected':''}>${l}</option>`).join('')}</select></div><div><label>ट्रेन / फ़्लाइट नंबर</label><input class="in${c('ano')}" id="q-ano" value="${v('ano')}"></div></div>
+   <label>कहाँ उतरेंगे</label><input class="in${c('ap')}" id="q-ap" list="q-apl" value="${v('ap')}" placeholder="जैसे: जोधपुर स्टेशन, एयरपोर्ट"><datalist id="q-apl"><option value="जोधपुर स्टेशन"><option value="भगत की कोठी"><option value="राईका बाग"><option value="जोधपुर एयरपोर्ट"><option value="बस स्टैंड"></datalist>
+   <div class="fsec">⬆ ${EN?'Return':'वापसी'}</div>
+   <div class="two"><div><label>वापसी की तारीख</label><input class="in${c('dd')}" id="q-dd" type="date" value="${v('dd')}"></div><div><label>समय</label><input class="in${c('dt')}" id="q-dt" type="time" value="${v('dt')}"></div></div>
+   <label>वापसी ट्रेन / फ़्लाइट</label><input class="in${c('dno')}" id="q-dno" value="${v('dno')}">
+   <div class="fsec">👥 ${EN?'You':'आप'}</div>
+   <div class="two"><div><label>कितने लोग आ रहे हैं</label><input class="in${c('ppl')}" id="q-ppl" inputmode="numeric" value="${v('ppl')}"></div><div><label>आपका मोबाइल</label><input class="in${c('ph')}" id="q-ph" type="tel" value="${v('ph')}"></div></div>
    <label>कुछ और बताना हो</label><textarea class="in" id="q-note" rows="2">${v('note')}</textarea>
-   <button class="btn" data-a="send">जानकारी भेजें</button><div class="err" id="q-err"></div></div>`; }
-async function send(){ const o={}; ['ppl','ad','ati','am','ano','ap','dd','dt','dno','ph','note'].forEach(k=>o[k]=($('#q-'+k).value||'').trim().slice(0,k==='note'?480:60));
-  if(!o.ad&&!o.dd){ $('#q-err').textContent='कृपया आने या वापसी की तारीख लिखें'; return; } o.at=Date.now(); const b=document.querySelector('[data-a=send]'); b.disabled=true;
-  try{ const tk=[]; for(const f of TKF){ const k=Date.now().toString(36)+Math.random().toString(36).slice(2,5), u=new Uint8Array(await f.arrayBuffer()), CH=700000, n=Math.max(1,Math.ceil(u.length/CH));
+   <button class="btn" data-a="send">✓ ${EN?'Send details':'जानकारी भेजें'}</button><button type="button" class="lnk" data-a="cancel">${EN?'Cancel':'रद्द करें'}</button><div class="err" id="q-err"></div></div>`; }
+async function send(){ const K=['ppl','ad','ati','am','ano','ap','dd','dt','dno','ph','note'], o={}; K.forEach(k=>{ const el=$('#q-'+k); if(el) FV[k]=el.value; o[k]=String(FV[k]||'').trim().slice(0,k==='note'?480:60); });
+  if(!o.ad&&!o.dd){ $('#q-err').textContent=EN?'Please give an arrival or return date':'कृपया आने या वापसी की तारीख लिखें'; return; } o.at=Date.now(); const b=document.querySelector('[data-a=send]'); b.disabled=true;
+  try{ const tk=[]; for(const dir of ['arr','dep']) for(const f of TK[dir]){ const k=Date.now().toString(36)+Math.random().toString(36).slice(2,5), u=new Uint8Array(await f.arrayBuffer()), CH=700000, n=Math.max(1,Math.ceil(u.length/CH));
       for(let i=0;i<n;i++){ b.textContent=(EN?'Sending ticket… ':'टिकट भेज रहे हैं… ')+Math.round((i+1)*100/n)+'%'; await setDoc(doc(db,'gq',tok,'f',k+'_'+i),{d:b64e(u.subarray(i*CH,(i+1)*CH))}); }
-      tk.push({k,name:f.name.slice(0,80),type:f.type||'',size:u.length,n}); }
+      tk.push({k,name:f.name.slice(0,80),type:f.type||'',size:u.length,n,dir}); }
     const tkAll=[...((GQ&&GQ.tk)||[]),...tk].slice(-6); if(tkAll.length) o.tk=tkAll;   // no tk field when there is no ticket (works with older rules too)
-    await setDoc(doc(db,'gq',tok),o); GQ=o; EDIT=false; TKF=[]; TKS=''; render(); toast('धन्यवाद – जानकारी मिल गई ✓');
+    await setDoc(doc(db,'gq',tok),o); GQ=o; EDIT=false; FV=null; FG=new Set(); TK={arr:[],dep:[]}; TKS={arr:'',dep:''}; render(); toast(EN?'Thank you – details received ✓':'धन्यवाद – जानकारी मिल गई ✓');
+    const tc=document.querySelectorAll('#out .gc')[1]; if(tc) tc.scrollIntoView({behavior:'smooth',block:'start'});
     if(GP.nt) fetch('https://ntfy.sh',{method:'POST',body:JSON.stringify({topic:GP.nt,title:'📩 मेहमान की यात्रा जानकारी',message:GP.name+': आगमन '+(o.ad?dHi(o.ad)+' '+tHi(o.ati):'?')+(o.ano?' · '+o.ano:'')+(o.dd?' · वापसी '+dHi(o.dd):'')+(tk.length?' · 🎫 टिकट':''),click:SITE+'tebmanagement.html',tags:['envelope_with_arrow']})}).catch(()=>{}); }
-  catch(e){ console.error(e); $('#q-err').textContent='भेज नहीं पाए – नेट देखकर फिर दबाएँ'; b.disabled=false; b.textContent=EN?'Send details':'जानकारी भेजें'; } }
-document.addEventListener('click',e=>{ if(e.target.closest('#q-tkb')){ $('#q-tkf').click(); return; } const b=e.target.closest('[data-a]'); if(!b) return; if(b.dataset.a==='edit'){ EDIT=true; render(); } if(b.dataset.a==='send') send(); });
-document.addEventListener('change',e=>{ if(e.target.id==='q-tkf'){ const fs=[...e.target.files]; e.target.value=''; if(fs.length){ if(!EDIT){ EDIT=true; render(); } gTk(fs); } } });
+  catch(e){ console.error(e); $('#q-err').textContent=EN?'Could not send – check the internet and press again':'भेज नहीं पाए – नेट देखकर फिर दबाएँ'; b.disabled=false; b.textContent='✓ '+(EN?'Send details':'जानकारी भेजें'); } }
+document.addEventListener('click',e=>{ const u=e.target.closest('[data-up]'); if(u){ $('#up-'+u.dataset.up).click(); return; } const b=e.target.closest('[data-a]'); if(!b) return;
+  if(b.dataset.a==='edit'){ EDIT=true; fvInit(); render(); const f=$('#q-ad'); if(f) f.scrollIntoView({behavior:'smooth',block:'center'}); }
+  if(b.dataset.a==='cancel'){ EDIT=false; FV=null; FG=new Set(); TK={arr:[],dep:[]}; TKS={arr:'',dep:''}; render(); }
+  if(b.dataset.a==='send') send(); });
+document.addEventListener('change',e=>{ const m=/^up-(arr|dep)$/.exec(e.target.id||''); if(m){ const fs=[...e.target.files]; e.target.value=''; if(fs.length) gTk(fs,m[1]); return; }
+  const id=e.target.id||''; if(FV&&id.startsWith('q-')){ FV[id.slice(2)]=e.target.value; } });
+document.addEventListener('input',e=>{ const id=e.target.id||''; if(FV&&id.startsWith('q-')){ const k=id.slice(2); FV[k]=e.target.value; if(FG.delete(k)) e.target.classList.remove('fg'); } });
 (async()=>{ try{ if(tok.length<12) throw new Error('no token'); await signIn(); const s=await getDoc(doc(db,'gp',tok)); if(!s.exists()) throw new Error('no page');
     GP=s.data(); try{ const q=await getDoc(doc(db,'gq',tok)); GQ=q.exists()?q.data():null; }catch(_){} document.title=(EN?'Welcome · ':'स्वागत · ')+(EN&&GP.en?GP.en:GP.name); render(); show('s-g'); }
   catch(e){ console.warn(e); show('s-no'); } })();

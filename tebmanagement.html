@@ -273,7 +273,7 @@ const FEV=[['e18vin'],['e20til','e20rec'],['e21geet'],['e21viv']], inv=f=>{ cons
 const ctPh=n=>{ const c=C.ct.find(x=>x.name===n); return c?ph10(c.ph):''; };
 async function syncGp(g){ if(!g||!g.tok) return; await loadGuests(); const r=GUR.get(g.rid)||GUM.get(g.name), f=r?r.f:[], on=x=>x&&String(x)!=='0';
   const ev=[]; FEV.forEach((ids,i)=>{ if(on(f[i])) ids.forEach(id=>{ const e=EVI(id); if(e) ev.push({title:e.title,d:e.d,t:e.t||'',place:e.place||'',map:e.map||''}); }); });
-  const d={name:g.name,en:(r&&r.en)||'',ppl:g.ppl||'',ev,inv:r?inv(f):'',arr:{ad:g.ad||'',ati:g.ati||'',am:g.am||'',ano:g.ano||'',ap:g.ap||''},pick:{name:g.pick||'',ph:ctPh(g.pick),car:g.car||''},
+  const d={name:g.name,en:(r&&r.en)||'',ph:ph10(g.ph||(r&&r.ph)||''),ppl:g.ppl||'',ev,inv:r?inv(f):'',arr:{ad:g.ad||'',ati:g.ati||'',am:g.am||'',ano:g.ano||'',ap:g.ap||''},pick:{name:g.pick||'',ph:ctPh(g.pick),car:g.car||''},
     hotel:g.hotel||'',room:g.room||'',dep:{dd:g.dd||'',dt:g.dt||'',dno:g.dno||''},drop:{name:g.drop||'',ph:ctPh(g.drop)},nt:PUB.crNtfy||'',at:Date.now()};
   try{ await setDoc(doc(db,'gp',g.tok),d); }catch(e){ console.error(e); toast('मेहमान का पेज अपडेट नहीं हुआ'); } }
 const rtok=()=>{ const a=new Uint8Array(15); crypto.getRandomValues(a); return [...a].map(x=>'abcdefghijkmnpqrstuvwxyz23456789'[x%32]).join(''); };
@@ -296,7 +296,7 @@ async function gqApply(g){ g=C.ag.find(x=>x.id===g.id)||g; const q=gqNew(g); if(
   GQF.forEach(([k])=>{ if(q[k]) o[k]=q[k]; }); if(q.note) o.note=(g.note?g.note+' · ':'')+'मेहमान: '+q.note;
   const ok=await put('ag',g.id,o); if(!ok) return false; syncGp({...g,...o});
   const done=new Set(g.gqTk||[]); let nw=0;
-  for(const m of (q.tk||[])){ if(done.has(m.k)) continue; try{ await vfSave('ag',g.id,await gqGet(g.tok,m),'tk','मेहमान ने भेजा',false); done.add(m.k); nw++; }catch(e){ console.error(e); toast('मेहमान का टिकट सेव नहीं हुआ'); } }
+  for(const m of (q.tk||[])){ if(done.has(m.k)) continue; try{ await vfSave('ag',g.id,await gqGet(g.tok,m),'tk',m.dir==='dep'?'मेहमान ने भेजा – वापसी का टिकट':'मेहमान ने भेजा – आने का टिकट',false); done.add(m.k); nw++; }catch(e){ console.error(e); toast('मेहमान का टिकट सेव नहीं हुआ'); } }
   if(nw) await put('ag',g.id,{gqTk:[...done]}); return true; }
 // 9 Nov (his choice): "भेजी जानकारी अपने-आप लगे" – whoever of admin / team has this page open applies a guest's reply by itself (+ copies the tickets)
 const GQB=new Set(); let GQT=0;

@@ -183,10 +183,10 @@ let G=[],D=[],IX=[],ZSUB={},ZONES=[],HEADS=[], ST={}, ME={uid:'',name:'',admin:f
 let L='hi', Q='', SEC='all', FN=null, STF='all', PC=false, GF=false, ZN='', HD='', LIMIT=400, OPEN=new Set();
 const T={hi:{sec:{all:'सब',jo:'जोधपुर',ba:'बाहर',ej:'E-card जोधपुर',eb:'E-card बाहर',ho:'होल्ड'},fn:['विनायक','तिलक-स्वागत','गीत-भोज','शुभ विवाह'],fs:['18 विनायक','20 तिलक','21 गीत-भोज','21 विवाह'],
   st:{all:'सब',done:'पहुँचा ✓',left:'बाकी'},pc:'प्रोग्राम कार्ड',gift:'गिफ्ट',zone:'सारे ज़ोन / शहर',head:'सारी हेडिंग',tot:'कुल',vis:'दिख रहे',dn:'पहुँचा',lf:'बाकी',gf:'गिफ्ट दिया',
-  tick:'पहुँचा',gtick:'गिफ्ट दिया',none:'कोई नाम नहीं मिला – स्पेलिंग थोड़ी बदल कर देखें',more:'और दिखाएँ',ph:'नाम, मोबाइल, स्टिकर नं., क्षेत्र… (हिंदी / English)',env:'लिफ़ाफ़ा',sfam:'सपरिवार'},
+  rtick:'कार्ड तैयार',tick:'पहुँचा',gtick:'गिफ्ट दिया',none:'कोई नाम नहीं मिला – स्पेलिंग थोड़ी बदल कर देखें',more:'और दिखाएँ',ph:'नाम, मोबाइल, स्टिकर नं., क्षेत्र… (हिंदी / English)',env:'लिफ़ाफ़ा',sfam:'सपरिवार'},
  en:{sec:{all:'All',jo:'Jodhpur',ba:'Outside',ej:'E-card Jodhpur',eb:'E-card outside',ho:'Hold'},fn:['Vinayak','Tilak-Reception','Geet-Bhoj','Wedding'],fs:['18 Vinayak','20 Tilak','21 Geet','21 Wedding'],
   st:{all:'All',done:'Delivered ✓',left:'Pending'},pc:'Prog card',gift:'Gift',zone:'All zones / cities',head:'All headings',tot:'Total',vis:'Showing',dn:'Delivered',lf:'Pending',gf:'Gift given',
-  tick:'Delivered',gtick:'Gift given',none:'No name found – try a slightly different spelling',more:'Show more',ph:'Name, mobile, sticker no., area… (Hindi / English)',env:'Envelope',sfam:'With family'}};
+  rtick:'Card ready',tick:'Delivered',gtick:'Gift given',none:'No name found – try a slightly different spelling',more:'Show more',ph:'Name, mobile, sticker no., area… (Hindi / English)',env:'Envelope',sfam:'With family'}};
 function nfv(v){const s=String(v??'').trim(); if(!s) return ''; const u=s.toUpperCase().replace(/[\s.]/g,'');
   if(u.startsWith('WF')||u==='W/F'||['SAPARIVAAR','SAPARIVAR','SPARIVAR','FAMILY','सपरिवार'].includes(u)) return 'सपरिवार';
   if(['TICK','HAAN','HA','YES','Y','✓','✔','√','OK'].includes(u)) return '✓'; if(['0','-','–','NO','N','NA','NAHI'].includes(u)) return '';
@@ -250,7 +250,8 @@ function render(){if(!D.length)return;const t=T[L], q=Q.trim(), hits=[];
     const note=hi?r[15]:r[16];
     h+=`<div class="g ${r[12]==='✓'?'pc':''}"><div class="t1"><div class="nb">${hl(r[2])}</div><div style="flex:1"><div class="nm">${hl(hi?r[3]:r[4])}</div>
       <div class="sub2">${hl(hi?r[7]:r[8])}${(hi?r[5]:r[6])?' · '+esc(hi?r[5]:r[6]):''}</div>${mobs}</div></div><div class="fn">${f}</div>${meta?`<div class="meta">${meta}</div>`:''}${wline(r)}
-      ${note?`<div class="note">${esc(note)}</div>`:''}<div class="act"><button class="tk ${s.d?'on':''}" data-tk="${i}">${s.d?'✓ ':''}${t.tick}${s.d?`<small>${esc(s.dBy||'')} · ${s.dAt?tm(s.dAt):''}</small>`:''}</button>
+      ${note?`<div class="note">${esc(note)}</div>`:''}<div class="act"><button class="tk ${s.r?'on':''}" data-rk="${i}">${s.r?'✓ ':''}${t.rtick}${s.r?`<small>${esc(s.rBy||'')} · ${s.rAt?tm(s.rAt):''}</small>`:''}</button>
+      <button class="tk ${s.d?'on':''}" data-tk="${i}">${s.d?'✓ ':''}${t.tick}${s.d?`<small>${esc(s.dBy||'')} · ${s.dAt?tm(s.dAt):''}</small>`:''}</button>
       <button class="tk ${s.g?'on':''}" data-gk="${i}">${s.g?'✓ ':''}${t.gtick}${s.g?`<small>${esc(s.gBy||'')} · ${s.gAt?tm(s.gAt):''}</small>`:''}</button>${ME.admin?`<button class="tk ed" data-edit="${esc(r[0])}">✏️ सुधारें</button>`:''}</div></div>`;}
   if(la>=0)h+='</div>'; if(lz)h+='</div>'; if(shown>LIMIT)h+=`<button class="more" id="more">${t.more} (${shown-LIMIT})</button>`;
   $('#out').innerHTML=h;}

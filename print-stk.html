@@ -1,0 +1,225 @@
+<!doctype html><html lang="hi"><head><meta charset="utf-8"><style>
+  @font-face { font-family: "Tiro"; src: url("prt-tiro-dev.woff2"); unicode-range: U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+20F0,U+25CC,U+A830-A839,U+A8E0-A8FF; }
+  @font-face { font-family: "Tiro"; src: url("prt-tiro-lat.woff2"); unicode-range: U+0000-00FF,U+2000-206F; }
+  @font-face { font-family: "Ecz"; src: url("prt-eczar-dev.woff2"); unicode-range: U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+20F0,U+25CC,U+A830-A839,U+A8E0-A8FF; }
+  @font-face { font-family: "Ecz"; src: url("prt-eczar-lat.woff2"); unicode-range: U+0000-00FF,U+2000-206F; }
+  @font-face { font-family: "NumG"; src: url("prt-urwgothic-demi.ttf"); unicode-range: U+0030-0039; size-adjust: 90%; }   /* all digits in Century Gothic style (URW Gothic) */
+  @page { size: 95mm 70mm; margin: 0; }
+  * { box-sizing: border-box; } html, body { margin: 0; background: transparent; }
+  .st { --p: #4E5B2E; --g: #B8892E; --bg: #FBF8EF; --soft: #5E6450; --mint: #CFE5C8; --peach: #EDB48C;
+        width: 95mm; height: 70mm; position: relative; overflow: hidden; background: transparent; font-family: "NumG", "Tiro", serif; color: var(--p);
+        display: grid; grid-template-columns: 34mm 1fr; grid-template-rows: 1fr auto; padding: 5.8mm 6.6mm 4.8mm; column-gap: 0; page-break-after: always; }
+  .frame { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .lg { grid-column: 1; grid-row: 1; display: flex; align-items: center; justify-content: center; padding-right: 2.8mm; position: relative; }
+  .lg img { width: 30.5mm; display: block; }
+  /* golden lines: solid gold, tapered to a point at both ends (fade look without any transparency, print-safe) */
+  .lg::after { content: ""; position: absolute; right: -0.25mm; top: 0; bottom: 0; width: 0.8mm; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 100' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23B8892E'/%3E%3Cstop offset='0.5' stop-color='%23E3C064'/%3E%3Cstop offset='1' stop-color='%23B8892E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M1 0 L2 50 L1 100 L0 50 Z' fill='url(%23g)'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+  .tx { grid-column: 2; grid-row: 1; padding-left: 3.8mm; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+  .sa { font-size: 8.8pt; color: var(--g); letter-spacing: 0.3px; }
+  .nm { font-family: "NumG", "Ecz", serif; font-size: 14.5pt; line-height: 1.22; margin-top: 0.6mm; }
+  .nm.long { font-size: 12.6pt; } .nm.xlong { font-size: 11.6pt; } .nm .ln { display: block; white-space: nowrap; }
+  .ar { font-size: 12pt; color: var(--g); margin-top: 1.4mm; }
+  .ar.long { font-size: 9.6pt; line-height: 1.3; }
+  .gm { font-size: 11.6pt; color: var(--g); margin-top: 0.9mm; letter-spacing: 0.1px; white-space: nowrap; }
+  .bt { grid-column: 1 / span 2; grid-row: 2; text-align: center; }
+  .hl { width: 70mm; height: 0.7mm; margin: 1.6mm auto 1.3mm; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 2' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23B8892E'/%3E%3Cstop offset='0.5' stop-color='%23E3C064'/%3E%3Cstop offset='1' stop-color='%23B8892E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 1 L50 0 L100 1 L50 2 Z' fill='url(%23g)'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+  .am { font-family: "NumG", "Ecz", serif; font-size: 10pt; line-height: 1.25; } .am b { font-weight: 400; color: var(--g); }
+  .mo { font-size: 9pt; color: var(--soft); margin-top: 0.2mm; }
+  .sr { position: absolute; right: 12.5mm; bottom: 3mm; font-size: 5pt; color: #9A9A88; font-family: "NumG", "Tiro", serif; }
+  /* white-ink layer: solid black silhouette of the logo only */
+  body.white .st * { visibility: hidden; } body.white .st .lg, body.white .st .lg img { visibility: visible; }
+  body.white .st .lg img { filter: brightness(0); } body.white .st .lg::after { display: none; }
+
+  /* ---- box-test variants ---- */
+  .tcode { position: absolute; left: 13mm; top: 3mm; font-family: "NumG", "Tiro", serif; font-size: 5.5pt; color: #8A8A78; letter-spacing: 0.3px; }
+  .st.v2 { background: #FBF8EF; }                                                    /* 2: whole sticker ivory */
+  .st.v3 .tx { background: #FBF8EF; border-radius: 2mm; padding: 1.8mm 2.2mm 1.8mm 3mm; margin: 0.6mm 0 0.6mm 2.4mm; }   /* 3: ivory panel behind the text */
+  .st.v3 .bt { background: #FBF8EF; border-radius: 2mm; margin: 0 5.5mm; padding: 0 2mm 0.9mm; }
+  .st.v3 .bt .hl { width: 62mm; }
+  .st.v1b4 .ar, .st.v1b4 .gm, .st.v1b4 .sa, .st.v1b4 .am b { color: #3F4A24; }      /* 4: name / address / mobile in deep olive, gold only on ornaments */
+  /* white-ink layer: black = where white ink prints */
+  body.white .tcode { visibility: hidden !important; }
+  body.white .st.v1a .tx, body.white .st.v1a .tx *, body.white .st.v1a .bt, body.white .st.v1a .bt *, body.white .st.v1a .sr { visibility: visible; color: #000 !important; }
+  body.white .st.v1a .hl { visibility: hidden !important; }
+  body.white .st.v1b *, body.white .st.v1b4 * { visibility: visible; color: #000 !important; }
+  body.white .st.v1b .frame, body.white .st.v1b .hl, body.white .st.v1b4 .frame, body.white .st.v1b4 .hl { filter: brightness(0); }
+  body.white .st.v1b .lg::after, body.white .st.v1b4 .lg::after { display: block; filter: brightness(0); }
+  body.white .st.v2 { background: #000; }
+  body.white .st.v3 .tx, body.white .st.v3 .bt { visibility: visible; background: #000; }
+
+  /* 1c: white under the whole design, and under the text a little wider than the letters (0.35 mm white edge) */
+  body.white .st.v1c * { visibility: visible; color: #000 !important; }
+  body.white .st.v1c .frame, body.white .st.v1c .hl { filter: brightness(0); }
+  body.white .st.v1c .lg::after { display: block; filter: brightness(0); }
+  body.white .st.v1c .tx *, body.white .st.v1c .bt * { -webkit-text-stroke: 0.7mm #000; }
+  body.white .st.v1c .tcode { visibility: hidden !important; }
+
+  /* 30 Oct fix: the text block may not grow into the inviter lines - a very long name + address now steps down instead of pushing the bottom text onto the frame */
+  .st { grid-template-rows: minmax(0, 1fr) auto; } .tx { min-height: 0; }
+
+  /* 31 Oct box trial: white back only under the letters (+ logo), a little wider than the letters; frame stays see-through */
+  body.white .st.wb1 .tx, body.white .st.wb1 .tx *, body.white .st.wb1 .bt, body.white .st.wb1 .bt *,
+  body.white .st.wb2 .tx, body.white .st.wb2 .tx *, body.white .st.wb2 .bt, body.white .st.wb2 .bt *,
+  body.white .st.wb3 .tx, body.white .st.wb3 .tx *, body.white .st.wb3 .bt, body.white .st.wb3 .bt * { visibility: visible; color: #000 !important; }
+  body.white .st.wb1 .hl, body.white .st.wb2 .hl, body.white .st.wb3 .hl { visibility: hidden !important; }
+  body.white .st.wb1 .tx *, body.white .st.wb1 .bt * { -webkit-text-stroke: 0.4mm #000; }
+  body.white .st.wb2 .tx *, body.white .st.wb2 .bt * { -webkit-text-stroke: 0.7mm #000; }
+  body.white .st.wb3 .tx *, body.white .st.wb3 .bt * { -webkit-text-stroke: 1.0mm #000; }
+  .st.dg .ar, .st.dg .gm, .st.dg .sa, .st.dg .am b { color: #8A6418; }             /* deeper gold for address / mobile */
+
+  /* 1 Nov trial: G = all letters green (olive) + white edge (same white as C);  H = all letters green + thin black edge, white exactly under letters+edge */
+  .st.gr .sa, .st.gr .ar, .st.gr .gm, .st.gr .am b, .st.gr .mo, .st.gr .nm, .st.gr .am { color: var(--p) !important; }
+  .st.bk .tx, .st.bk .bt { text-shadow: 0.300mm 0.000mm 0 #111, 0.277mm 0.115mm 0 #111, 0.212mm 0.212mm 0 #111, 0.115mm 0.277mm 0 #111, 0.000mm 0.300mm 0 #111, -0.115mm 0.277mm 0 #111, -0.212mm 0.212mm 0 #111, -0.277mm 0.115mm 0 #111, -0.300mm 0.000mm 0 #111, -0.277mm -0.115mm 0 #111, -0.212mm -0.212mm 0 #111, -0.115mm -0.277mm 0 #111, -0.000mm -0.300mm 0 #111, 0.115mm -0.277mm 0 #111, 0.212mm -0.212mm 0 #111, 0.277mm -0.115mm 0 #111; }
+  body.white .st.bk .tx, body.white .st.bk .bt { text-shadow: none; }
+  body.white .st.wbk .tx, body.white .st.wbk .tx *, body.white .st.wbk .bt, body.white .st.wbk .bt * { visibility: visible; color: #000 !important; }
+  body.white .st.wbk .hl { visibility: hidden !important; }
+  body.white .st.wbk .tx *, body.white .st.wbk .bt * { -webkit-text-stroke: 0.5mm #000; }
+
+  /* 2 Nov trial: all letters red, white edge behind the letters (white layer = wb2 / wb3) */
+  .st.rd .sa, .st.rd .ar, .st.rd .gm, .st.rd .am b, .st.rd .mo, .st.rd .nm, .st.rd .am { color: #C8102E !important; }
+  .st.rd2 .sa, .st.rd2 .ar, .st.rd2 .gm, .st.rd2 .am b, .st.rd2 .mo, .st.rd2 .nm, .st.rd2 .am { color: #8E1A1E !important; }
+
+  /* 2 Nov colour options instead of red (all letters one colour, white edge behind = wb2) */
+  .st.k1 .sa, .st.k1 .ar, .st.k1 .gm, .st.k1 .am b, .st.k1 .mo, .st.k1 .nm, .st.k1 .am { color: #0B5566 !important; }
+  .st.k2 .sa, .st.k2 .ar, .st.k2 .gm, .st.k2 .am b, .st.k2 .mo, .st.k2 .nm, .st.k2 .am { color: #1F3A6E !important; }
+  .st.k3 .sa, .st.k3 .ar, .st.k3 .gm, .st.k3 .am b, .st.k3 .mo, .st.k3 .nm, .st.k3 .am { color: #4A2D1A !important; }
+  .st.k4 .sa, .st.k4 .ar, .st.k4 .gm, .st.k4 .am b, .st.k4 .mo, .st.k4 .nm, .st.k4 .am { color: #6E1E2C !important; }
+  .st.k5 .sa, .st.k5 .ar, .st.k5 .gm, .st.k5 .am b, .st.k5 .mo, .st.k5 .nm, .st.k5 .am { color: #3F4A1E !important; }
+  .st.k6 .sa, .st.k6 .ar, .st.k6 .gm, .st.k6 .am b, .st.k6 .mo, .st.k6 .nm, .st.k6 .am { color: #1E1E1E !important; }
+
+  /* 2 Nov: red / wine / maroon tones (all letters one colour, white edge behind = wb2) */
+  .st.m1 .sa, .st.m1 .ar, .st.m1 .gm, .st.m1 .am b, .st.m1 .mo, .st.m1 .nm, .st.m1 .am { color: #A8201A !important; }
+  .st.m2 .sa, .st.m2 .ar, .st.m2 .gm, .st.m2 .am b, .st.m2 .mo, .st.m2 .nm, .st.m2 .am { color: #9B1B1F !important; }
+  .st.m3 .sa, .st.m3 .ar, .st.m3 .gm, .st.m3 .am b, .st.m3 .mo, .st.m3 .nm, .st.m3 .am { color: #8C1029 !important; }
+  .st.m4 .sa, .st.m4 .ar, .st.m4 .gm, .st.m4 .am b, .st.m4 .mo, .st.m4 .nm, .st.m4 .am { color: #6B0A0A !important; }
+  .st.m5 .sa, .st.m5 .ar, .st.m5 .gm, .st.m5 .am b, .st.m5 .mo, .st.m5 .nm, .st.m5 .am { color: #7A1424 !important; }
+  .st.m6 .sa, .st.m6 .ar, .st.m6 .gm, .st.m6 .am b, .st.m6 .mo, .st.m6 .nm, .st.m6 .am { color: #6E1E2C !important; }
+  .st.m7 .sa, .st.m7 .ar, .st.m7 .gm, .st.m7 .am b, .st.m7 .mo, .st.m7 .nm, .st.m7 .am { color: #5C1A2B !important; }
+  .st.m8 .sa, .st.m8 .ar, .st.m8 .gm, .st.m8 .am b, .st.m8 .mo, .st.m8 .nm, .st.m8 .am { color: #6B1638 !important; }
+  .st.m9 .sa, .st.m9 .ar, .st.m9 .gm, .st.m9 .am b, .st.m9 .mo, .st.m9 .nm, .st.m9 .am { color: #561C3C !important; }
+  .st.m10 .sa, .st.m10 .ar, .st.m10 .gm, .st.m10 .am b, .st.m10 .mo, .st.m10 .nm, .st.m10 .am { color: #7B3A32 !important; }
+  .st.m11 .sa, .st.m11 .ar, .st.m11 .gm, .st.m11 .am b, .st.m11 .mo, .st.m11 .nm, .st.m11 .am { color: #5A2321 !important; }
+  .st.m12 .sa, .st.m12 .ar, .st.m12 .gm, .st.m12 .am b, .st.m12 .mo, .st.m12 .nm, .st.m12 .am { color: #4B1114 !important; }
+
+  @page { size: 13in 19in; margin: 0; }
+  html, body { background: #E9E4D6 !important; }
+  #out { position: absolute; left: -20000px; top: 0; }   /* rendered (so the templates can fit names), just off screen */
+  .bar { position: sticky; top: 0; z-index: 9; background: #4E5B2E; color: #fff; padding: 10px 14px; font: 15px/1.45 Arial, sans-serif; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .bar b { font-size: 16px; } .bar button { font: 700 16px Arial, sans-serif; padding: 9px 16px; border-radius: 9px; border: 0; background: #F3D57A; color: #2F3320; cursor: pointer; }
+  .bar small { opacity: .85; font-size: 13px; }
+  .sheets { padding: 14px; } .sheet { width: 13in; height: 19in; position: relative; overflow: hidden; background: #fff; margin: 0 auto 18px; box-shadow: 0 2px 10px rgba(0,0,0,.2); }
+  @media screen { .sheet { zoom: 0.32; } @supports not (zoom: 1) { .sheet { transform: scale(.32); transform-origin: top center; } } }
+  .mk { position: absolute; background: #000; } .lb { position: absolute; text-align: center; font-family: "LbN", "LbM", serif; font-weight: 700; color: #111; white-space: nowrap; }
+  @media print { .bar { display: none !important; } html, body { background: #fff !important; } .sheets { padding: 0; } .sheet { margin: 0; box-shadow: none; zoom: 1; transform: none; page-break-after: always; break-after: page; } .sheet:last-child { page-break-after: auto; break-after: auto; } }
+
+  @font-face { font-family: "LbM"; src: url("prt-martel-dev.woff2"); font-weight: 700; unicode-range: U+0900-097F,U+200C-200D,U+25CC,U+A8E0-A8FF; }
+  @font-face { font-family: "LbM"; src: url("prt-martel-lat.woff2"); font-weight: 700; unicode-range: U+0000-00FF,U+2000-206F; }
+  @font-face { font-family: "LbN"; src: url("prt-urwgothic-demi.ttf"); unicode-range: U+0030-0039; size-adjust: 96%; }
+</style></head><body class="color"><div class="bar"><b id="pt"></b><button id="pp">🖨 PDF बनाएँ / प्रिंट</button><small>लैपटॉप (Chrome) पर: Destination = <b>Save as PDF</b>, Margins = <b>None</b>, Scale = <b>100%</b> (Default) → Save। पेज साइज़ अपने-आप 13 × 19 इंच।</small></div><div class="sheets" id="sheets"></div><div id="out"></div><script>
+function feather(L, ang) {
+  return `<g transform="rotate(${ang})"><path d="M0.6 0 H${L}" stroke="var(--g)" stroke-width="0.26"/>
+    <path d="M${L - 3.2} 0 l1.3 -0.9 M${L - 3.2} 0 l1.3 0.9 M${L - 2} 0 l1.1 -1.1 M${L - 2} 0 l1.1 1.1" stroke="var(--g)" stroke-width="0.16"/>
+    <ellipse cx="${L + 1.3}" cy="0" rx="2" ry="1.35" fill="var(--mint)" stroke="var(--g)" stroke-width="0.26"/>
+    <ellipse cx="${L + 1.5}" cy="0" rx="1.05" ry="0.72" fill="var(--peach)"/>
+    <circle cx="${L + 1.65}" cy="0" r="0.42" fill="var(--p)"/></g>`;
+}
+function fan(cx, cy, sx, sy) {
+  return `<g transform="translate(${cx} ${cy}) scale(${sx} ${sy})">${feather(8, 6)}${feather(11.5, 21)}${feather(14, 35)}${feather(15.5, 45)}${feather(14, 55)}${feather(11.5, 69)}${feather(8, 84)}<circle cx="0.8" cy="0.8" r="1" fill="var(--g)"/></g>`;
+}
+function frame(w, h) {
+  const o = 2.3, i = 3.5, k = 0.45;
+  return `<svg class="frame" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${o}" y="${o}" width="${w - 2 * o}" height="${h - 2 * o}" rx="0.9" fill="none" stroke="var(--g)" stroke-width="0.45"/>
+    <rect x="${i}" y="${i}" width="${w - 2 * i}" height="${h - 2 * i}" rx="0.6" fill="none" stroke="var(--g)" stroke-width="0.18"/>
+    ${fan(i, i, k, k)}${fan(w - i, i, -k, k)}${fan(i, h - i, k, -k)}${fan(w - i, h - i, -k, -k)}
+    <path d="M${w / 2 - 6} ${o} h12" stroke="var(--g)" stroke-width="1.1"/><path d="M${w / 2 - 6} ${h - o} h12" stroke="var(--g)" stroke-width="1.1"/>
+  </svg>`;
+}
+function st(d) {
+  const L = d.hi.replace(/\n/g, '').length, cls = L > 34 ? 'xlong' : (L > 22 ? 'long' : '');
+  return `<div class="st ${d.clear ? 'clear' : ''} ${d.v || ''}">${frame(95, 70)}<div class="tcode">${d.code || ''}</div>
+    <div class="lg"><img src="prt-logo-stk.png"></div>
+    <div class="tx"><div class="sa">सादर आमंत्रण</div><div class="nm ${cls}" data-raw="${d.hi.replace(/"/g, '&quot;')}">${d.hi.split('\n').map(l => `<span class="ln">${l}</span>`).join('')}</div><div class="ar ${d.area.length > 28 ? 'long' : ''}">${d.area}</div>${d.gm ? `<div class="gm">मो. ${d.gm}</div>` : ''}</div>
+    <div class="bt"><div class="hl"></div><div class="am"><b>आमंत्रक :</b> गोरधनदास, संजय, कपिल बिड़ला</div><div class="mo">मो. 9829026404, 9958544775</div></div>
+    <div class="sr">${d.sr}</div></div>`;
+}
+let PRT = null; try { PRT = JSON.parse(localStorage.getItem('prt') || 'null'); } catch (_) {}
+if (!PRT || !PRT.rows || !PRT.rows.length || PRT.kind !== 'stk') { document.body.innerHTML = '<p style="font:18px Arial;padding:30px">कुछ नहीं चुना – सूची वाले पेज पर नाम चुनकर 🖨 दबाएँ।</p>'; throw new Error('no data'); }
+const DATA = PRT.rows;
+document.getElementById('out').innerHTML = DATA.map(st).join('');
+document.fonts.ready.then(() => Promise.all([...document.images].map(i => i.decode().catch(() => {})))).then(() => {
+  const PT = 96 / 72;
+  const setLines = (n, ls) => { n.innerHTML = ls.map(l => `<span class="ln">${l}</span>`).join(''); };
+  const widestOf = n => { n.style.width = 'max-content'; const ww = n.getBoundingClientRect().width; n.style.width = ''; return ww; };   // real text width of the widest line
+  document.querySelectorAll('.nm').forEach(n => {            // long names: pick the line breaks that keep the name biggest (1, 2 or 3 lines)
+    const raw = n.dataset.raw; if (!raw || raw.includes('\n')) return;
+    const avail = n.parentElement.clientWidth - parseFloat(getComputedStyle(n.parentElement).paddingLeft);
+    const base = parseFloat(getComputedStyle(n).fontSize), w = raw.split(' ');
+    // end of a title group ("श्रीमती एवं श्री", "शाहजी श्री", "कँवरसाहब श्री", "कँवरसाहब") - the name may start on the next line
+    const TE = i => (w[i] === 'श्री' && ['एवं', 'शाहजी', 'कँवरसाहब'].includes(w[i - 1])) || (['कँवरसाहब', 'शाहजी'].includes(w[i]) && w[i + 1] !== 'श्री');
+    const ok = i => TE(i) || w[i] !== 'शाहजी' && w[i] !== 'एवं' && w[i] !== 'श्रीमती' && w[i] !== 'श्री' && w[i] !== 'कँवरसाहब' &&
+                    (/(जी|सा|,|\))$/.test(w[i]) || ['कँवरसाहब', 'श्री', 'श्रीमती', 'एवं'].includes(w[i + 1]) || /^\(/.test(w[i + 1]) || /^(जी|सा),?$/.test(w[i + 2] || ''));
+    const pos = []; for (let i = 0; i < w.length - 1; i++) if (ok(i)) pos.push(i);
+    const C = [[raw]];
+    for (const a of pos) C.push([w.slice(0, a + 1).join(' '), w.slice(a + 1).join(' ')]);
+    for (const a of pos) for (const b of pos) if (b > a) C.push([w.slice(0, a + 1).join(' '), w.slice(a + 1, b + 1).join(' '), w.slice(b + 1).join(' ')]);
+    for (const a of pos) for (const b of pos) for (const e of pos) if (b > a && e > b) C.push([w.slice(0, a + 1).join(' '), w.slice(a + 1, b + 1).join(' '), w.slice(b + 1, e + 1).join(' '), w.slice(e + 1).join(' ')]);
+    // how natural a break after word i is: before श्री / श्रीमती / कँवरसाहब / एवं or after a comma = best; between two given names = ok;
+    // anything that would push a surname to the start of a line = avoid
+    const HON = ['श्री', 'श्रीमती', 'कँवरसाहब', 'एवं'];
+    const pen = i => TE(i) ? 0.6 : (HON.includes(w[i + 1]) || /[,)]$/.test(w[i]) || /^\(/.test(w[i + 1])) ? 0 : (/^(जी|सा)[,]?$/.test(w[i + 2] || '') ? 0.6 : 5);
+    const cut = c => { let i = -1, p = 0; for (const l of c.slice(0, -1)) { i += l.split(' ').length; p += pen(i); } return p; };
+    const tx = n.parentElement, others = [...tx.children].filter(e => e !== n).reduce((h, e) => h + e.getBoundingClientRect().height + parseFloat(getComputedStyle(e).marginTop), 0);
+    const arH = tx.querySelector('.ar').getBoundingClientRect().height;
+    const maxH = tx.clientHeight - others + 0.25 * arH;          // room left for the name block (a long address may still step down a little)
+    let best = null;
+    for (const c of C) { setLines(n, c); const ww = widestOf(n), fs = Math.min(base, base * (avail - 1.5) / ww);
+      if (c.length > 1) { n.style.fontSize = fs + 'px'; const hh = n.getBoundingClientRect().height; n.style.fontSize = ''; if (hh > maxH) continue; }
+      const sc = fs - (c.length - 1) * 0.35 * PT - cut(c) * 0.5 * PT - ww * 0.0005;
+      if (!best || sc > best.sc) best = { c, fs, sc }; }
+    setLines(n, best.c); n.style.fontSize = best.fs + 'px';
+  });
+  document.querySelectorAll('.nm').forEach(n => {            // shrink a long name until each of its lines fits; wrap only below 9pt
+    const avail = n.parentElement.clientWidth - parseFloat(getComputedStyle(n.parentElement).paddingLeft);
+    let f = parseFloat(getComputedStyle(n).fontSize); const widest = () => Math.max(...[...n.querySelectorAll('.ln')].map(l => l.scrollWidth));
+    while (widest() > avail && f > 12) { f -= 0.25; n.style.fontSize = f + 'px'; }
+    if (widest() > avail) n.querySelectorAll('.ln').forEach(l => l.style.whiteSpace = 'normal');
+  });
+  document.querySelectorAll('.gm').forEach(g => {            // two phone numbers stay on one line: shrink a little only if needed
+    let f = parseFloat(getComputedStyle(g).fontSize);
+    while (g.scrollWidth > g.clientWidth + 0.5 && f > 11) { f -= 0.2; g.style.fontSize = f + 'px'; }
+  });
+  document.querySelectorAll('.st').forEach(st => {          // very long address: step its size down only until the text block fits
+    const t = st.querySelector('.tx'), a = st.querySelector('.ar'); let f = parseFloat(getComputedStyle(a).fontSize);
+    while (t.scrollHeight > t.clientHeight + 0.5 && f > 7.4 * (96 / 72)) { f -= 0.2; a.style.fontSize = f + 'px'; a.style.lineHeight = '1.25'; }
+  });
+  layout(); document.body.dataset.ready = '1'; });
+function layout() {                     // 13 x 19 in, 18 stickers 95 x 70 mm (3 x 6, 3 mm gap), one cut line in the middle of every gap
+  const MM = 96 / 25.4, SW = 330.2, SH = 482.6, W = 95, H = 70, g = 3, NC = 3, NR = 6, x0 = (SW - (NC * W + (NC - 1) * g)) / 2, y0 = (SH - (NR * H + (NR - 1) * g)) / 2;
+  const XC = [x0 - g / 2]; for (let k = 1; k < NC; k++) XC.push(x0 + k * (W + g) - g / 2); XC.push(x0 + NC * W + (NC - 1) * g + g / 2);
+  const YC = [y0 - g / 2]; for (let k = 1; k < NR; k++) YC.push(y0 + k * (H + g) - g / 2); YC.push(y0 + NR * H + (NR - 1) * g + g / 2);
+  const st = [...document.querySelectorAll('#out .st')], N = st.length, NS = Math.ceil(N / 18), box = document.getElementById('sheets'), tag = PRT.tag || '', dt = PRT.date || '', tagE = PRT.tagEn || 'LIST', dtE = PRT.dateEn || '';
+  document.getElementById('pt').textContent = `नाम स्टिकर – ${tag} · ${N} स्टिकर · ${NS} शीट (13 × 19)`;
+  document.title = `Name Sticker - ${tagE} - ${N} sticker - 13x19 (${NS} sheet)`;
+  const el = (p, css, txt, cls) => { const d = document.createElement('div'); d.style.cssText = css; if (txt != null) d.innerHTML = txt; if (cls) d.className = cls; p.appendChild(d); return d; };
+  const mm = v => (v * MM).toFixed(2) + 'px', E = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  for (let s = 0; s < NS; s++) {
+    const sh = el(box, '', null, 'sheet'), grp = []; for (let i = s * 18; i < Math.min(N, s * 18 + 18); i++) grp.push(i);
+    grp.forEach((i, j) => { const n = st[i]; n.style.cssText += `;position:absolute;left:${mm(x0 + (j % NC) * (W + g))};top:${mm(y0 + Math.floor(j / NC) * (H + g))};page-break-after:auto`; sh.appendChild(n); });
+    const w = 0.3 * 96 / 72;
+    for (const x of XC) { el(sh, `left:${mm(x)};top:${mm(0.8)};width:${w}px;height:${mm(3.2)}`, null, 'mk'); el(sh, `left:${mm(x)};top:${mm(SH - 4)};width:${w}px;height:${mm(3.2)}`, null, 'mk'); }
+    for (const y of YC) { el(sh, `left:${mm(0.6)};top:${mm(y)};width:${mm(XC[0] - 1.6)};height:${w}px`, null, 'mk'); el(sh, `left:${mm(XC[XC.length - 1] + 1)};top:${mm(y)};width:${mm(SW - 0.6 - XC[XC.length - 1] - 1)};height:${w}px`, null, 'mk'); }
+    [`${E(tagE).toUpperCase()} · ${E(dtE).toUpperCase()} · ${String(s + 1).padStart(2, '0')}/${String(NS).padStart(2, '0')}`, `${grp.length} STICKERS`, '95 x 70 mm'].forEach((t, k) => {
+      el(sh, `left:${mm(XC[k])};width:${mm(XC[k + 1] - XC[k])};top:${mm(YC[0] - 8.2)};height:${mm(7)};line-height:${mm(7)};font:700 17pt Helvetica,Arial,sans-serif`, t, 'lb'); });
+    const areas = []; grp.forEach(i => { const a = DATA[i].grp || DATA[i].area || ''; const l = areas[areas.length - 1]; if (l && l[0] === a) l[1]++; else areas.push([a, 1]); });
+    el(sh, `left:${mm(6)};width:${mm(SW - 12)};top:${mm(YC[YC.length - 1] + 0.5)};height:${mm(5.2)};line-height:${mm(5.2)};font-size:12.5pt;overflow:hidden`,
+      `${E(tag)} प्रिंट ${E(dt)} &nbsp;·&nbsp; शीट ${String(s + 1).padStart(2, '0')} &nbsp;·&nbsp; ` + areas.map(([a, c]) => `${E(a)} (${c} स्टिकर)`).join(' &nbsp;·&nbsp; '), 'lb bl');
+    for (let r = 0; r * NC < grp.length; r++) { const ra = [...new Set(grp.slice(r * NC, r * NC + NC).map(i => DATA[i].grp || DATA[i].area || ''))].join(' / ');
+      const sw = SW - XC[XC.length - 1] - 0.5;
+      el(sh, `left:${mm(XC[XC.length - 1] + 0.25)};top:${mm(y0 + r * (H + g))};width:${mm(H)};height:${mm(sw)};line-height:${mm(sw)};transform-origin:0 0;transform:translateX(${mm(sw)}) rotate(90deg);font-size:9pt;overflow:hidden`, E(ra), 'lb rs'); }
+  }
+  const fit = (e, minPt) => { let f = parseFloat(getComputedStyle(e).fontSize); while (e.scrollWidth > e.clientWidth + 0.5 && f > minPt * 96 / 72) { f -= 0.25; e.style.fontSize = f + 'px'; } };
+  document.querySelectorAll('.bl').forEach(e => fit(e, 7.5)); document.querySelectorAll('.rs').forEach(e => fit(e, 6.5));
+  document.getElementById('pp').onclick = () => window.print();
+}
+</script></body></html>

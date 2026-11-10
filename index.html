@@ -83,7 +83,7 @@ mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 <a class="btn" id="tm-link" href="admin.html" style="display:none;background:#B8892E;text-align:center;text-decoration:none;margin:0 0 8px">⭐ टीम पेज (अनुमति, अभियान, रिपोर्ट)</a>
 <a class="btn" id="cr-link" href="tebmanagement.html" style="display:none;background:#7A5A10;text-align:center;text-decoration:none;margin:0 0 8px">🗓 TEB Management · आदित्य का शुभ विवाह</a>
 <div class="card" id="adm-card" style="display:none;margin:4px 0 10px"><h2>⚙ एडमिन</h2>
-<p class="muted" id="dvl-st" style="font-size:15px">🪔 शुभ दीपावली …</p><button class="btn" id="dvl-go" style="background:#8A4A12;margin-top:6px">…</button>
+<p class="muted" id="dvl-st" style="font-size:15px">🗓 Save the Date …</p><button class="btn" id="dvl-go" style="background:#4E5B2E;margin-top:6px">…</button>
 <a class="btn" href="tebteam.html#api" style="background:#1F5C8B;text-align:center;text-decoration:none"><i class="wai"></i>API वाले की रिपोर्ट डालें</a>
 <a class="btn" href="tebteam.html" style="background:#1E7D45;text-align:center;text-decoration:none"><i class="wai"></i>भेजने का पेज / रिपोर्ट</a>
 <p class="muted" style="margin-top:12px"><i class="wai"></i>WhatsApp API सूची – एक पंक्ति में एक नंबर, 2 नंबर वालों का नाम दोबारा, होल्ड वाले बाहर</p>
@@ -452,16 +452,20 @@ async function notify(name, by){ try{ const p = await getDoc(doc(db,'config','pu
 let started=false;
 // 8 Nov: "nahi dikh raha aisa kuch bhi – main page pe rakho" -> admin shortcuts on the list page (Deepawali on/off, API lists, links)
 const DVL_DOC={"title": "शुभ दीपावली", "mode": "two", "who": ["jo", "ba", "ej", "eb"], "fn": "", "msgOut": "", "files": {}, "msg": "आदरणीय {name},\nदीपों की ज्योति आपके जीवन को सुख, समृद्धि और मंगल से आलोकित करे।\nइस बार की दीपावली हमारे लिए विशेष है – आदित्य संग खुशबू के शुभ विवाह पर आपके आशीर्वाद की प्रतीक्षा रहेगी।\nशुभ दीपावली\n– बिड़ला परिवार", "fnames": {"20": ["सिर्फ़ 20 नवम्बर वाला वीडियो"], "2021": ["20-21 नवम्बर वाला वीडियो"]}, "sfiles": {"20": ["deepawali-20.mp4"], "2021": ["deepawali-2021.mp4"]}};
+// 10 Nov: Save the Date – same one-button system as Deepawali (message by itself, video from the website, heading-wise family sending)
+const STD_DOC={"title": "Save the Date", "mode": "two", "who": ["jo", "ba", "ej", "eb"], "fn": "", "msgOut": "", "files": {}, "msg": "॥ श्री गणेशाय नमः ॥\n\nआदरणीय {name},\nसादर नमस्कार 🙏\n\nआदित्य संग खुशबू के शुभ विवाह की शुभ तिथि – कृपया अपने लिए सहेज कर रखें।\nविस्तृत निमंत्रण शीघ्र भेजा जाएगा।\n\nस्वागताकांक्षी – बिड़ला परिवार", "fnames": {"20": ["सिर्फ़ 20 नवम्बर वाला वीडियो"], "2021": ["20-21 नवम्बर वाला वीडियो"]}, "sfiles": {"20": ["save-the-date-20.mp4"], "2021": ["save-the-date-20-21.mp4"]}};
 async function admCard(){ let ok=ME.admin; try{ await getDoc(doc(db,'config','admin')); ok=true; }catch(_){} if(!ok) return; ME.admin=true; ME.wr=true; ME.wall=true; ME.dl=true; if(D.length){ chips(); rerender(); } $('#adm-card').style.display='block';
-  onSnapshot(doc(db,'camps','kdvl'), s=>{ const d=s.exists()?s.data():null, b=$('#dvl-go');
-    $('#dvl-st').innerHTML='🪔 <b>शुभ दीपावली</b> (वीडियो + संदेश, हेडिंग वार): '+(d?(d.active?'<b style="color:#1E7D45">चालू ✓</b>':'<b style="color:#8E1B0E">बंद</b>'):'अभी बना नहीं');
-    b.textContent=d?(d.active?'होल्ड करें (बंद)':'▶ चालू करें'):'🪔 शुभ दीपावली अभियान बनाएँ और चालू करें'; b.dataset.st=d?(d.active?'on':'off'):'none'; }, ()=>{}); }
+  onSnapshot(doc(db,'camps','kstd'), s=>{ const d=s.exists()?s.data():null, b=$('#dvl-go');
+    $('#dvl-st').innerHTML='🗓 <b>Save the Date</b> (वीडियो + संदेश, हेडिंग वार): '+(d?(d.active?'<b style="color:#1E7D45">चालू ✓</b>':'<b style="color:#8E1B0E">बंद</b>'):'अभी बना नहीं');
+    b.textContent=d?(d.active?'होल्ड करें (बंद)':'▶ चालू करें'):'🗓 Save the Date अभियान बनाएँ और चालू करें'; b.dataset.st=d?(d.active?'on':'off'):'none'; }, ()=>{});
+}
 $('#dvl-go').onclick=async()=>{ const st=$('#dvl-go').dataset.st; $('#dvl-go').disabled=true;
-  try{ if(st==='none') await setDoc(doc(db,'camps','kdvl'), Object.assign({}, DVL_DOC, {active:true, by:ME.name, at:serverTimestamp(), made:Date.now()}));
-    else await updateDoc(doc(db,'camps','kdvl'), {active:st!=='on'});
-    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:st==='on'?'शुभ दीपावली होल्ड किया':'शुभ दीपावली चालू किया'});
-    toast(st==='on'?'शुभ दीपावली होल्ड – भेजने वालों को नहीं दिखेगा':'शुभ दीपावली चालू ✓ – परिवार वाले अपनी हेडिंग के मेहमानों को भेज सकते हैं'); }
+  try{ if(st==='none') await setDoc(doc(db,'camps','kstd'), Object.assign({}, STD_DOC, {active:true, by:ME.name, at:serverTimestamp(), made:Date.now()}));
+    else await updateDoc(doc(db,'camps','kstd'), {active:st!=='on'});
+    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:st==='on'?'Save the Date होल्ड किया':'Save the Date चालू किया'});
+    toast(st==='on'?'Save the Date होल्ड – भेजने वालों को नहीं दिखेगा':'Save the Date चालू ✓ – परिवार वाले अपनी हेडिंग के मेहमानों को भेज सकते हैं'); }
   catch(e){ toast('नहीं हुआ: '+(e.message||e)); } $('#dvl-go').disabled=false; };
+
 $('#api20').onclick=()=>{ if(D.length) dlApi('20'); }; $('#api2021').onclick=()=>{ if(D.length) dlApi('2021'); };
 // 10 Nov (his words): "video toh kisi bhi haal me nahi bhejna … link jaaye toh bhi koi dikkat nahi … guest proper real card ka feel le" -> Meta template with a
 //   button that opens the real HTML card online with the guest's name: einvite-X.html?k=<name, base64url> ; one CSV per version for the API vendor
@@ -486,7 +490,7 @@ async function startList(){ if(started) return; started=true; show('s-load'); le
   subscribeList(m => { if(!m){ $('#no-h').textContent='सूची अभी अपलोड नहीं हुई'; $('#no-p').textContent='शिवम जी एडमिन पेज से सूची डालेंगे, फिर यहाँ दिखेगी।'; show('s-no'); return; }
     $('#ver').textContent = 'सूची अपडेट: ' + (m.v||''); if(first){ first=false; chips(); show('s-list'); } else chips(); render(); });
   for(let k=0;k<10;k++) onSnapshot(doc(db,'status','s'+k), s => { const v = s.data()||{}; for(const [rid,o] of Object.entries(v)) ST[rid]=o; rerender(); });
-  onSnapshot(collection(db,'camps'), s => { const t={inv:'ई-निमंत्रण'}; s.docs.forEach(d=>{ t[d.id]=d.data().title||'WhatsApp'; }); WCT=t; rerender(); }, ()=>{});   // 8 Nov: campaign names for the WhatsApp line
+  onSnapshot(collection(db,'camps'), s => { const t={inv:'ई-निमंत्रण'}; s.docs.forEach(d=>{ if(d.id==='kdvl') return; t[d.id]=d.data().title||'WhatsApp'; }); WCT=t;   /* 10 Nov: Deepawali hidden */ rerender(); }, ()=>{});   // 8 Nov: campaign names for the WhatsApp line
   onSnapshot(doc(db,'members',ME.uid), s => { const wl=$('#wa-link'), tl=$('#tm-link'), dd=s.exists()?s.data():{}; if(wl){ const adm=dd.admin||ME.admin;   // 8 Nov: "normal logo ko ye event team wala nahi dikhna chahiye" – only senders see it, each with their own label
     wl.style.display=(!adm&&(dd.wa||dd.team))?'block':'none'; const wr=!!(adm||dd.wa||dd.team); ME.heads=Array.isArray(dd.heads)?dd.heads:[]; ME.wall=!!(adm||dd.team||dd.all); const dl=!!(adm||dd.team); if(dl!==ME.dl){ ME.dl=dl; if(D.length) rerender(); } if(dl&&typeof dlvSync==='function') dlvSync(); if(wr!==ME.wr||D.length){ ME.wr=wr; if(D.length){ chips(); rerender(); } }
     wl.innerHTML='<i class="wai"></i>'+(dd.team?'WhatsApp पर भेजें (इवेंट टीम)':dd.all?'सब मेहमानों को WhatsApp भेजें':'मेरे मेहमानों को WhatsApp भेजें')+(Array.isArray(dd.heads)&&dd.heads.length?' ('+dd.heads.length+' हेडिंग)':''); } if(tl) tl.style.display=dd.team?'block':'none'; const cl=$('#cr-link'); if(cl) cl.style.display=(dd.team||dd.admin||ME.admin)?'block':'none';   /* 10 Nov: TEB Management button only for admin + ⭐ team */ if(!s.exists() && !ME.admin){ $('#no-h').textContent='अनुमति हटा दी गई'; $('#no-p').textContent='इस फ़ोन से सूची की अनुमति हटा दी गई है।'; show('s-no'); } }); }

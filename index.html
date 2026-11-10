@@ -87,7 +87,7 @@ mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 <a class="btn" href="tebteam.html#api" style="background:#1F5C8B;text-align:center;text-decoration:none"><i class="wai"></i>API वाले की रिपोर्ट डालें</a>
 <a class="btn" href="tebteam.html" style="background:#1E7D45;text-align:center;text-decoration:none"><i class="wai"></i>भेजने का पेज / रिपोर्ट</a>
 <p class="muted" style="margin-top:12px"><i class="wai"></i>WhatsApp API सूची – एक पंक्ति में एक नंबर, 2 नंबर वालों का नाम दोबारा, होल्ड वाले बाहर</p>
-<button class="btn" id="api20" style="background:#2F6B4A;margin-top:6px"><i class="wai"></i>सिर्फ़ 20E वाले (CSV)</button><button class="btn" id="api2021" style="background:#2F6B4A;margin-top:8px"><i class="wai"></i>20E + 21E वाले (CSV)</button>
+<button class="btn" id="api20" style="background:#2F6B4A;margin-top:6px"><i class="wai"></i>सिर्फ़ 20E वाले (CSV)</button><button class="btn" id="api2021" style="background:#2F6B4A;margin-top:8px"><i class="wai"></i>20E + 21E वाले (CSV)</button><p class="muted" style="margin-top:12px;text-align:left"><b><i class="wai"></i>ई-निमंत्रण – API सूची</b> (10 नव.) – एक ही फ़ाइल, एक ही template (<b>aditya_einvite</b>)। जोधपुर के E-card मेहमान + जोधपुर से बाहर के सब मेहमान। हर मेहमान का बटन अपने-आप उसका अपना निमंत्रण खोलेगा – जिसको जो निमंत्रण है, वही। बाहर वालों के निमंत्रण में प्रोग्राम कार्ड भी (बिना सदस्य संख्या / सपरिवार), जोधपुर वालों में नहीं।</p><button class="btn" id="apiE" style="background:#7A1E2C;margin-top:6px"><i class="wai"></i>ई-निमंत्रण API सूची (CSV) डाउनलोड</button>
 <a class="btn" href="admin.html" style="background:var(--gd);text-align:center;text-decoration:none">⚙ पूरा एडमिन पेज (अनुमति, हेडिंग, सूची)</a></div>
 <div class="bar"><div class="srow"><div class="sbox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8892E" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
 <input id="q" type="text" inputmode="search" enterkeyhint="search" autocomplete="off"><button class="x" id="qx">×</button></div>
@@ -462,6 +462,25 @@ $('#dvl-go').onclick=async()=>{ const st=$('#dvl-go').dataset.st; $('#dvl-go').d
     toast(st==='on'?'शुभ दीपावली होल्ड – भेजने वालों को नहीं दिखेगा':'शुभ दीपावली चालू ✓ – परिवार वाले अपनी हेडिंग के मेहमानों को भेज सकते हैं'); }
   catch(e){ toast('नहीं हुआ: '+(e.message||e)); } $('#dvl-go').disabled=false; };
 $('#api20').onclick=()=>{ if(D.length) dlApi('20'); }; $('#api2021').onclick=()=>{ if(D.length) dlApi('2021'); };
+// 10 Nov (his words): "video toh kisi bhi haal me nahi bhejna … link jaaye toh bhi koi dikkat nahi … guest proper real card ka feel le" -> Meta template with a
+//   button that opens the real HTML card online with the guest's name: einvite-X.html?k=<name, base64url> ; one CSV per version for the API vendor
+const nmCode=s=>btoa(unescape(encodeURIComponent(String(s||'').trim()))).replace(/[+]/g,'-').replace(/[/]/g,'_').replace(/=+$/,'');
+function eiVer(r){ const on=v=>!(v==null||v===''||v===0||v==='0'||v==='–'), f=(r[10]||[]).map(on), k=[1,2,3].map(i=>f[i]?1:0).join(''); const v=k==='100'?'A':k==='101'?'B':k==='111'?'C':''; return v||(G[r[1]][6]==='eb'?'C':''); }
+// 10 Nov (his words): "YE ABC wala jhanjhat nahi chahiye ... jisko jo invitation hai bilkul waise hi jana chahiye / jodhpur local me e card walo ko
+//   prog card nahi bhejna hai / sirf outside walo ko" -> ONE CSV, ONE template (aditya_einvite), button link einvite.html?k=<code>;
+//   code = <A/B/C = his own invitation> + <4 bits = his programme card functions, outside guests only> + '.' + <name>
+function eiPlan(r){ const g=G[r[1]], s=g[6], own=['तिंवरी','मथानिया','ओसियां'].some(c=>(String(r[7])+g[4]).includes(c)), on=v=>!(v==null||v===''||v===0||v==='0'||v==='–');
+  if(r[12]==='भगवान') return null; const V=s==='ej'||s==='eb'?eiVer(r):s==='ba'?(own?eiVer(r):'C'):''; if(!V) return null;
+  let pb=''; if(s==='ba'||s==='eb'){ pb=[0,1,2,3].map(i=>on((r[10]||[])[i])?'1':'0').join(''); if((s==='ba'&&!own)||pb==='0000') pb='1111'; }   // outside: like the physical card (5 Nov rule)
+  return {V,pb,s}; }
+const EIV={A:'सिर्फ़ 20 नव. (तिलक-स्वागत)',B:'20 + 21 (शुभ विवाह)',C:'20 + 21 (गीत-भोज + शुभ विवाह)'}, EIF=['18 विनायक','20 तिलक-स्वागत','21 गीत-भोज','21 विवाह'];
+function dlEi(){ const out=[], seen=new Set(); D.forEach(r=>{ const P=eiPlan(r); if(!P) return; const nm=r[3]||r[4], code=P.V+P.pb+'.'+nmCode(nm);
+    String(r[9]||'').split(/[\n,\/;]+/).forEach(p=>{ const d=p.replace(/\D/g,''); if(!d) return; let ph='';
+      if(/^\s*\+/.test(p)&&!/^\s*\+91/.test(p)){ if(d.length>=10&&d.length<=15) ph='+'+d; } else { const n=d.length===12&&d.startsWith('91')?d.slice(2):d.length===11&&d.startsWith('0')?d.slice(1):d; if(/^[6-9]\d{9}$/.test(n)) ph=n; }
+      if(!ph||seen.has(ph)) return; seen.add(ph); out.push([ph,nm,code,'https://adityakhhushboo.in/einvite.html?k='+code,P.s==='ba'?'बाहर – फिज़िकल कार्ड भी':P.s==='eb'?'बाहर – E-card':'जोधपुर – E-card',EIV[P.V],P.pb?'हाँ – '+EIF.filter((f,i)=>P.pb[i]==='1').join(', '):'–']); }); });
+  const q=v=>/[",\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);
+  dlFile('E-invite API (aditya_einvite) - '+out.length+' number - '+new Date().toISOString().slice(0,10)+'.csv', [['Phone','Name ({{1}})','Link code (button {{1}})','Full link (check)','मेहमान','निमंत्रण','प्रोग्राम कार्ड'],...out].map(r=>r.map(q).join(',')).join('\r\n'), 'text/csv;charset=utf-8'); toast('ई-निमंत्रण API सूची: '+out.length+' नंबर'); }
+$('#apiE').onclick=()=>{ if(D.length) dlEi(); };
 async function startList(){ if(started) return; started=true; show('s-load'); let first=true; admCard();
   subscribeList(m => { if(!m){ $('#no-h').textContent='सूची अभी अपलोड नहीं हुई'; $('#no-p').textContent='शिवम जी एडमिन पेज से सूची डालेंगे, फिर यहाँ दिखेगी।'; show('s-no'); return; }
     $('#ver').textContent = 'सूची अपडेट: ' + (m.v||''); if(first){ first=false; chips(); show('s-list'); } else chips(); render(); });

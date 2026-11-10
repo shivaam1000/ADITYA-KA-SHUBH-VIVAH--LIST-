@@ -403,8 +403,8 @@ function gpWa(g){ const p=gpPh(g); if(p.length!==10){ toast('मोबाइल 
   if(!w) location.href='https://wa.me/91'+p+'?text='+encodeURIComponent(gpMsg(g,gpUrl(g))); updateDoc(doc(db,'cr_ag',g.id),{gpAt:Date.now(),gpBy:ME.name}).catch(()=>{}); }
 async function gpCopy(g){ gpTokNow(g); const t=gpMsg(g,gpUrl(g)); try{ await navigator.clipboard.writeText(t); toast('संदेश कॉपी हो गया – जहाँ चाहें भेजें'); }catch(_){ prompt('कॉपी करें:',t); } }
 function gpXl(){ const L=C.ag.filter(agKOk); if(L.some(g=>!g.tok)){ toast('पहले "🔗 सबके लिंक एक साथ बनाएँ" दबाएँ'); return; }
-  const rows=[['नाम / Name','मोबाइल / Mobile','लिंक / Link','संदेश / Message','मेहमान / काम से','आने की तारीख']].concat(L.map(g=>{ const p=gpPh(g); return [g.name,p.length===10?'91'+p:'',gpUrl(g),gpMsg(g,gpUrl(g)),g.kind?(g.cat||'काम से'):'मेहमान',g.ad||'']; }));
-  xlDown('Mehmaan links - '+TODAY()+'.xlsx',xlsxBlob('Links',rows,[30,15,46,70,18,13])); }
+  const rows=[['नाम / Name','मोबाइल / Mobile','लिंक / Link','संदेश / Message','मेहमान / काम से','आने की तारीख','API {{1}} नाम','API टोकन (swagat बटन)']].concat(L.map(g=>{ const p=gpPh(g); return [g.name,p.length===10?'91'+p:'',gpUrl(g),gpMsg(g,gpUrl(g)),g.kind?(g.cat||'काम से'):'मेहमान',g.ad||'',g.kind?(g.cm||g.name):g.name,g.tok||'']; }));
+  xlDown('Mehmaan links - '+TODAY()+'.xlsx',xlsxBlob('Links',rows,[30,15,46,70,18,13,30,20])); }
 async function gpLink(g){ if(!g.tok){ const tok=rtok(); const ok=await put('ag',g.id,{tok}); if(!ok) return; g.tok=tok; } await syncGp(g);
   const url=gpUrl(g), msg=gpMsg(g,url);
   form('🔗 '+g.name+' – मेहमान का पेज',[],{},async()=>true);

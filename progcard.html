@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>कार्यक्रम पत्र · आदित्य संग खुशबू</title>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: "Martel"; font-weight: 700; src: url("prt-martel-dev.woff2"); unicode-range: U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+20F0,U+25CC,U+A830-A839,U+A8E0-A8FF,U+11B00-11B09; }
+  @font-face { font-family: "Martel"; font-weight: 700; src: url("prt-martel-lat.woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face { font-family: "Tiro"; font-weight: 400; src: url("prt-tiro-dev.woff2"); unicode-range: U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+20F0,U+25CC,U+A830-A839,U+A8E0-A8FF,U+11B00-11B09; }
+  @font-face { font-family: "Tiro"; font-weight: 400; src: url("prt-tiro-lat.woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  /* 5 x 7 inch insert — a little smaller than the 6 x 8 card */
+  @page { size: 134.7mm 177.8mm; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; }
+  body { font-family: "Tiro", "Noto Serif Devanagari", serif; color: #000; }
+
+  .card { width: 134.7mm; height: 177.8mm; position: relative; overflow: hidden; background: #fff;
+          padding: 8.5mm 9mm 7.5mm; display: flex; flex-direction: column; align-items: stretch; page-break-after: always; }
+  .card:last-child { page-break-after: auto; }
+  .card .bd { position: absolute; inset: 4mm; border: 0.35mm solid #000; pointer-events: none; }
+
+  .ctr { text-align: center; }
+  .ganesh { height: 11.5mm; display: block; margin: 0 auto; }
+  .shlok { font-size: 7.9pt; line-height: 1.45; margin-top: 1.2mm; }
+  .title { font-family: "Martel", serif; font-weight: 700; font-size: 18pt; line-height: 1.15; margin-top: 2.4mm; }
+  .flr { width: 34mm; display: block; margin: 0.8mm auto 0; }
+  .names { display: flex; align-items: flex-end; justify-content: center; gap: 2.2mm; margin-top: 2.6mm; }
+  .names img.a { height: 10.5mm; }
+  .names img.k { height: 9mm; }
+  .names .ev { font-family: "Tiro", serif; font-size: 11pt; line-height: 1; padding-bottom: 1.6mm; }
+  .occ { font-size: 8.8pt; margin-top: 0.8mm; }
+
+  .to { margin-top: 3.2mm; }
+  .to .lbl { font-size: 9pt; }
+  .to .nm { font-family: "Martel", serif; font-weight: 700; font-size: 13pt; line-height: 1.3; margin-top: 0.4mm; }
+  .to .nm.long { font-size: 11.4pt; }
+  .to .nm.xlong { font-size: 10pt; }
+
+  .mid { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; padding: 1mm 0; }
+  .fn { border-top: 0.3mm solid #000; }
+  .card.c1 .f { padding: 3.4mm 0.8mm; }
+  .card.c1 .f .nmf { font-size: 13pt; }
+  .card.c1 .f .when { font-size: 9.6pt; } .card.c1 .f .where { font-size: 9pt; }
+  .card.c1 .f .num { font-size: 22pt; } .card.c1 .f .sap { font-size: 13.4pt; }
+  .card.c2 .f { padding: 2.8mm 0.6mm; }
+  .card.c2 .f .nmf { font-size: 12pt; }
+  .f { display: flex; align-items: center; gap: 3mm; padding: 2.1mm 0.6mm; border-bottom: 0.2mm solid #000; }
+  .f .l { flex: 1; min-width: 0; }
+  .f .nmf { font-family: "Martel", serif; font-weight: 700; font-size: 11.2pt; line-height: 1.25; }
+  .f .when { font-size: 8.8pt; line-height: 1.4; margin-top: 0.5mm; }
+  .f .when b { font-family: "Martel", serif; font-weight: 700; }
+  .f .where { font-size: 8.4pt; line-height: 1.35; }
+  .f .r { flex: 0 0 auto; min-width: 19mm; text-align: center; }
+  .f .num { font-family: "Martel", serif; font-weight: 700; font-size: 19pt; line-height: 1; }
+  .f .sap { font-family: "Martel", serif; font-weight: 700; font-size: 12pt; line-height: 1.2; }
+  .ph { letter-spacing: 0.5px; color: #555; }
+  .tick { width: 9mm; height: 9mm; display: block; margin: 0 auto; }
+  /* four functions: tighten the header so all rows fit */
+  .card.c4 .ganesh { height: 9.5mm; }
+  .card.c4 .shlok { font-size: 7.3pt; line-height: 1.38; margin-top: 0.8mm; }
+  .card.c4 .title { font-size: 15pt; margin-top: 1.4mm; }
+  .card.c4 .flr { width: 28mm; margin-top: 0.4mm; }
+  .card.c4 .names { margin-top: 1.4mm; }
+  .card.c4 .names img.a { height: 9mm; } .card.c4 .names img.k { height: 7.8mm; }
+  .card.c4 .occ { font-size: 8.2pt; }
+  .card.c4 .to { margin-top: 1.8mm; }
+  .card.c4 .to .lbl { font-size: 8.4pt; }
+  .card.c4 .f { padding: 1.25mm 0.6mm; }
+  .card.c4 .f .nmf { font-size: 10.6pt; }
+  .card.c4 .f .when { font-size: 8.4pt; margin-top: 0.2mm; } .card.c4 .f .where { font-size: 8pt; }
+  .card.c4 .f .num { font-size: 17pt; } .card.c4 .f .sap { font-size: 11.4pt; }
+  .card.c4 .tick { width: 7.5mm; height: 7.5mm; }
+  .card.c4 .chaupai { font-size: 8.2pt; } .card.c4 .sw { margin-top: 1.2mm; font-size: 9pt; } .card.c4 .bp { font-size: 11pt; }
+
+  .bot { text-align: center; }
+  .chaupai { font-size: 8.6pt; line-height: 1.45; }
+  .sw { font-family: "Martel", serif; font-weight: 700; font-size: 9.6pt; margin-top: 2mm; }
+  .bp { font-family: "Martel", serif; font-weight: 700; font-size: 11.6pt; line-height: 1.2; }
+
+  /* tighter version when a family has three functions */
+  .card.c3 .shlok { font-size: 7.5pt; }
+  .card.c3 .title { font-size: 16pt; margin-top: 1.8mm; }
+  .card.c3 .names { margin-top: 2mm; }
+  .card.c3 .to { margin-top: 2.4mm; }
+  .card.c3 .f { padding: 1.6mm 0.6mm; }
+
+  .frame { position: absolute; left: 0; top: 0; width: 134.7mm; height: 177.8mm; pointer-events: none; }
+  .mh { font-size: 8.8pt; line-height: 1.5; margin-top: 3.2mm; }
+  .card.c3 .mh { margin-top: 2.6mm; }
+  .card.c4 .mh { font-size: 8.1pt; line-height: 1.38; margin-top: 2mm; }
+  .to { margin-top: 5mm; } .card.c3 .to { margin-top: 4.4mm; } .card.c4 .to { margin-top: 3.4mm; }
+  .f .ic { flex: 0 0 8.6mm; width: 8.6mm; height: 8.6mm; }
+  .f .r { min-width: 15mm; }
+  .f .qr { flex: 0 0 12.4mm; width: 12.4mm; height: 12.4mm; display: block; }
+  .f .qph { border: 0.2mm dashed #999; color: #999; font-size: 6pt; display: flex; align-items: center; justify-content: center; font-family: "Martel", serif; }
+  .f { gap: 2.6mm; }
+  .card.c4 .f .ic { flex-basis: 7.4mm; width: 7.4mm; height: 7.4mm; }
+  .card.c4 .f .qr { flex-basis: 11.4mm; width: 11.4mm; height: 11.4mm; }
+  .card.c4 .f { padding: 0.9mm 0.6mm; }
+  .qrw { flex: 0 0 auto; display: flex; align-items: center; gap: 0.9mm; }
+  .qrw .pin { width: 3.3mm; height: 4.1mm; flex: 0 0 auto; }
+  .card.c4 .qrw .pin { width: 3mm; height: 3.75mm; }
+  .qn { font-size: 6.6pt; text-align: right; margin-top: 0.9mm; color: #222; }
+  .card.c4 .qn { margin-top: 0.5mm; font-size: 6.2pt; }
+
+  .f .sb { font-size: 8.4pt; line-height: 1.38; }
+  .f .sb b { font-family: "Martel", serif; font-weight: 700; }
+  .card.c1 .f .sb { font-size: 9pt; }
+  .card.c4 .f .sb { font-size: 8pt; line-height: 1.3; }
+  .chaupai { font-size: 10.6pt; line-height: 1.4; }
+  .card.c4 .chaupai { font-size: 10pt; }
+
+  @font-face { font-family: "FnFont"; src: url("prt-eczar-dev.woff2"); unicode-range: U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+20F0,U+25CC,U+A830-A839,U+A8E0-A8FF; }
+  @page land { size: 177.8mm 134.7mm; margin: 0; }
+  .card.pal-maroondark .qr { background: #FFF8EC; border-radius: 1mm; padding: 0.7mm; }
+  .card.pal-maroondark .f .when b, .card.pal-maroondark .f .sb b { color: #E9C46A; }
+  .card.pal-navydark .qr { background: #FFF8EC; border-radius: 1mm; padding: 0.7mm; }
+  .card.pal-navydark .f .when b, .card.pal-navydark .f .sb b { color: #E9C46A; }
+  .card.pal-emeralddark .qr { background: #FFF8EC; border-radius: 1mm; padding: 0.7mm; }
+  .card.pal-emeralddark .f .when b, .card.pal-emeralddark .f .sb b { color: #E9C46A; }
+  .card.pal-boxvelvet .qr { background: #FFF8EC; border-radius: 1mm; padding: 0.7mm; }
+  .card.pal-boxvelvet .f .when b, .card.pal-boxvelvet .f .sb b { color: #E3C26B; }
+  .card.pal-maroon { --p: #7A1424; --g: #B8892E; --bg: #FFF8EC; --ink: #3B2A20; --soft: #6B5546; --line: #E5D3AE; --mint: #E5D3AE; --peach: #B8892E; }
+  .card.pal-rani { --p: #A3195B; --g: #B8892E; --bg: #FFF5F7; --ink: #3A2430; --soft: #6E4E5C; --line: #EDCBD8; --mint: #EDCBD8; --peach: #B8892E; }
+  .card.pal-royal { --p: #1E3A6E; --g: #B08A3E; --bg: #F8F6EF; --ink: #1F2A3A; --soft: #4E5A6B; --line: #DCD1B6; --mint: #DCD1B6; --peach: #B08A3E; }
+  .card.pal-peacock { --p: #0E5E63; --g: #B8892E; --bg: #F3F8F5; --ink: #1E2E2E; --soft: #4C5F5E; --line: #CFE0D8; --mint: #CFE0D8; --peach: #B8892E; }
+  .card.pal-kesariya { --p: #B4451A; --g: #B8892E; --bg: #FFF6EA; --ink: #3D2618; --soft: #6E4F3E; --line: #F0D3B4; --mint: #F0D3B4; --peach: #B8892E; }
+  .card.pal-emerald { --p: #1E5B3A; --g: #B8892E; --bg: #F6F8F0; --ink: #1F2B22; --soft: #4E5E52; --line: #D6E2CC; --mint: #D6E2CC; --peach: #B8892E; }
+  .card.pal-jamuni { --p: #5A2167; --g: #B8892E; --bg: #FAF5FA; --ink: #2E2033; --soft: #5E4B63; --line: #E3D3E6; --mint: #E3D3E6; --peach: #B8892E; }
+  .card.pal-sindoori { --p: #A3141E; --g: #B8892E; --bg: #FFF7F1; --ink: #3A1E1A; --soft: #6C4A44; --line: #F0D0C4; --mint: #F0D0C4; --peach: #B8892E; }
+  .card.pal-haldi { --p: #7A1424; --g: #A8781E; --bg: #FFF1C8; --ink: #3B2A20; --soft: #6B5546; --line: #E9D18A; --mint: #E9D18A; --peach: #A8781E; }
+  .card.pal-maroondark { --p: #E9C46A; --g: #D4AF5A; --bg: #5A0F1C; --ink: #FFF3DC; --soft: #EBD9C0; --line: #8A3A46; --mint: #8A3A46; --peach: #D4AF5A; }
+  .card.pal-navydark { --p: #E9C46A; --g: #D4AF5A; --bg: #14284A; --ink: #F4F0E6; --soft: #D6DCE8; --line: #3A5078; --mint: #3A5078; --peach: #D4AF5A; }
+  .card.pal-emeralddark { --p: #E9C46A; --g: #D4AF5A; --bg: #0F3D2A; --ink: #F3F1E4; --soft: #D3E2D6; --line: #2F6249; --mint: #2F6249; --peach: #D4AF5A; }
+  .card.pal-ranikesariya { --p: #A3195B; --g: #E07A1F; --bg: #FFF6EE; --ink: #3A2430; --soft: #6E4E5C; --line: #F3CDB0; --mint: #F3CDB0; --peach: #E07A1F; }
+  .card.pal-leheriya { --p: #1E6B4A; --g: #D23C77; --bg: #F6FBF3; --ink: #1F2B22; --soft: #4E5E52; --line: #E8C6D5; --mint: #E8C6D5; --peach: #D23C77; }
+  .card.pal-sagepeach { --p: #4F6B4F; --g: #D98C5F; --bg: #F8F5EC; --ink: #2B3328; --soft: #5E6A5A; --line: #EBD5C2; --mint: #EBD5C2; --peach: #D98C5F; }
+  .card.pal-powderrose { --p: #3D5A80; --g: #B76E79; --bg: #F4F7FB; --ink: #22303F; --soft: #55657A; --line: #E5C9CF; --mint: #E5C9CF; --peach: #B76E79; }
+  .card.pal-boxivory { --p: #4E5B2E; --g: #B8892E; --bg: #FBF8EF; --ink: #2F3320; --soft: #5E6450; --line: #DCE3C8; --mint: #CFE5C8; --peach: #EDB48C; }
+  .card.pal-boxpeach { --p: #4E5B2E; --g: #B8892E; --bg: #FCEFE4; --ink: #2F3320; --soft: #5E6450; --line: #EED4BF; --mint: #CFE5C8; --peach: #E9A57A; }
+  .card.pal-boxvelvet { --p: #E3C26B; --g: #D4AF5A; --bg: #3E4A25; --ink: #F6F2E2; --soft: #DCE3C8; --line: #5E6B3C; --mint: #CFE5C8; --peach: #EDB48C; }
+  .card.tc-gold .mh { color: #94691E; } .card.tc-gold .chaupai { color: #94691E; } .card.tc-gold .names .ev { color: var(--p); }
+  .card.tc-maroon .mh { color: #7A1F2B; } .card.tc-maroon .chaupai { color: #7A1F2B; } .card.tc-maroon .names .ev { color: var(--g); }
+  .card.tc-logo .mh { color: #94691E; } .card.tc-logo .chaupai { color: #94691E; } .card.tc-logo .names .ev { color: var(--g); }
+  .card.tc-copper .mh { color: #9C5428; } .card.tc-copper .chaupai { color: #9C5428; } .card.tc-copper .names .ev { color: var(--p); }
+
+  .card { background: var(--bg); color: var(--ink); }
+  .card .bd { display: none; }
+  .frame { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; }
+  .shlok, .mh, .chaupai { font-family: "FnFont", "Tiro", serif; }
+  .shlok { color: var(--soft); } .mh { color: var(--ink); }
+  .title { color: var(--p); letter-spacing: 0.3px; }
+  .names .ev { color: var(--g); }
+  .to .nm { color: var(--p); }
+  .fn { border-top: 0.35mm solid var(--g); }
+  .f { border-bottom: 0.2mm solid var(--line); }
+  .fn .f:last-child { border-bottom: 0.35mm solid var(--g); }
+  .f .nmf { font-family: "FnFont", "Martel", serif; font-weight: 400; color: var(--p); line-height: 1.2; font-size: 13.4pt; }
+  .card.c1 .f .nmf, .card.c2 .f .nmf { font-size: 14.6pt; }
+  .card.c4 .f .nmf { font-size: 12.2pt; }
+  .f .when { color: var(--ink); } .f .where, .f .sb { color: var(--soft); }
+  .f .sb b, .f .when b { color: var(--ink); }
+  .f .num, .f .sap { color: var(--p); }
+  .tick path { stroke: var(--p); }
+  .qrw .pin path { fill: var(--p); }
+  .qr path { fill: #23170F; }
+  .chaupai { color: var(--p); }
+  .sw { color: var(--soft); } .bp { color: var(--p); }
+  .opt { position: absolute; right: 4mm; top: 0.8mm; font-family: "Martel", serif; font-size: 6pt; color: #999; }
+  /* landscape 7 x 5 inch */
+  .card.land { page: land; width: 177.8mm; height: 134.7mm; display: grid; grid-template-columns: 62mm 1fr; grid-template-rows: 1fr auto;
+               column-gap: 7mm; padding: 9.5mm 10mm 8mm; }
+  .card.land .ctr { grid-column: 1; grid-row: 1 / span 2; align-self: center; padding-left: 1.6mm; padding-right: 6.3mm; position: relative; }   /* left block centred between frame line and divider */
+  .card.land .ctr::after { content: ""; position: absolute; right: 0; top: -7mm; bottom: -7mm; width: 0.45mm;
+      background: linear-gradient(to bottom, var(--bg) 0%, var(--g) 30%, var(--g) 70%, var(--bg) 100%); }   /* fade-out divider like the name sticker (solid colours, no transparency) */
+  .card.land { grid-template-rows: auto auto; align-content: center; row-gap: 5mm; }
+  .card.land .mid { grid-column: 2; grid-row: 1; padding: 0; display: block; }
+  .card.land .bot { grid-column: 2; grid-row: 2; padding-top: 0; }
+  .card.land .names img.a { height: 9.5mm; } .card.land .names img.k { height: 8.2mm; }
+  .card.land .ganesh { height: 10mm; }
+  .card.land .title { font-size: 16pt; }
+  .card.land .to { margin-top: 3.4mm; }
+  .card.land .f { padding: 1.3mm 0.4mm; gap: 2mm; }
+  .card.land.c1 .f, .card.land.c2 .f { padding: 3mm 0.4mm; }
+  /* Save-the-Date v2 look (locked base for the programme card) */
+  .card.sv .gn { font-family: "Tiro", serif; font-size: 9pt; color: var(--p); letter-spacing: 0.3px; margin-bottom: 1.2mm; }
+  .card.sv .drule { width: 40mm; height: 0.35mm; margin: 2.2mm auto 0; background: var(--g); position: relative; }
+  .card.sv .drule::before, .card.sv .drule::after { content: ""; position: absolute; top: -0.65mm; width: 1.6mm; height: 1.6mm; background: var(--g); transform: rotate(45deg); }
+  .card.sv .drule::before { left: -2.2mm; } .card.sv .drule::after { right: -2.2mm; }
+  .card.sv .mh { color: var(--p); }
+  .card.sv .hline.mhl { margin: 2mm auto 0; }
+  .card.sv .f .when, .card.sv .f .when b, .card.sv .f .sb b { color: var(--p); }   /* day / time lines in olive, no near-black text (QR stays dark) */
+  .card.sv .hline { width: 40mm; height: 0.35mm; margin: 2.2mm auto 0; background: linear-gradient(to right, var(--bg) 0%, var(--g) 25%, var(--g) 75%, var(--bg) 100%); }
+  .card.sv .sw { font-family: "Tiro", serif; font-weight: 400; color: var(--soft); margin-top: 1.4mm; }
+  .card.sv .bp { font-family: "FnFont", "Tiro", serif; font-weight: 400; color: var(--p); }
+  .card.sv.c4 .gn { font-size: 8.4pt; margin-bottom: 0.6mm; } .card.sv.c4 .drule { margin-top: 1.6mm; }
+  .card.land.sv .gn { font-size: 9pt; }
+  /* function lines (portrait + landscape right portion): fade-out like the name sticker (solid colours, no transparency) */
+  .card .fn { border-top: none; padding-top: 0.45mm;
+      background: linear-gradient(to right, var(--bg) 0%, var(--g) 22%, var(--g) 78%, var(--bg) 100%) top / 100% 0.45mm no-repeat; }
+  .card .f { border-bottom: none;
+      background: linear-gradient(to right, var(--bg) 0%, var(--line) 22%, var(--line) 78%, var(--bg) 100%) bottom / 100% 0.25mm no-repeat; }
+  .card .fn .f:last-child { border-bottom: none;
+      background: linear-gradient(to right, var(--bg) 0%, var(--g) 22%, var(--g) 78%, var(--bg) 100%) bottom / 100% 0.45mm no-repeat; }
+  .card.land .f .when { font-size: 8.2pt; } .card.land .f .where, .card.land .f .sb { font-size: 7.6pt; }
+  .card.land .f .r { min-width: 13mm; }
+  .card.land .f .qr { flex-basis: 10.6mm; width: 10.6mm; height: 10.6mm; }
+  .card.land .qrw .pin { width: 2.8mm; height: 3.5mm; }
+  .card.land .chaupai { font-size: 9.6pt; } .card.land .sw { margin-top: 1mm; font-size: 8.8pt; } .card.land .bp { font-size: 11pt; }
+  .logo { display: block; height: 46mm; margin: -2mm auto 0; }
+  .card.c4 .logo { height: 40mm; } .card.land .logo { height: 50mm; margin-top: 0; }
+  .title.lt { margin-top: 1mm; font-size: 16pt; }
+  /* guest-name highlight options */
+  @font-face { font-family: "Yatra"; src: url("prt-yatra-dev.woff2"); unicode-range: U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+20F0,U+25CC,U+A830-A839,U+A8E0-A8FF; }
+  .to.vA .nm { display: inline-block; padding: 1.5mm 7mm 1.2mm; border: 0.9mm double var(--g); border-radius: 2.2mm; }
+  .to.vB::before, .to.vB::after { content: ''; display: block; width: 62mm; height: 0.35mm; margin: 1.2mm auto;
+      background: linear-gradient(90deg, transparent, var(--g) 25%, var(--g) 75%, transparent); }
+  .to.vB .nm { position: relative; }
+  .to.vC { background: var(--mint); margin-left: -3.4mm; margin-right: -3.4mm; padding: 1.8mm 3mm 1.5mm;
+      border-top: 0.35mm solid var(--g); border-bottom: 0.35mm solid var(--g); }
+  .to.vD .nm { font-family: "Yatra", "Martel", serif; font-weight: 400; font-size: 17pt; line-height: 1.25; }
+  .to.vD .nm.long { font-size: 15pt; } .to.vD .nm.xlong { font-size: 13pt; }
+  .to.vD .nm { display: flex; align-items: center; justify-content: center; gap: 3.2mm; }
+  .to.vD .nm::before, .to.vD .nm::after { content: ''; flex: 0 0 2mm; width: 2mm; height: 2mm; background: var(--g); transform: rotate(45deg); }
+  .to.vE .nm { display: inline-block; background: var(--peach); padding: 1.6mm 9mm 1.3mm;
+      clip-path: polygon(0 0, 100% 0, 95.5% 50%, 100% 100%, 0 100%, 4.5% 50%); }
+
+  /* v2 (print-safe): every fade line = solid gold shape tapering to a point at both ends; no gradient into the background colour */
+  .card .fn { background: none !important; position: relative; }
+  .card .fn::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 0.55mm; background: var(--g);
+      clip-path: polygon(0 50%, 20% 0, 80% 0, 100% 50%, 80% 100%, 20% 100%); }
+  .card .f { background: none !important; position: relative; }
+  .card .f::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 0.3mm; background: var(--line);
+      clip-path: polygon(0 50%, 20% 0, 80% 0, 100% 50%, 80% 100%, 20% 100%); }
+  .card .fn .f:last-child::after { height: 0.55mm; background: var(--g); }
+  .card.sv .hline { background: var(--g) !important; height: 0.55mm; clip-path: polygon(0 50%, 25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%); }
+  .card.land .ctr::after { background: var(--g) !important; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+
+  /* TRIAL (29 Oct): portrait – the 4 functions side by side in a 2 x 2 grid */
+  .card.port .fn { display: grid; grid-template-columns: 1fr 1fr; column-gap: 6mm; padding-top: 0.8mm; padding-bottom: 0.8mm; position: relative; }
+  .card.port .fn::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 0.55mm; background: var(--g);
+      clip-path: polygon(0 50%, 20% 0, 80% 0, 100% 50%, 80% 100%, 20% 100%); }
+  .card.port .fn .f { display: grid !important; grid-template-columns: 1fr 1fr; grid-template-areas: "l l" "r q"; grid-template-rows: 1fr auto; align-items: center;
+      column-gap: 2.2mm; row-gap: 1mm; padding: 1.8mm 0.4mm 1.9mm !important; text-align: center; }
+  .card.port .fn .f .l { grid-area: l; align-self: start; }
+  .card.port .fn .f .r { grid-area: r; justify-self: end; min-width: 0; }
+  .card.port .fn .f .qrw { grid-area: q; justify-self: start; }
+  .card.port .fn .f:nth-child(n+3)::after { display: none; }                 /* separator only between the two rows */
+  .card.port .fn .f:nth-child(odd)::before { content: ""; position: absolute; top: 14%; bottom: 14%; right: -3.2mm; width: 0.4mm; background: var(--g);
+      clip-path: polygon(50% 0, 100% 22%, 100% 78%, 50% 100%, 0 78%, 0 22%); }   /* vertical divider between the columns */
+  .card.port.c4 .f .nmf { font-size: 11pt; } .card.port.c4 .f .when { font-size: 8.4pt; } .card.port.c4 .f .where, .card.port.c4 .f .sb { font-size: 7.9pt; }
+  .card.port.c4 .f .qr { width: 9.5mm; height: 9.5mm; flex-basis: 9.5mm; }
+  .card .qr path { fill: #6A6A6A; }   /* QR in grey */
+  .card.port.c4 .logo { height: 46mm; }
+
+  /* TRIAL 2 (29 Oct): calendar date chip, guest-name highlight, light function boxes, top toran */
+  .card.port { padding-top: 11mm; }
+  .card.port .toran { position: absolute; left: 0; top: 5.7mm; width: 134.7mm; height: 9mm; }
+  .card.port .fn { column-gap: 3mm; row-gap: 2.6mm; padding-top: 2.2mm; padding-bottom: 2.2mm; }
+  .card.port .fn::before, .card.port .fn::after { display: none; }
+  .card.port .fn .f { background: #EEF1E4 !important; border-radius: 2.2mm; padding: 2mm 2mm 2mm !important; text-align: left; }
+  .card.port .fn .f::after, .card.port .fn .f::before { display: none !important; }
+  .card.port .fn .f .l { display: grid; grid-template-columns: auto 1fr; column-gap: 2.2mm; row-gap: 0; align-items: center; }
+  .card.port .fn .f .cal { grid-row: 1 / span 2; width: 11.5mm; border: 0.3mm solid var(--g); border-radius: 1.4mm; background: var(--bg); text-align: center; overflow: hidden; }
+  .card.port .fn .f .cal .cm { background: var(--g); color: var(--bg); font-family: "Tiro", serif; font-size: 6.4pt; line-height: 1.45; }
+  .card.port .fn .f .cal .cd { font-family: "Ecz", serif; font-size: 15pt; line-height: 1.05; color: var(--p); margin-top: 0.4mm; }
+  .card.port .fn .f .cal .cw { font-family: "Tiro", serif; font-size: 5.8pt; color: var(--soft); line-height: 1.3; padding-bottom: 0.5mm; }
+  .card.port .fn .f .nmf { align-self: end; }
+  .card.port .fn .f .when { align-self: start; margin-top: 0.3mm; }
+  .card.port .fn .f .where, .card.port .fn .f .sb { grid-column: 1 / span 2; margin-top: 1mm; }
+  .card.port .fn .f .sb { margin-top: 0; }
+  .card.port.c4 .f .nmf { font-size: 10.2pt; line-height: 1.2; }
+  .card.port .to .sa2 { font-family: "Tiro", serif; font-size: 8.6pt; color: var(--g); letter-spacing: 0.3px; }
+  .card.port .to .nmw { display: flex; align-items: center; justify-content: center; gap: 3mm; margin-top: 0.3mm; }
+  .card.port .to .nmw .fl { flex: 0 1 16mm; min-width: 6mm; height: 0.5mm; background: var(--g); clip-path: polygon(0 50%, 100% 0, 100% 100%); }
+  .card.port .to .nmw .fl.r { clip-path: polygon(0 0, 100% 50%, 0 100%); }
+  .card.port .to .nm { flex: 0 1 auto; }
+
+  /* TRIAL 2b: compact boxes – QR under the date chip, location pin inline before the venue */
+  .card.port { padding-top: 12mm; }
+  .card.port .toran { top: 5.4mm; }
+  .card.port .fn .f { display: grid !important; grid-template-columns: 11.5mm 1fr; grid-template-areas: none; column-gap: 2.4mm; row-gap: 0;
+      align-items: start; align-content: start; padding: 2mm 2.2mm !important; }
+  .card.port .fn .f .l, .card.port .fn .f .qrw { display: contents; }
+  .card.port .fn .f .cal { grid-column: 1; grid-row: 1 / span 2; }
+  .card.port .fn .f .nmf, .card.port .fn .f .when, .card.port .fn .f .where, .card.port .fn .f .sb, .card.port .fn .f .r { grid-column: 2; }
+  .card.port .fn .f .nmf { align-self: end; }
+  .card.port .fn .f .when { align-self: start; }
+  .card.port .fn .f .where { margin-top: 1.2mm; }
+  .card.port .fn .f .where::before { content: ""; display: inline-block; width: 2.2mm; height: 2.8mm; margin-right: 0.9mm; vertical-align: -0.4mm;
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 30'><path d='M12 1.5C6.5 1.5 2.2 5.8 2.2 11.2c0 7.3 9.8 17.3 9.8 17.3s9.8-10 9.8-17.3C21.8 5.8 17.5 1.5 12 1.5z' fill='%234E5B2E'/><circle cx='12' cy='11' r='3.6' fill='%23EEF1E4'/></svg>") no-repeat center / contain; }
+  .card.port .fn .f .pin { display: none; }
+  .card.port .fn .f .qr { grid-column: 1; grid-row: 3 / span 4; justify-self: center; align-self: start; margin-top: 1.6mm; }
+  .card.port .fn .f .r { order: 9; justify-self: start; text-align: left; margin-top: 1mm; }
+  .card.port .fn .f .r .sap { font-size: 10.6pt; }
+
+  /* TRIAL 2c: tighter boxes so every card fits */
+  .card.port .fn { row-gap: 2mm; padding-top: 1mm; padding-bottom: 1.2mm; }
+  .card.port .fn .f { padding: 1.5mm 2mm !important; }
+  .card.port .fn .f .cal { width: 10.5mm; } .card.port .fn .f { grid-template-columns: 10.5mm 1fr; }
+  .card.port .fn .f .cal .cm { font-size: 5.8pt; line-height: 1.35; }
+  .card.port .fn .f .cal .cd { font-size: 13pt; line-height: 1; margin-top: 0.3mm; }
+  .card.port .fn .f .cal .cw { font-size: 5.4pt; line-height: 1.25; padding-bottom: 0.4mm; }
+  .card.port.c4 .f .qr { width: 9mm; height: 9mm; flex-basis: 9mm; }
+  .card.port .fn .f .qr { margin-top: 1mm; }
+  .card.port .fn .f .where { margin-top: 0.8mm; }
+  .card.port .fn .f .r { margin-top: 0.6mm; }
+  .card.port { padding-top: 11.6mm; }
+
+  /* TRIAL 2d: name + time as one block next to the date chip; QR under the chip */
+  .card.port .fn .f .cal { grid-column: 1; grid-row: 1; align-self: center; }
+  .card.port .fn .f .nt { grid-column: 2; grid-row: 1; align-self: center; }
+  .card.port .fn .f .nt .nmf, .card.port .fn .f .nt .when { align-self: auto; }
+  .card.port .fn .f .qr { grid-row: 2 / span 6; }
+
+  /* TRIAL 2e: drop inherited "1fr auto" rows so content sits at the top of each box */
+  .card.port .fn .f { grid-template-rows: none !important; grid-auto-rows: auto; align-content: start !important; }
+
+  /* TRIAL 3 (29 Oct): 1 equal boxes, content centred · 2 baraat lines in a strip under the grid · 4 QR bottom-right · 6 even spacing */
+  .card.port .fn { column-gap: 3.4mm; row-gap: 3.4mm; grid-auto-rows: 1fr; padding-top: 0; padding-bottom: 0; }
+  .card.port.c3 .fn.hs, .card.port.c4 .fn.hs { grid-template-rows: 1fr 1fr auto; }
+  .card.port.c1 .fn.hs, .card.port.c2 .fn.hs { grid-template-rows: 1fr auto; }
+  .card.port .fn .f { grid-template-columns: 10.5mm 1fr 9mm !important; column-gap: 2.4mm; align-content: center !important; padding: 1.8mm 2.4mm !important; }
+  .card.port .fn .f .cal { grid-column: 1; grid-row: 1; }
+  .card.port .fn .f .nt { grid-column: 2 / span 2; grid-row: 1; }
+  .card.port .fn .f .r { grid-column: 1 / span 2; grid-row: 2; order: 0; margin-top: 1.3mm; align-self: end; }
+  .card.port .fn .f .where { grid-column: 1 / span 2; grid-row: 3; margin-top: 0.5mm; align-self: end; }
+  .card.port .fn .f .qr { grid-column: 3; grid-row: 2 / span 2; align-self: end; justify-self: end; margin-top: 0; }
+  .card.port .fn .strip { grid-column: 1 / -1; border: 0.25mm solid var(--g); border-radius: 2.2mm; padding: 1.2mm 3mm 1mm; text-align: center;
+      font-size: 8pt; line-height: 1.35; color: var(--soft); }
+  .card.port .fn .strip b { font-family: "Martel", serif; font-weight: 700; color: var(--p); }
+  .card.port .fn .strip .sbi { white-space: nowrap; }
+  .card.port .fn .strip .sbi + .sbi::before { content: ""; display: inline-block; width: 1.3mm; height: 1.3mm; background: var(--g); transform: rotate(45deg);
+      margin: 0 3mm; vertical-align: 0.35mm; }
+
+  /* TRIAL 3b: one spacing value everywhere (3.3 mm = border-to-box margin): between boxes, above and below the grid */
+  .card.port .fn { column-gap: 3.3mm; row-gap: 3.3mm; }
+  .card.port .fn .f { padding: 1.6mm 2.4mm !important; }
+  .card.port .fn .f .r { margin-top: 0.9mm; }
+  .card.port .fn .f .cal .cd { font-size: 12pt; }
+  .card.port .fn .strip { padding: 1.1mm 3mm 0.9mm; }
+
+  /* TRIAL 3c: venue always 2 lines tall -> every box has the same inner layout, so chip, title, सपरिवार and QR line up across boxes */
+  .card.port .fn .f .where { min-height: 2.7em; }
+  .card.port .to .nm.xlong { line-height: 1.26; }
+  .card.port.tight .fn .f { padding: 1.2mm 2.4mm !important; }
+  .card.port.tight .fn .f .r { margin-top: 0.5mm; }
+
+  /* TRIAL 3d (29 Oct): toran removed from the top -> card top padding back to the original 8.5 mm */
+  .card.port { padding-top: 8.5mm; }
+
+  /* TRIAL 3e (29 Oct): cards with 1-3 functions use the same box size + type as the 4-function card;
+     odd box (3rd of 3, or the only one) sits centred under the others */
+  .card.port .fn .f .nmf { font-size: 10.2pt; line-height: 1.2; }
+  .card.port .fn .f .when { font-size: 8.4pt; margin-top: 0.2mm; }
+  .card.port .fn .f .where { font-size: 7.9pt; }
+  .card.port .fn .f .num { font-size: 15pt; line-height: 1.1; }
+  .card.port .fn .f .r .sap { font-size: 10.6pt; }
+  .card.port .fn .f .qr { width: 9mm; height: 9mm; flex-basis: 9mm; }
+  .card.port.c3 .fn .f:nth-child(3), .card.port.c1 .fn .f { grid-column: 1 / -1; justify-self: center; width: calc((100% - 3.3mm) / 2); }
+
+  /* header / footer on 1-3 function cards = same sizes as the 4-function card */
+  .card.port.sv .gn { font-size: 8.4pt; margin-bottom: 0.6mm; } .card.port.sv .drule { margin-top: 1.6mm; }
+  .card.port .mh { font-size: 8.1pt; line-height: 1.38; margin-top: 2mm; }
+  .card.port .to { margin-top: 3.4mm; }
+  .card.port .chaupai { font-size: 10pt; } .card.port .sw { font-size: 9pt; } .card.port .bp { font-size: 11pt; }
+
+  /* single-function card: one bigger centred box (there is room for it) */
+  .card.port.c1 .fn .f { width: 86mm; padding: 2.6mm 3.2mm !important; grid-template-columns: 13.5mm 1fr 12.5mm !important; column-gap: 3mm; }
+  .card.port.c1 .fn .f .cal { width: 13.5mm; }
+  .card.port.c1 .fn .f .cal .cm { font-size: 7.2pt; } .card.port.c1 .fn .f .cal .cd { font-size: 16pt; } .card.port.c1 .fn .f .cal .cw { font-size: 6.6pt; }
+  .card.port.c1 .fn .f .nmf { font-size: 13.4pt; } .card.port.c1 .fn .f .when { font-size: 10.2pt; }
+  .card.port.c1 .fn .f .where { font-size: 9.4pt; } .card.port.c1 .fn .f .r .sap { font-size: 13pt; } .card.port.c1 .fn .f .num { font-size: 19pt; }
+  .card.port.c1 .fn .f .r { margin-top: 1.6mm; }
+  .card.port.c1 .fn .f .qr { width: 12.5mm; height: 12.5mm; flex-basis: 12.5mm; }
+  .card.port.c1 .fn .f .where::before { width: 2.7mm; height: 3.4mm; }
+
+  /* TRIAL 3f (29 Oct): count (सपरिवार / 2 / 2+2) written in front of the function name, at the right of the top row;
+     the separate सपरिवार line is gone -> venue + QR form the second row */
+  .card.port .fn .f { grid-template-columns: 10.5mm 1fr auto !important; }
+  .card.port.c1 .fn .f { grid-template-columns: 13.5mm 1fr auto !important; }
+  .card.port .fn .f .nt { grid-column: 2; grid-row: 1; }
+  .card.port .fn .f .r { grid-column: 3; grid-row: 1; align-self: center; justify-self: end; text-align: right; margin: 0 0 0 1.5mm; }
+  .card.port .fn .f .r .sap { font-size: 9.8pt; line-height: 1.2; }
+  .card.port .fn .f .num { font-size: 16pt; line-height: 1; }
+  .card.port .fn .f .where { grid-column: 1 / span 2; grid-row: 2; margin-top: 1.6mm; align-self: center; }
+  .card.port .fn .f .qr { grid-column: 3; grid-row: 2; align-self: center; justify-self: end; margin-top: 1.6mm; }
+  .card.port.c1 .fn .f .r .sap { font-size: 12pt; } .card.port.c1 .fn .f .num { font-size: 21pt; }
+  .card.port.c1 .fn .f .where, .card.port.c1 .fn .f .qr { margin-top: 2.2mm; }
+
+  /* TRIAL 4 (30 Oct): function boxes removed - same layout, no light-green panels */
+  .card.port .fn .f { background: transparent !important; border-radius: 0 !important; padding: 1.4mm 0.6mm !important; position: relative; border: none !important; }
+  .card.port .fn { column-gap: 7mm; }
+  .card.port .fn .strip { border: none; border-radius: 0; padding: 1.8mm 3mm 0.4mm; position: relative; }
+  .card.port .fn .strip::before { content: ""; position: absolute; left: 22%; right: 22%; top: 0; height: 0.45mm; background: #B8892E;
+      clip-path: polygon(0 50%, 50% 0, 100% 50%, 50% 100%); }
+
+  /* + thin gold dividers: tapered vertical line between the columns, tapered line between the rows (solid gold, print-safe) */
+  .card.port.c4 .fn .f:nth-child(odd)::before, .card.port.c3 .fn .f:nth-child(1)::before, .card.port.c2 .fn .f:nth-child(1)::before {
+      content: "" !important; display: block !important; position: absolute; top: 10%; bottom: 10%; right: -3.8mm; width: 0.6mm; background: #B8892E;
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  .card.port.c4 .fn .f:nth-child(-n+2)::after, .card.port.c3 .fn .f:nth-child(-n+2)::after {
+      content: "" !important; display: block !important; position: absolute; left: 6%; right: 6%; bottom: -1.9mm; height: 0.45mm; background: #B8892E;
+      clip-path: polygon(0 50%, 50% 0, 100% 50%, 50% 100%); }
+
+  /* 30 Oct: baraat patti back in its box, bigger and highlighted (solid light-gold fill, gold border - print-safe) */
+  .card.port .fn .strip { border: 0.35mm solid #B8892E; border-radius: 2.2mm; background: #F6EAC9; padding: 1.7mm 3mm 1.4mm; font-size: 10pt; line-height: 1.3; color: #4A4630; }
+  .card.port .fn .strip::before { display: none; }
+  .card.port .fn .strip b { color: #4E5B2E; }
+  .card.port .fn .strip .sbi + .sbi::before { width: 1.6mm; height: 1.6mm; margin: 0 3.5mm; background: #B8892E; }
+
+  .card.port.tight .fn .f { padding: 1.1mm 0.6mm !important; }   /* very long names: tighter rows, keep the full column width */
+
+  /* 31 Oct: तिलक (6 pm) before the reception, same venue - both times on one line under the name */
+  .card.port .fn .f .t2 { grid-column: 1 / -1; grid-row: 2; font-size: 8.2pt; line-height: 1.32; color: var(--p); margin-top: 1.2mm; }
+  .card.port .fn .f .t2 b { font-weight: 700; }
+  .card.port .fn .f .t2 .dot { display: inline-block; width: 1.2mm; height: 1.2mm; background: #B8892E; transform: rotate(45deg); margin: 0 1.6mm; vertical-align: 0.3mm; }
+  .card.port .fn .f.t2f .when:empty { display: none; }
+  .card.port .fn .f.t2f .t2 { grid-column: 1 / span 2; grid-row: 2; }
+  .card.port .fn .f.t2f .where { grid-row: 3; grid-column: 1 / span 2; min-height: 0; margin-top: 0.7mm; }
+  .card.port .fn .f.t2f .qr { grid-column: 3; grid-row: 2 / span 2; align-self: end; }
+  .card.port.c1 .fn .f .t2 { font-size: 9.6pt; }
+
+  /* SAMPLE A: Baraat Live QR inside the baraat strip */
+  .card.port .fn .strip.bq1 { display: flex; align-items: center; justify-content: space-between; gap: 2.5mm; text-align: left; padding: 1.3mm 2mm 1.3mm 3.4mm; }
+  .card.port .fn .strip.bq1 .stx .sbi { display: block; } .card.port .fn .strip.bq1 .stx .sbi + .sbi { margin-top: 0.6mm; }
+  .card.port .fn .strip.bq1 .stx .sbi + .sbi::before { display: none; }
+  .card.port .fn .strip.bq1 .bqb { display: flex; align-items: center; gap: 1.8mm; flex: 0 0 auto; padding-left: 2.5mm; border-left: 0.3mm solid #B8892E; }
+  .bql { display: flex; flex-direction: column; align-items: flex-end; text-align: right; font-size: 7.6pt; line-height: 1.25; color: #4A4630; }
+  .bql b { font-weight: 400; font-size: 9.6pt; color: #4E5B2E; font-family: "Martel", serif; font-weight: 700; }
+  .bqb svg.bq, .bqt svg.bq, .bqf svg.bq { width: 13mm; height: 13mm; display: block; }
+  .bql.bql2 span { font-family: "Martel", serif; font-weight: 700; font-size: 8.8pt; line-height: 1.32; color: #4E5B2E; }   /* 2 Nov: heading removed, line bigger + bold */
+
+  html, body { margin: 0 !important; padding: 0 !important; background: #E9E4D6 !important; }
+  html.ifr, html.ifr body { background: #FBF8EF !important; overflow: hidden !important; }
+  #out { margin: 2vw auto 0; overflow: hidden; } html.ifr #out { margin: 0; }
+  #out .card { transform-origin: 0 0; margin: 0 !important; box-shadow: none !important; }
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script>
+const ART = '';
+const MH = "";
+const FN = {
+  f18:  { name: 'विनायक स्थापना एवं घृतपान', when: 'बुधवार, 18 नवम्बर 2026 · <b>प्रातः 11:00 बजे</b>', where: 'निवास स्थान : सी-11, प्रथम विस्तार, कमला नेहरू नगर, जोधपुर' },
+  f20e: { name: 'तिलक एवं स्वागत समारोह', when: 'शुक्रवार, 20 नवम्बर 2026 · ', t2: '<b>तिलक :</b> सायं 6:00 बजे<br><b>स्वागत समारोह :</b> रात्रि 8:00 बजे से', where: 'बाल समंद लेक पैलेस, जोधपुर' },
+  f21m: { name: 'गीत एवं स्नेह भोज',                      when: 'शनिवार, 21 नवम्बर 2026 · <b>दोपहर 12:00 बजे</b>', where: 'खास बाग, रातानाडा, जोधपुर' },
+  f21e: { name: 'शुभ विवाह',                  when: 'शनिवार, 21 नवम्बर 2026 · <b>रात्रि 8:00 बजे से</b>', where: 'कस्तूरी ऑर्किड, दिल्ली पब्लिक स्कूल के पास, जोधपुर' + '<div class="sb"><b>बारात प्रस्थान :</b> सायं 5:30 बजे, निवास स्थान से</div>' + '<div class="sb"><b>पुनः एकत्रण :</b> DPS ढाबा</div>' }
+};
+const ICON = {"f18": "<svg class=\"ic\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><g fill=\"none\" stroke=\"#000\" stroke-width=\"1.35\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <path d=\"M12.6 14.2 C6.2 16.2 6.2 25.6 12.2 27.2 L19.8 27.2 C25.8 25.6 25.8 16.2 19.4 14.2\"/>\n  <path d=\"M12.6 14.2 L12.6 12.2 L19.4 12.2 L19.4 14.2\"/>\n  <path d=\"M11 12.2 H21\"/>\n  <path d=\"M13.2 27.2 L12.2 29.4 H19.8 L18.8 27.2\"/>\n  <path d=\"M8.2 19.2 H23.8\" stroke-width=\"0.9\"/><path d=\"M8 22.2 H24\" stroke-width=\"0.9\"/>\n  <ellipse cx=\"16\" cy=\"7.6\" rx=\"3.1\" ry=\"3.8\"/>\n  <path d=\"M16 3.8 C16.4 2.6 17.4 1.9 18.6 1.8\" stroke-width=\"1\"/>\n  <path d=\"M12.9 11.4 C10 11.6 7.2 10.2 5.4 7.4 C8.6 7.2 11.4 8.6 12.9 11.4 Z\" stroke-width=\"1\"/>\n  <path d=\"M19.1 11.4 C22 11.6 24.8 10.2 26.6 7.4 C23.4 7.2 20.6 8.6 19.1 11.4 Z\" stroke-width=\"1\"/>\n  <path d=\"M5.4 7.4 L12.9 11.4 M26.6 7.4 L19.1 11.4\" stroke-width=\"0.6\"/>\n</g></svg>", "f20e": "<svg class=\"ic\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><g fill=\"none\" stroke=\"#000\" stroke-width=\"1.35\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <path d=\"M6.6 5.2 L21.4 20.0\"/><path d=\"M5.2 6.6 L20.0 21.4\"/>\n  <path d=\"M21.4 20.0 C23.4 22.8 25.6 24.2 28.6 24.4\"/><path d=\"M20.0 21.4 C22.8 23.4 24.2 25.6 24.4 28.6\"/>\n  <ellipse cx=\"26.5\" cy=\"26.5\" rx=\"2.9\" ry=\"1.2\" transform=\"rotate(-45 26.5 26.5)\"/>\n  <path d=\"M5.9 5.9 L3.4 3.4\"/><path d=\"M2.4 4.4 L4.4 2.4\" stroke-width=\"1.1\"/>\n  <circle cx=\"10.2\" cy=\"10.2\" r=\"0.55\" fill=\"#000\" stroke=\"none\"/><circle cx=\"12.7\" cy=\"12.7\" r=\"0.55\" fill=\"#000\" stroke=\"none\"/>\n  <circle cx=\"15.2\" cy=\"15.2\" r=\"0.55\" fill=\"#000\" stroke=\"none\"/><circle cx=\"17.7\" cy=\"17.7\" r=\"0.55\" fill=\"#000\" stroke=\"none\"/>\n</g></svg>", "f21m": "<svg class=\"ic\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><g fill=\"none\" stroke=\"#000\" stroke-width=\"1.35\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <path d=\"M3 9.4 C8.6 4.6 13.4 12.8 19 8.2 C22.4 5.4 25.4 5 28.4 6.2\"/>\n  <path d=\"M3 17.6 C8.6 12.8 13.4 21 19 16.4 C22.4 13.6 25.4 13.2 28.4 14.4\"/>\n  <path d=\"M3 9.4 V17.6 M28.4 6.2 V14.4\"/>\n  <path d=\"M28.4 7.4 h2 M28.4 9.4 h2 M28.4 11.4 h2 M28.4 13.4 h2\" stroke-width=\"0.8\"/>\n  <path d=\"M3.6 11.2 C9 6.8 13.6 14.8 19 10.4 C22.4 7.6 25.2 7.2 27.8 8.2\" stroke-width=\"0.6\" stroke-dasharray=\"0.1 1.4\"/>\n  <g fill=\"#000\" stroke=\"none\">\n    <circle cx=\"7\" cy=\"14.2\" r=\"0.7\"/><circle cx=\"11\" cy=\"14.6\" r=\"0.7\"/><circle cx=\"15\" cy=\"15.6\" r=\"0.7\"/>\n    <circle cx=\"19.4\" cy=\"12.8\" r=\"0.7\"/><circle cx=\"23.4\" cy=\"10.6\" r=\"0.7\"/><circle cx=\"26.4\" cy=\"10.4\" r=\"0.7\"/>\n  </g>\n  <ellipse cx=\"16\" cy=\"25\" rx=\"12.4\" ry=\"2.9\"/>\n  <path d=\"M6 24.6 C8.6 26.2 23.4 26.2 26 24.6\" stroke-width=\"0.7\"/>\n</g></svg>", "f21e": "<svg class=\"ic\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><g fill=\"none\" stroke=\"#000\" stroke-width=\"1.35\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <path d=\"M16 1.6 V3.4\"/><circle cx=\"16\" cy=\"1.4\" r=\"0.5\" fill=\"#000\" stroke=\"none\"/>\n  <path d=\"M9.4 11.6 C9.4 7.6 13.6 6.4 16 3.4 C18.4 6.4 22.6 7.6 22.6 11.6\"/>\n  <path d=\"M5.2 11.6 H26.8 L25.6 13.4 H6.4 Z\"/>\n  <path d=\"M8 13.4 V28 M24 13.4 V28\"/>\n  <path d=\"M8 15.4 C10.6 18.4 13.4 18.4 16 15.4 C18.6 18.4 21.4 18.4 24 15.4\" stroke-width=\"0.9\"/>\n  <path d=\"M3.6 28.4 H28.4\"/>\n  <path d=\"M12.8 28.2 L13.8 25.2 H18.2 L19.2 28.2\" stroke-width=\"1\"/>\n  <path d=\"M16 24.6 C14.4 23.4 14.8 21.6 16 20.2 C16.2 21.4 17.4 22 17.2 23.2 C17 24 16.6 24.4 16 24.6 Z\" stroke-width=\"0.9\"/>\n</g></svg>"};
+const QR = {"f18": "<svg class=\"qr\" viewBox=\"0 0 33 33\" shape-rendering=\"crispEdges\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM20 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM27 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM2 3h1v1h-1zM8 3h1v1h-1zM11 3h1v1h-1zM12 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM30 3h1v1h-1zM2 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM26 4h1v1h-1zM27 4h1v1h-1zM28 4h1v1h-1zM30 4h1v1h-1zM2 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM14 5h1v1h-1zM15 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM20 5h1v1h-1zM22 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM27 5h1v1h-1zM28 5h1v1h-1zM30 5h1v1h-1zM2 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM15 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM16 7h1v1h-1zM19 7h1v1h-1zM24 7h1v1h-1zM30 7h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM26 8h1v1h-1zM27 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM30 8h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM11 10h1v1h-1zM13 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM19 10h1v1h-1zM21 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM6 11h1v1h-1zM7 11h1v1h-1zM10 11h1v1h-1zM11 11h1v1h-1zM14 11h1v1h-1zM17 11h1v1h-1zM21 11h1v1h-1zM22 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM29 11h1v1h-1zM3 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM17 12h1v1h-1zM19 12h1v1h-1zM20 12h1v1h-1zM22 12h1v1h-1zM24 12h1v1h-1zM25 12h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM7 13h1v1h-1zM9 13h1v1h-1zM11 13h1v1h-1zM14 13h1v1h-1zM16 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM22 13h1v1h-1zM24 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM18 14h1v1h-1zM19 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM30 14h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM15 15h1v1h-1zM18 15h1v1h-1zM19 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM22 15h1v1h-1zM24 15h1v1h-1zM25 15h1v1h-1zM26 15h1v1h-1zM29 15h1v1h-1zM30 15h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM13 16h1v1h-1zM14 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM20 16h1v1h-1zM22 16h1v1h-1zM23 16h1v1h-1zM26 16h1v1h-1zM27 16h1v1h-1zM28 16h1v1h-1zM3 17h1v1h-1zM6 17h1v1h-1zM10 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1zM16 17h1v1h-1zM20 17h1v1h-1zM21 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM26 17h1v1h-1zM28 17h1v1h-1zM30 17h1v1h-1zM5 18h1v1h-1zM7 18h1v1h-1zM8 18h1v1h-1zM9 18h1v1h-1zM11 18h1v1h-1zM13 18h1v1h-1zM15 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM21 18h1v1h-1zM25 18h1v1h-1zM27 18h1v1h-1zM28 18h1v1h-1zM2 19h1v1h-1zM7 19h1v1h-1zM10 19h1v1h-1zM14 19h1v1h-1zM16 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM23 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM26 19h1v1h-1zM28 19h1v1h-1zM29 19h1v1h-1zM30 19h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM8 20h1v1h-1zM10 20h1v1h-1zM11 20h1v1h-1zM13 20h1v1h-1zM17 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM26 20h1v1h-1zM27 20h1v1h-1zM30 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM7 21h1v1h-1zM9 21h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM12 21h1v1h-1zM14 21h1v1h-1zM20 21h1v1h-1zM21 21h1v1h-1zM22 21h1v1h-1zM26 21h1v1h-1zM2 22h1v1h-1zM8 22h1v1h-1zM9 22h1v1h-1zM14 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM22 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM25 22h1v1h-1zM26 22h1v1h-1zM28 22h1v1h-1zM29 22h1v1h-1zM30 22h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1zM16 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM22 23h1v1h-1zM26 23h1v1h-1zM27 23h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM7 24h1v1h-1zM8 24h1v1h-1zM10 24h1v1h-1zM11 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM14 24h1v1h-1zM17 24h1v1h-1zM18 24h1v1h-1zM20 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM24 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM2 25h1v1h-1zM8 25h1v1h-1zM10 25h1v1h-1zM11 25h1v1h-1zM12 25h1v1h-1zM13 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM26 25h1v1h-1zM29 25h1v1h-1zM2 26h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM11 26h1v1h-1zM12 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM18 26h1v1h-1zM19 26h1v1h-1zM21 26h1v1h-1zM22 26h1v1h-1zM23 26h1v1h-1zM24 26h1v1h-1zM25 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM29 26h1v1h-1zM2 27h1v1h-1zM4 27h1v1h-1zM5 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM11 27h1v1h-1zM14 27h1v1h-1zM15 27h1v1h-1zM17 27h1v1h-1zM18 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM27 27h1v1h-1zM28 27h1v1h-1zM30 27h1v1h-1zM2 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM11 28h1v1h-1zM15 28h1v1h-1zM16 28h1v1h-1zM17 28h1v1h-1zM20 28h1v1h-1zM21 28h1v1h-1zM22 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM2 29h1v1h-1zM8 29h1v1h-1zM10 29h1v1h-1zM12 29h1v1h-1zM14 29h1v1h-1zM15 29h1v1h-1zM16 29h1v1h-1zM17 29h1v1h-1zM24 29h1v1h-1zM25 29h1v1h-1zM26 29h1v1h-1zM27 29h1v1h-1zM28 29h1v1h-1zM30 29h1v1h-1zM2 30h1v1h-1zM3 30h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM6 30h1v1h-1zM7 30h1v1h-1zM8 30h1v1h-1zM10 30h1v1h-1zM14 30h1v1h-1zM16 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM19 30h1v1h-1zM23 30h1v1h-1zM25 30h1v1h-1zM28 30h1v1h-1z\" fill=\"#000\"/></svg>", "f20e": "<svg class=\"qr\" viewBox=\"0 0 37 37\" shape-rendering=\"crispEdges\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM11 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM17 2h1v1h-1zM19 2h1v1h-1zM21 2h1v1h-1zM23 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM31 2h1v1h-1zM32 2h1v1h-1zM33 2h1v1h-1zM34 2h1v1h-1zM2 3h1v1h-1zM8 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM17 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM28 3h1v1h-1zM34 3h1v1h-1zM2 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM16 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM23 4h1v1h-1zM28 4h1v1h-1zM30 4h1v1h-1zM31 4h1v1h-1zM32 4h1v1h-1zM34 4h1v1h-1zM2 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM13 5h1v1h-1zM16 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM21 5h1v1h-1zM22 5h1v1h-1zM23 5h1v1h-1zM25 5h1v1h-1zM28 5h1v1h-1zM30 5h1v1h-1zM31 5h1v1h-1zM32 5h1v1h-1zM34 5h1v1h-1zM2 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM15 6h1v1h-1zM16 6h1v1h-1zM17 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM23 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM31 6h1v1h-1zM32 6h1v1h-1zM34 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM11 7h1v1h-1zM12 7h1v1h-1zM15 7h1v1h-1zM16 7h1v1h-1zM20 7h1v1h-1zM22 7h1v1h-1zM28 7h1v1h-1zM34 7h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM30 8h1v1h-1zM31 8h1v1h-1zM32 8h1v1h-1zM33 8h1v1h-1zM34 8h1v1h-1zM11 9h1v1h-1zM14 9h1v1h-1zM15 9h1v1h-1zM22 9h1v1h-1zM24 9h1v1h-1zM26 9h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM17 10h1v1h-1zM19 10h1v1h-1zM24 10h1v1h-1zM30 10h1v1h-1zM31 10h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM9 11h1v1h-1zM12 11h1v1h-1zM16 11h1v1h-1zM18 11h1v1h-1zM19 11h1v1h-1zM20 11h1v1h-1zM21 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM25 11h1v1h-1zM29 11h1v1h-1zM30 11h1v1h-1zM32 11h1v1h-1zM33 11h1v1h-1zM2 12h1v1h-1zM5 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM17 12h1v1h-1zM22 12h1v1h-1zM23 12h1v1h-1zM24 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM30 12h1v1h-1zM31 12h1v1h-1zM33 12h1v1h-1zM2 13h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM9 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM16 13h1v1h-1zM17 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM25 13h1v1h-1zM27 13h1v1h-1zM28 13h1v1h-1zM29 13h1v1h-1zM30 13h1v1h-1zM32 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM17 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM28 14h1v1h-1zM29 14h1v1h-1zM33 14h1v1h-1zM34 14h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM5 15h1v1h-1zM7 15h1v1h-1zM9 15h1v1h-1zM12 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1zM16 15h1v1h-1zM17 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM22 15h1v1h-1zM23 15h1v1h-1zM25 15h1v1h-1zM26 15h1v1h-1zM28 15h1v1h-1zM29 15h1v1h-1zM33 15h1v1h-1zM34 15h1v1h-1zM3 16h1v1h-1zM6 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM15 16h1v1h-1zM16 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM20 16h1v1h-1zM22 16h1v1h-1zM27 16h1v1h-1zM30 16h1v1h-1zM33 16h1v1h-1zM2 17h1v1h-1zM3 17h1v1h-1zM4 17h1v1h-1zM7 17h1v1h-1zM9 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM16 17h1v1h-1zM22 17h1v1h-1zM25 17h1v1h-1zM27 17h1v1h-1zM29 17h1v1h-1zM30 17h1v1h-1zM32 17h1v1h-1zM34 17h1v1h-1zM2 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM8 18h1v1h-1zM10 18h1v1h-1zM11 18h1v1h-1zM12 18h1v1h-1zM14 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM23 18h1v1h-1zM24 18h1v1h-1zM25 18h1v1h-1zM26 18h1v1h-1zM27 18h1v1h-1zM29 18h1v1h-1zM30 18h1v1h-1zM33 18h1v1h-1zM2 19h1v1h-1zM7 19h1v1h-1zM10 19h1v1h-1zM12 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM20 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM26 19h1v1h-1zM28 19h1v1h-1zM29 19h1v1h-1zM31 19h1v1h-1zM33 19h1v1h-1zM34 19h1v1h-1zM3 20h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM8 20h1v1h-1zM9 20h1v1h-1zM10 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM14 20h1v1h-1zM15 20h1v1h-1zM16 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM22 20h1v1h-1zM24 20h1v1h-1zM25 20h1v1h-1zM29 20h1v1h-1zM34 20h1v1h-1zM4 21h1v1h-1zM5 21h1v1h-1zM9 21h1v1h-1zM11 21h1v1h-1zM12 21h1v1h-1zM13 21h1v1h-1zM16 21h1v1h-1zM22 21h1v1h-1zM24 21h1v1h-1zM29 21h1v1h-1zM30 21h1v1h-1zM32 21h1v1h-1zM3 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM9 22h1v1h-1zM11 22h1v1h-1zM13 22h1v1h-1zM17 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM21 22h1v1h-1zM24 22h1v1h-1zM25 22h1v1h-1zM26 22h1v1h-1zM27 22h1v1h-1zM29 22h1v1h-1zM30 22h1v1h-1zM33 22h1v1h-1zM2 23h1v1h-1zM3 23h1v1h-1zM4 23h1v1h-1zM6 23h1v1h-1zM9 23h1v1h-1zM10 23h1v1h-1zM11 23h1v1h-1zM12 23h1v1h-1zM14 23h1v1h-1zM15 23h1v1h-1zM17 23h1v1h-1zM20 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM30 23h1v1h-1zM31 23h1v1h-1zM33 23h1v1h-1zM2 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h1v1h-1zM12 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM27 24h1v1h-1zM30 24h1v1h-1zM31 24h1v1h-1zM33 24h1v1h-1zM2 25h1v1h-1zM4 25h1v1h-1zM7 25h1v1h-1zM10 25h1v1h-1zM11 25h1v1h-1zM14 25h1v1h-1zM15 25h1v1h-1zM21 25h1v1h-1zM24 25h1v1h-1zM25 25h1v1h-1zM27 25h1v1h-1zM31 25h1v1h-1zM32 25h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM7 26h1v1h-1zM8 26h1v1h-1zM12 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM18 26h1v1h-1zM20 26h1v1h-1zM22 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM30 26h1v1h-1zM31 26h1v1h-1zM33 26h1v1h-1zM10 27h1v1h-1zM12 27h1v1h-1zM17 27h1v1h-1zM18 27h1v1h-1zM19 27h1v1h-1zM20 27h1v1h-1zM21 27h1v1h-1zM23 27h1v1h-1zM26 27h1v1h-1zM30 27h1v1h-1zM31 27h1v1h-1zM34 27h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM7 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h1v1h-1zM13 28h1v1h-1zM14 28h1v1h-1zM17 28h1v1h-1zM19 28h1v1h-1zM20 28h1v1h-1zM23 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM28 28h1v1h-1zM30 28h1v1h-1zM31 28h1v1h-1zM32 28h1v1h-1zM33 28h1v1h-1zM2 29h1v1h-1zM8 29h1v1h-1zM10 29h1v1h-1zM13 29h1v1h-1zM25 29h1v1h-1zM26 29h1v1h-1zM30 29h1v1h-1zM31 29h1v1h-1zM32 29h1v1h-1zM33 29h1v1h-1zM34 29h1v1h-1zM2 30h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM6 30h1v1h-1zM8 30h1v1h-1zM12 30h1v1h-1zM13 30h1v1h-1zM17 30h1v1h-1zM24 30h1v1h-1zM26 30h1v1h-1zM27 30h1v1h-1zM28 30h1v1h-1zM29 30h1v1h-1zM30 30h1v1h-1zM34 30h1v1h-1zM2 31h1v1h-1zM4 31h1v1h-1zM5 31h1v1h-1zM6 31h1v1h-1zM8 31h1v1h-1zM11 31h1v1h-1zM14 31h1v1h-1zM15 31h1v1h-1zM16 31h1v1h-1zM17 31h1v1h-1zM18 31h1v1h-1zM19 31h1v1h-1zM20 31h1v1h-1zM21 31h1v1h-1zM22 31h1v1h-1zM25 31h1v1h-1zM29 31h1v1h-1zM30 31h1v1h-1zM32 31h1v1h-1zM33 31h1v1h-1zM34 31h1v1h-1zM2 32h1v1h-1zM4 32h1v1h-1zM5 32h1v1h-1zM6 32h1v1h-1zM8 32h1v1h-1zM12 32h1v1h-1zM13 32h1v1h-1zM17 32h1v1h-1zM20 32h1v1h-1zM21 32h1v1h-1zM22 32h1v1h-1zM23 32h1v1h-1zM24 32h1v1h-1zM25 32h1v1h-1zM26 32h1v1h-1zM27 32h1v1h-1zM30 32h1v1h-1zM32 32h1v1h-1zM33 32h1v1h-1zM34 32h1v1h-1zM2 33h1v1h-1zM8 33h1v1h-1zM10 33h1v1h-1zM11 33h1v1h-1zM14 33h1v1h-1zM15 33h1v1h-1zM17 33h1v1h-1zM18 33h1v1h-1zM20 33h1v1h-1zM21 33h1v1h-1zM22 33h1v1h-1zM24 33h1v1h-1zM27 33h1v1h-1zM28 33h1v1h-1zM31 33h1v1h-1zM32 33h1v1h-1zM2 34h1v1h-1zM3 34h1v1h-1zM4 34h1v1h-1zM5 34h1v1h-1zM6 34h1v1h-1zM7 34h1v1h-1zM8 34h1v1h-1zM10 34h1v1h-1zM11 34h1v1h-1zM12 34h1v1h-1zM14 34h1v1h-1zM16 34h1v1h-1zM19 34h1v1h-1zM21 34h1v1h-1zM24 34h1v1h-1zM25 34h1v1h-1zM26 34h1v1h-1zM28 34h1v1h-1zM29 34h1v1h-1zM31 34h1v1h-1zM33 34h1v1h-1z\" fill=\"#000\"/></svg>", "f21e": "<svg class=\"qr\" viewBox=\"0 0 33 33\" shape-rendering=\"crispEdges\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM19 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM27 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM2 3h1v1h-1zM8 3h1v1h-1zM10 3h1v1h-1zM12 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM17 3h1v1h-1zM18 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM30 3h1v1h-1zM2 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM14 4h1v1h-1zM18 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM26 4h1v1h-1zM27 4h1v1h-1zM28 4h1v1h-1zM30 4h1v1h-1zM2 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM11 5h1v1h-1zM12 5h1v1h-1zM14 5h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM19 5h1v1h-1zM20 5h1v1h-1zM21 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM27 5h1v1h-1zM28 5h1v1h-1zM30 5h1v1h-1zM2 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM11 6h1v1h-1zM14 6h1v1h-1zM17 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM11 7h1v1h-1zM14 7h1v1h-1zM15 7h1v1h-1zM17 7h1v1h-1zM18 7h1v1h-1zM19 7h1v1h-1zM22 7h1v1h-1zM24 7h1v1h-1zM30 7h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM26 8h1v1h-1zM27 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM30 8h1v1h-1zM11 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM16 9h1v1h-1zM21 9h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM19 10h1v1h-1zM20 10h1v1h-1zM23 10h1v1h-1zM25 10h1v1h-1zM27 10h1v1h-1zM29 10h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM6 11h1v1h-1zM7 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM15 11h1v1h-1zM19 11h1v1h-1zM21 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM26 11h1v1h-1zM30 11h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM25 12h1v1h-1zM4 13h1v1h-1zM5 13h1v1h-1zM7 13h1v1h-1zM10 13h1v1h-1zM17 13h1v1h-1zM21 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM29 13h1v1h-1zM2 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM19 14h1v1h-1zM21 14h1v1h-1zM25 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM7 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM13 15h1v1h-1zM15 15h1v1h-1zM18 15h1v1h-1zM21 15h1v1h-1zM23 15h1v1h-1zM24 15h1v1h-1zM25 15h1v1h-1zM26 15h1v1h-1zM30 15h1v1h-1zM2 16h1v1h-1zM4 16h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM14 16h1v1h-1zM17 16h1v1h-1zM20 16h1v1h-1zM22 16h1v1h-1zM26 16h1v1h-1zM27 16h1v1h-1zM28 16h1v1h-1zM2 17h1v1h-1zM6 17h1v1h-1zM7 17h1v1h-1zM9 17h1v1h-1zM10 17h1v1h-1zM14 17h1v1h-1zM16 17h1v1h-1zM22 17h1v1h-1zM24 17h1v1h-1zM26 17h1v1h-1zM29 17h1v1h-1zM4 18h1v1h-1zM8 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM25 18h1v1h-1zM27 18h1v1h-1zM28 18h1v1h-1zM2 19h1v1h-1zM7 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM18 19h1v1h-1zM19 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM23 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM26 19h1v1h-1zM28 19h1v1h-1zM30 19h1v1h-1zM2 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM8 20h1v1h-1zM10 20h1v1h-1zM11 20h1v1h-1zM14 20h1v1h-1zM16 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM24 20h1v1h-1zM25 20h1v1h-1zM26 20h1v1h-1zM28 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM5 21h1v1h-1zM6 21h1v1h-1zM7 21h1v1h-1zM11 21h1v1h-1zM12 21h1v1h-1zM14 21h1v1h-1zM17 21h1v1h-1zM18 21h1v1h-1zM22 21h1v1h-1zM24 21h1v1h-1zM26 21h1v1h-1zM29 21h1v1h-1zM2 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM7 22h1v1h-1zM8 22h1v1h-1zM12 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM17 22h1v1h-1zM18 22h1v1h-1zM21 22h1v1h-1zM22 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM25 22h1v1h-1zM26 22h1v1h-1zM28 22h1v1h-1zM29 22h1v1h-1zM30 22h1v1h-1zM10 23h1v1h-1zM11 23h1v1h-1zM13 23h1v1h-1zM15 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM22 23h1v1h-1zM26 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM29 23h1v1h-1zM30 23h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM7 24h1v1h-1zM8 24h1v1h-1zM10 24h1v1h-1zM11 24h1v1h-1zM12 24h1v1h-1zM14 24h1v1h-1zM15 24h1v1h-1zM17 24h1v1h-1zM19 24h1v1h-1zM20 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM24 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM2 25h1v1h-1zM8 25h1v1h-1zM11 25h1v1h-1zM12 25h1v1h-1zM16 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM26 25h1v1h-1zM2 26h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM10 26h1v1h-1zM11 26h1v1h-1zM12 26h1v1h-1zM14 26h1v1h-1zM16 26h1v1h-1zM17 26h1v1h-1zM18 26h1v1h-1zM19 26h1v1h-1zM22 26h1v1h-1zM23 26h1v1h-1zM24 26h1v1h-1zM25 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM2 27h1v1h-1zM4 27h1v1h-1zM5 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h1v1h-1zM13 27h1v1h-1zM15 27h1v1h-1zM18 27h1v1h-1zM20 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM27 27h1v1h-1zM28 27h1v1h-1zM30 27h1v1h-1zM2 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM11 28h1v1h-1zM12 28h1v1h-1zM15 28h1v1h-1zM17 28h1v1h-1zM18 28h1v1h-1zM20 28h1v1h-1zM21 28h1v1h-1zM23 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM2 29h1v1h-1zM8 29h1v1h-1zM10 29h1v1h-1zM12 29h1v1h-1zM13 29h1v1h-1zM22 29h1v1h-1zM24 29h1v1h-1zM25 29h1v1h-1zM26 29h1v1h-1zM27 29h1v1h-1zM29 29h1v1h-1zM2 30h1v1h-1zM3 30h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM6 30h1v1h-1zM7 30h1v1h-1zM8 30h1v1h-1zM10 30h1v1h-1zM13 30h1v1h-1zM14 30h1v1h-1zM15 30h1v1h-1zM16 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM19 30h1v1h-1zM21 30h1v1h-1zM24 30h1v1h-1zM25 30h1v1h-1zM28 30h1v1h-1z\" fill=\"#000\"/></svg>", "f21m": "<svg class=\"qr\" viewBox=\"0 0 37 37\" shape-rendering=\"crispEdges\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM11 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM23 2h1v1h-1zM24 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM31 2h1v1h-1zM32 2h1v1h-1zM33 2h1v1h-1zM34 2h1v1h-1zM2 3h1v1h-1zM8 3h1v1h-1zM10 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM17 3h1v1h-1zM19 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM34 3h1v1h-1zM2 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM19 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM25 4h1v1h-1zM28 4h1v1h-1zM30 4h1v1h-1zM31 4h1v1h-1zM32 4h1v1h-1zM34 4h1v1h-1zM2 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM11 5h1v1h-1zM12 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM17 5h1v1h-1zM20 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM28 5h1v1h-1zM30 5h1v1h-1zM31 5h1v1h-1zM32 5h1v1h-1zM34 5h1v1h-1zM2 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM15 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM23 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM31 6h1v1h-1zM32 6h1v1h-1zM34 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM16 7h1v1h-1zM20 7h1v1h-1zM21 7h1v1h-1zM23 7h1v1h-1zM26 7h1v1h-1zM28 7h1v1h-1zM34 7h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM30 8h1v1h-1zM31 8h1v1h-1zM32 8h1v1h-1zM33 8h1v1h-1zM34 8h1v1h-1zM10 9h1v1h-1zM11 9h1v1h-1zM14 9h1v1h-1zM16 9h1v1h-1zM19 9h1v1h-1zM23 9h1v1h-1zM24 9h1v1h-1zM25 9h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM5 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM12 10h1v1h-1zM17 10h1v1h-1zM23 10h1v1h-1zM25 10h1v1h-1zM28 10h1v1h-1zM29 10h1v1h-1zM30 10h1v1h-1zM32 10h1v1h-1zM33 10h1v1h-1zM2 11h1v1h-1zM6 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM16 11h1v1h-1zM17 11h1v1h-1zM19 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM26 11h1v1h-1zM27 11h1v1h-1zM28 11h1v1h-1zM31 11h1v1h-1zM34 11h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM18 12h1v1h-1zM20 12h1v1h-1zM21 12h1v1h-1zM22 12h1v1h-1zM29 12h1v1h-1zM30 12h1v1h-1zM31 12h1v1h-1zM34 12h1v1h-1zM2 13h1v1h-1zM6 13h1v1h-1zM7 13h1v1h-1zM16 13h1v1h-1zM17 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM30 13h1v1h-1zM33 13h1v1h-1zM34 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM14 14h1v1h-1zM18 14h1v1h-1zM19 14h1v1h-1zM20 14h1v1h-1zM23 14h1v1h-1zM25 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM31 14h1v1h-1zM34 14h1v1h-1zM2 15h1v1h-1zM4 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM14 15h1v1h-1zM17 15h1v1h-1zM21 15h1v1h-1zM22 15h1v1h-1zM23 15h1v1h-1zM24 15h1v1h-1zM28 15h1v1h-1zM30 15h1v1h-1zM31 15h1v1h-1zM32 15h1v1h-1zM33 15h1v1h-1zM34 15h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM14 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM20 16h1v1h-1zM22 16h1v1h-1zM24 16h1v1h-1zM25 16h1v1h-1zM27 16h1v1h-1zM29 16h1v1h-1zM31 16h1v1h-1zM33 16h1v1h-1zM3 17h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM6 17h1v1h-1zM9 17h1v1h-1zM10 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM16 17h1v1h-1zM18 17h1v1h-1zM19 17h1v1h-1zM20 17h1v1h-1zM21 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM26 17h1v1h-1zM28 17h1v1h-1zM31 17h1v1h-1zM33 17h1v1h-1zM2 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM7 18h1v1h-1zM8 18h1v1h-1zM10 18h1v1h-1zM12 18h1v1h-1zM13 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM24 18h1v1h-1zM25 18h1v1h-1zM26 18h1v1h-1zM28 18h1v1h-1zM30 18h1v1h-1zM34 18h1v1h-1zM2 19h1v1h-1zM3 19h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM12 19h1v1h-1zM17 19h1v1h-1zM19 19h1v1h-1zM23 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM27 19h1v1h-1zM31 19h1v1h-1zM32 19h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM9 20h1v1h-1zM10 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM18 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM22 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM27 20h1v1h-1zM31 20h1v1h-1zM33 20h1v1h-1zM34 20h1v1h-1zM2 21h1v1h-1zM6 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM13 21h1v1h-1zM15 21h1v1h-1zM17 21h1v1h-1zM18 21h1v1h-1zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM31 21h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM10 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM16 22h1v1h-1zM18 22h1v1h-1zM22 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM26 22h1v1h-1zM27 22h1v1h-1zM31 22h1v1h-1zM33 22h1v1h-1zM3 23h1v1h-1zM4 23h1v1h-1zM5 23h1v1h-1zM9 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM15 23h1v1h-1zM17 23h1v1h-1zM21 23h1v1h-1zM22 23h1v1h-1zM26 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM29 23h1v1h-1zM32 23h1v1h-1zM34 23h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM8 24h1v1h-1zM10 24h1v1h-1zM11 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM14 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM19 24h1v1h-1zM21 24h1v1h-1zM23 24h1v1h-1zM28 24h1v1h-1zM29 24h1v1h-1zM30 24h1v1h-1zM31 24h1v1h-1zM34 24h1v1h-1zM3 25h1v1h-1zM6 25h1v1h-1zM7 25h1v1h-1zM12 25h1v1h-1zM13 25h1v1h-1zM14 25h1v1h-1zM15 25h1v1h-1zM20 25h1v1h-1zM22 25h1v1h-1zM23 25h1v1h-1zM24 25h1v1h-1zM25 25h1v1h-1zM26 25h1v1h-1zM28 25h1v1h-1zM29 25h1v1h-1zM31 25h1v1h-1zM33 25h1v1h-1zM34 25h1v1h-1zM2 26h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM8 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM11 26h1v1h-1zM13 26h1v1h-1zM16 26h1v1h-1zM19 26h1v1h-1zM21 26h1v1h-1zM22 26h1v1h-1zM25 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM30 26h1v1h-1zM10 27h1v1h-1zM13 27h1v1h-1zM15 27h1v1h-1zM16 27h1v1h-1zM19 27h1v1h-1zM21 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM26 27h1v1h-1zM30 27h1v1h-1zM32 27h1v1h-1zM34 27h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM7 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM11 28h1v1h-1zM13 28h1v1h-1zM15 28h1v1h-1zM16 28h1v1h-1zM19 28h1v1h-1zM23 28h1v1h-1zM24 28h1v1h-1zM26 28h1v1h-1zM28 28h1v1h-1zM30 28h1v1h-1zM32 28h1v1h-1zM33 28h1v1h-1zM2 29h1v1h-1zM8 29h1v1h-1zM13 29h1v1h-1zM17 29h1v1h-1zM18 29h1v1h-1zM19 29h1v1h-1zM21 29h1v1h-1zM23 29h1v1h-1zM26 29h1v1h-1zM30 29h1v1h-1zM33 29h1v1h-1zM34 29h1v1h-1zM2 30h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM6 30h1v1h-1zM8 30h1v1h-1zM11 30h1v1h-1zM12 30h1v1h-1zM14 30h1v1h-1zM15 30h1v1h-1zM18 30h1v1h-1zM19 30h1v1h-1zM22 30h1v1h-1zM23 30h1v1h-1zM24 30h1v1h-1zM26 30h1v1h-1zM27 30h1v1h-1zM28 30h1v1h-1zM29 30h1v1h-1zM30 30h1v1h-1zM34 30h1v1h-1zM2 31h1v1h-1zM4 31h1v1h-1zM5 31h1v1h-1zM6 31h1v1h-1zM8 31h1v1h-1zM10 31h1v1h-1zM12 31h1v1h-1zM14 31h1v1h-1zM15 31h1v1h-1zM16 31h1v1h-1zM18 31h1v1h-1zM19 31h1v1h-1zM23 31h1v1h-1zM25 31h1v1h-1zM26 31h1v1h-1zM27 31h1v1h-1zM28 31h1v1h-1zM30 31h1v1h-1zM2 32h1v1h-1zM4 32h1v1h-1zM5 32h1v1h-1zM6 32h1v1h-1zM8 32h1v1h-1zM11 32h1v1h-1zM12 32h1v1h-1zM13 32h1v1h-1zM14 32h1v1h-1zM16 32h1v1h-1zM18 32h1v1h-1zM20 32h1v1h-1zM24 32h1v1h-1zM26 32h1v1h-1zM29 32h1v1h-1zM30 32h1v1h-1zM31 32h1v1h-1zM32 32h1v1h-1zM34 32h1v1h-1zM2 33h1v1h-1zM8 33h1v1h-1zM10 33h1v1h-1zM12 33h1v1h-1zM14 33h1v1h-1zM16 33h1v1h-1zM17 33h1v1h-1zM18 33h1v1h-1zM19 33h1v1h-1zM21 33h1v1h-1zM22 33h1v1h-1zM23 33h1v1h-1zM25 33h1v1h-1zM26 33h1v1h-1zM27 33h1v1h-1zM28 33h1v1h-1zM29 33h1v1h-1zM30 33h1v1h-1zM2 34h1v1h-1zM3 34h1v1h-1zM4 34h1v1h-1zM5 34h1v1h-1zM6 34h1v1h-1zM7 34h1v1h-1zM8 34h1v1h-1zM10 34h1v1h-1zM11 34h1v1h-1zM23 34h1v1h-1zM26 34h1v1h-1zM28 34h1v1h-1zM30 34h1v1h-1zM33 34h1v1h-1z\" fill=\"#000\"/></svg>"};
+const FRAME = "<svg class=\"frame\" viewBox=\"0 0 127.0 177.8\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M4.00 173.80 L4.00 42.00 A65.58 65.58 0 0 1 123.00 42.00 L123.00 173.80 Z\" fill=\"none\" stroke=\"#000\" stroke-width=\"0.4\"/><path d=\"M5.70 172.10 L5.70 42.60 Q6.54 35.45 12.43 31.31 Q14.72 24.49 21.33 21.65 Q24.98 15.44 32.03 14.01 Q36.87 8.68 44.07 8.74 Q49.90 4.51 56.93 6.04 Q63.50 3.10 70.07 6.04 Q77.10 4.51 82.93 8.74 Q90.13 8.68 94.97 14.01 Q102.02 15.44 105.67 21.65 Q112.28 24.49 114.57 31.31 Q120.46 35.45 121.30 42.60 L121.30 172.10 Z\" fill=\"none\" stroke=\"#000\" stroke-width=\"0.2\"/><path d=\"M4 42.0 h4.2 M4 43.1 h3.2 M123 42.0 h-4.2 M123 43.1 h-3.2\" stroke=\"#000\" stroke-width=\"0.3\"/></svg>";
+const TICK = '<svg class="tick" viewBox="0 0 24 24"><path d="M3.5 12.8l5.2 5.2L20.5 6.2" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function total(v) {                     // plain number (4 or '4') -> number ; '2+2' etc. stay as written
+  if (typeof v === 'number') return v;
+  const s = String(v).trim();
+  return /^\d+$/.test(s) ? Number(s) : NaN;
+}
+function cnt(v) {
+  if (/^\s*WF/i.test(String(v)) || total(v) > 2) return '<div class="sap">सपरिवार</div>';   // WF / WFx2, or more than 2 members
+  if (v === 'TICK') return TICK;
+  return `<div class="num">${v}</div>`;
+}
+
+function feather(L, ang) {
+  return `<g transform="rotate(${ang})"><path d="M0.6 0 H${L}" stroke="var(--g)" stroke-width="0.26"/>
+    <path d="M${L - 3.2} 0 l1.3 -0.9 M${L - 3.2} 0 l1.3 0.9 M${L - 2} 0 l1.1 -1.1 M${L - 2} 0 l1.1 1.1" stroke="var(--g)" stroke-width="0.16"/>
+    <ellipse cx="${L + 1.3}" cy="0" rx="2" ry="1.35" fill="var(--mint)" stroke="var(--g)" stroke-width="0.26"/>
+    <ellipse cx="${L + 1.5}" cy="0" rx="1.05" ry="0.72" fill="var(--peach)"/>
+    <circle cx="${L + 1.65}" cy="0" r="0.42" fill="var(--p)"/></g>`;
+}
+function feathers(cx, cy, sx, sy) {
+  return `<g transform="translate(${cx} ${cy}) scale(${sx} ${sy})">${feather(8, 6)}${feather(11.5, 21)}${feather(14, 35)}${feather(15.5, 45)}${feather(14, 55)}${feather(11.5, 69)}${feather(8, 84)}<circle cx="0.8" cy="0.8" r="1" fill="var(--g)"/></g>`;
+}
+function frame(w, h, peacock) {
+  const o = 4, i = 5.6, g = 'var(--g)', p = 'var(--p)';
+  const corner = (cx, cy, sx, sy) => `<g transform="translate(${cx} ${cy}) scale(${sx} ${sy})">
+      <path d="M0 9.5 A9.5 9.5 0 0 1 9.5 0" fill="none" stroke="${g}" stroke-width="0.35"/>
+      <path d="M0 6.6 A6.6 6.6 0 0 1 6.6 0" fill="none" stroke="${p}" stroke-width="0.25"/>
+      ${[0, 22.5, 45, 67.5, 90].map(a => { const r = Math.PI * a / 180, x = Math.cos(r) * 8, y = Math.sin(r) * 8;
+        return `<ellipse cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" rx="1.25" ry="0.55" transform="rotate(${a} ${x.toFixed(2)} ${y.toFixed(2)})" fill="${g}"/>`; }).join('')}
+      <circle cx="2.4" cy="2.4" r="1.1" fill="${p}"/></g>`;
+  return `<svg class="frame" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${o}" y="${o}" width="${w - 2 * o}" height="${h - 2 * o}" rx="1.2" fill="none" stroke="${g}" stroke-width="0.55"/>
+    <rect x="${i}" y="${i}" width="${w - 2 * i}" height="${h - 2 * i}" rx="0.8" fill="none" stroke="${p}" stroke-width="0.22"/>
+    ${peacock ? feathers(i, i, 1, 1) + feathers(w - i, i, -1, 1) + feathers(i, h - i, 1, -1) + feathers(w - i, h - i, -1, -1) : corner(i, i, 1, 1) + corner(w - i, i, -1, 1) + corner(i, h - i, 1, -1) + corner(w - i, h - i, -1, -1)}
+    <path d="M${w / 2 - 9} ${o} h18" stroke="${g}" stroke-width="1.6"/><path d="M${w / 2 - 9} ${h - o} h18" stroke="${g}" stroke-width="1.6"/>
+  </svg>`;
+}
+function toran(w) {          // golden rope with hanging olive mango leaves and small gold bells, between the peacock corners
+  const x0 = 25, x1 = w - 25, n = 8, seg = (x1 - x0) / n; let rope = `M${x0} 1.2`, deco = '';
+  for (let i = 0; i < n; i++) {
+    const a = x0 + seg * i, m = a + seg / 2, b = a + seg;
+    rope += ` Q${m.toFixed(2)} 3.0 ${b.toFixed(2)} 1.2`;
+    const y = 2.0;
+    deco += `<path d="M${m.toFixed(2)} ${y} C${(m - 1.15).toFixed(2)} ${y + 1.1} ${(m - 0.9).toFixed(2)} ${y + 3.0} ${m.toFixed(2)} ${y + 3.9} C${(m + 0.9).toFixed(2)} ${y + 3.0} ${(m + 1.15).toFixed(2)} ${y + 1.1} ${m.toFixed(2)} ${y} Z" fill="var(--p)"/>
+      <path d="M${m.toFixed(2)} ${y + 0.4} V${y + 3.5}" stroke="var(--g)" stroke-width="0.18"/>`;
+    if (i > 0) deco += `<path d="M${a.toFixed(2)} 1.2 V3.1" stroke="var(--g)" stroke-width="0.2"/><circle cx="${a.toFixed(2)}" cy="3.7" r="0.75" fill="var(--g)"/>`;
+  }
+  return `<svg class="toran" viewBox="0 0 ${w} 9" xmlns="http://www.w3.org/2000/svg"><path d="${rope}" fill="none" stroke="var(--g)" stroke-width="0.45"/>${deco}
+    <circle cx="${x0}" cy="1.2" r="0.9" fill="var(--g)"/><circle cx="${x1}" cy="1.2" r="0.9" fill="var(--g)"/></svg>`;
+}
+const BQR = `<svg class="qr bq" viewBox="0 0 37 37" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM25 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM31 2h1v1h-1zM32 2h1v1h-1zM33 2h1v1h-1zM34 2h1v1h-1zM2 3h1v1h-1zM8 3h1v1h-1zM11 3h1v1h-1zM12 3h1v1h-1zM17 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM28 3h1v1h-1zM34 3h1v1h-1zM2 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h1v1h-1zM16 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM30 4h1v1h-1zM31 4h1v1h-1zM32 4h1v1h-1zM34 4h1v1h-1zM2 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM11 5h1v1h-1zM12 5h1v1h-1zM13 5h1v1h-1zM20 5h1v1h-1zM26 5h1v1h-1zM28 5h1v1h-1zM30 5h1v1h-1zM31 5h1v1h-1zM32 5h1v1h-1zM34 5h1v1h-1zM2 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM13 6h1v1h-1zM15 6h1v1h-1zM16 6h1v1h-1zM17 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM23 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM31 6h1v1h-1zM32 6h1v1h-1zM34 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM16 7h1v1h-1zM20 7h1v1h-1zM22 7h1v1h-1zM23 7h1v1h-1zM26 7h1v1h-1zM28 7h1v1h-1zM34 7h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM30 8h1v1h-1zM31 8h1v1h-1zM32 8h1v1h-1zM33 8h1v1h-1zM34 8h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM16 9h1v1h-1zM18 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM24 9h1v1h-1zM25 9h1v1h-1zM26 9h1v1h-1zM2 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM16 10h1v1h-1zM19 10h1v1h-1zM21 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM29 10h1v1h-1zM30 10h1v1h-1zM31 10h1v1h-1zM32 10h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM11 11h1v1h-1zM13 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM18 11h1v1h-1zM19 11h1v1h-1zM21 11h1v1h-1zM22 11h1v1h-1zM25 11h1v1h-1zM28 11h1v1h-1zM29 11h1v1h-1zM31 11h1v1h-1zM32 11h1v1h-1zM33 11h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM23 12h1v1h-1zM24 12h1v1h-1zM26 12h1v1h-1zM30 12h1v1h-1zM32 12h1v1h-1zM33 12h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM7 13h1v1h-1zM9 13h1v1h-1zM10 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM17 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM25 13h1v1h-1zM27 13h1v1h-1zM30 13h1v1h-1zM31 13h1v1h-1zM32 13h1v1h-1zM33 13h1v1h-1zM2 14h1v1h-1zM4 14h1v1h-1zM8 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM13 14h1v1h-1zM16 14h1v1h-1zM18 14h1v1h-1zM21 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM26 14h1v1h-1zM29 14h1v1h-1zM31 14h1v1h-1zM34 14h1v1h-1zM5 15h1v1h-1zM7 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM17 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM24 15h1v1h-1zM28 15h1v1h-1zM31 15h1v1h-1zM32 15h1v1h-1zM33 15h1v1h-1zM34 15h1v1h-1zM2 16h1v1h-1zM4 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1zM13 16h1v1h-1zM16 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM23 16h1v1h-1zM24 16h1v1h-1zM27 16h1v1h-1zM28 16h1v1h-1zM30 16h1v1h-1zM32 16h1v1h-1zM33 16h1v1h-1zM3 17h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM6 17h1v1h-1zM9 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM16 17h1v1h-1zM17 17h1v1h-1zM20 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM27 17h1v1h-1zM28 17h1v1h-1zM29 17h1v1h-1zM30 17h1v1h-1zM31 17h1v1h-1zM32 17h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM7 18h1v1h-1zM8 18h1v1h-1zM10 18h1v1h-1zM13 18h1v1h-1zM17 18h1v1h-1zM19 18h1v1h-1zM21 18h1v1h-1zM27 18h1v1h-1zM29 18h1v1h-1zM30 18h1v1h-1zM31 18h1v1h-1zM32 18h1v1h-1zM34 18h1v1h-1zM2 19h1v1h-1zM3 19h1v1h-1zM4 19h1v1h-1zM6 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM16 19h1v1h-1zM18 19h1v1h-1zM20 19h1v1h-1zM21 19h1v1h-1zM23 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM27 19h1v1h-1zM28 19h1v1h-1zM29 19h1v1h-1zM31 19h1v1h-1zM32 19h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM7 20h1v1h-1zM8 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM13 20h1v1h-1zM14 20h1v1h-1zM17 20h1v1h-1zM20 20h1v1h-1zM24 20h1v1h-1zM27 20h1v1h-1zM28 20h1v1h-1zM29 20h1v1h-1zM30 20h1v1h-1zM32 20h1v1h-1zM33 20h1v1h-1zM2 21h1v1h-1zM5 21h1v1h-1zM7 21h1v1h-1zM12 21h1v1h-1zM18 21h1v1h-1zM23 21h1v1h-1zM26 21h1v1h-1zM27 21h1v1h-1zM29 21h1v1h-1zM30 21h1v1h-1zM31 21h1v1h-1zM32 21h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM12 22h1v1h-1zM13 22h1v1h-1zM15 22h1v1h-1zM20 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h1v1h-1zM31 22h1v1h-1zM33 22h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM7 23h1v1h-1zM9 23h1v1h-1zM10 23h1v1h-1zM16 23h1v1h-1zM17 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM27 23h1v1h-1zM34 23h1v1h-1zM2 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM7 24h1v1h-1zM8 24h1v1h-1zM9 24h1v1h-1zM10 24h1v1h-1zM11 24h1v1h-1zM12 24h1v1h-1zM14 24h1v1h-1zM20 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM26 24h1v1h-1zM31 24h1v1h-1zM32 24h1v1h-1zM33 24h1v1h-1zM2 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM9 25h1v1h-1zM10 25h1v1h-1zM11 25h1v1h-1zM12 25h1v1h-1zM13 25h1v1h-1zM14 25h1v1h-1zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h1v1h-1zM23 25h1v1h-1zM24 25h1v1h-1zM26 25h1v1h-1zM27 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM31 25h1v1h-1zM32 25h1v1h-1zM2 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM7 26h1v1h-1zM8 26h1v1h-1zM9 26h1v1h-1zM12 26h1v1h-1zM14 26h1v1h-1zM19 26h1v1h-1zM22 26h1v1h-1zM25 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM30 26h1v1h-1zM32 26h1v1h-1zM33 26h1v1h-1zM10 27h1v1h-1zM12 27h1v1h-1zM13 27h1v1h-1zM15 27h1v1h-1zM19 27h1v1h-1zM21 27h1v1h-1zM24 27h1v1h-1zM26 27h1v1h-1zM30 27h1v1h-1zM32 27h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM7 28h1v1h-1zM8 28h1v1h-1zM14 28h1v1h-1zM16 28h1v1h-1zM17 28h1v1h-1zM19 28h1v1h-1zM23 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM28 28h1v1h-1zM30 28h1v1h-1zM32 28h1v1h-1zM33 28h1v1h-1zM2 29h1v1h-1zM8 29h1v1h-1zM10 29h1v1h-1zM11 29h1v1h-1zM19 29h1v1h-1zM20 29h1v1h-1zM23 29h1v1h-1zM24 29h1v1h-1zM25 29h1v1h-1zM26 29h1v1h-1zM30 29h1v1h-1zM31 29h1v1h-1zM32 29h1v1h-1zM33 29h1v1h-1zM2 30h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM6 30h1v1h-1zM8 30h1v1h-1zM10 30h1v1h-1zM13 30h1v1h-1zM16 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM23 30h1v1h-1zM24 30h1v1h-1zM26 30h1v1h-1zM27 30h1v1h-1zM28 30h1v1h-1zM29 30h1v1h-1zM30 30h1v1h-1zM31 30h1v1h-1zM2 31h1v1h-1zM4 31h1v1h-1zM5 31h1v1h-1zM6 31h1v1h-1zM8 31h1v1h-1zM10 31h1v1h-1zM11 31h1v1h-1zM12 31h1v1h-1zM16 31h1v1h-1zM17 31h1v1h-1zM20 31h1v1h-1zM22 31h1v1h-1zM23 31h1v1h-1zM24 31h1v1h-1zM26 31h1v1h-1zM27 31h1v1h-1zM30 31h1v1h-1zM32 31h1v1h-1zM33 31h1v1h-1zM34 31h1v1h-1zM2 32h1v1h-1zM4 32h1v1h-1zM5 32h1v1h-1zM6 32h1v1h-1zM8 32h1v1h-1zM10 32h1v1h-1zM13 32h1v1h-1zM14 32h1v1h-1zM15 32h1v1h-1zM17 32h1v1h-1zM18 32h1v1h-1zM23 32h1v1h-1zM28 32h1v1h-1zM29 32h1v1h-1zM31 32h1v1h-1zM32 32h1v1h-1zM2 33h1v1h-1zM8 33h1v1h-1zM13 33h1v1h-1zM16 33h1v1h-1zM17 33h1v1h-1zM21 33h1v1h-1zM22 33h1v1h-1zM23 33h1v1h-1zM26 33h1v1h-1zM30 33h1v1h-1zM32 33h1v1h-1zM2 34h1v1h-1zM3 34h1v1h-1zM4 34h1v1h-1zM5 34h1v1h-1zM6 34h1v1h-1zM7 34h1v1h-1zM8 34h1v1h-1zM10 34h1v1h-1zM11 34h1v1h-1zM12 34h1v1h-1zM15 34h1v1h-1zM17 34h1v1h-1zM19 34h1v1h-1zM22 34h1v1h-1zM25 34h1v1h-1zM26 34h1v1h-1zM27 34h1v1h-1zM28 34h1v1h-1zM29 34h1v1h-1zM33 34h1v1h-1z" fill="#000"/></svg>`;
+function card(d) {
+  const keys = ['f18', 'f20e', 'f21m', 'f21e'].filter(k => d[k]);
+  const SPL = k => { const w = FN[k].where, i = w.indexOf('<div class="sb">'); return i < 0 || land ? [w, ''] : [w.slice(0, i), w.slice(i)]; };
+  const land = d.orient === "land";
+  const sbx = keys.includes('f21e') ? SPL('f21e')[1] : '';
+  const strip = sbx ? `<div class="strip bq1"><div class="stx">${sbx.replace(/<div class="sb">/g, '<span class="sbi">').replace(/<\/div>/g, '</span>')}</div><div class="bqb"><div class="bql bql2"><span>बारात की लाइव लोकेशन<br>जानने के लिए स्कैन करें</span></div>${BQR}</div></div>` : '';
+  const rows = keys.map(k => `<div class="f ${FN[k].t2 ? 't2f' : ''}"><div class="l">${(() => { const m = FN[k].when.match(/^(\S+), (\d+) (\S+) \d{4} · (.*)$/);
+        return m ? `<div class="cal"><div class="cm">${m[3]}</div><div class="cd">${m[2]}</div><div class="cw">${m[1]}</div></div><div class="nt"><div class="nmf">${FN[k].name}</div><div class="when">${m[4]}</div></div>${FN[k].t2 ? `<div class="t2">${FN[k].t2}</div>` : ''}`
+                 : `<div class="nmf">${FN[k].name}</div><div class="when">${FN[k].when}</div>`; })()}<div class="where">${SPL(k)[0]}</div></div>
+      <div class="r">${cnt(d[k])}</div><div class="qrw"><svg class="pin" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg"><path d="M12 1.5C6.5 1.5 2.2 5.8 2.2 11.2c0 7.3 9.8 17.3 9.8 17.3s9.8-10 9.8-17.3C21.8 5.8 17.5 1.5 12 1.5z" fill="#000"/><circle cx="12" cy="11" r="3.6" fill="var(--bg)"/></svg>${QR[k]}</div></div>`).join('');
+  const L = d.hi.replace(/\n/g, '').length;
+  const cls = L > 44 ? 'xlong' : (L > 26 ? 'long' : '');
+  return `<div class="card c${keys.length} pal-${d.pal} ${d.tc ? "tc-" + d.tc : ""} ${land ? "land" : "port"} ${d.sv ? "sv" : ""}"><div class="bd"></div>${frame(land ? 177.8 : 134.7, land ? 134.7 : 177.8, d.motif === "peacock")}${d.label ? `<div class="opt">${d.label}</div>` : ""}
+    <div class="ctr">
+      ${d.logo ? `${d.sv ? '<div class="gn">॥ श्री गणेशाय नमः ॥</div>' : ''}<img class="logo" src="${ART}prt-logo-card.jpg"><div class="title lt">कार्यक्रम</div>${d.sv ? '<div class="drule"></div>' : ''}` : `      <img class="ganesh" src="${ART}tint/${d.pal}/ganesh.png">
+      <div class="title">कार्यक्रम</div>
+      <img class="flr" src="${ART}tint/${d.pal}/flourish.png">
+      <div class="names"><img class="a" src="${ART}tint/${d.tc ? "tc_" + d.tc : d.pal}/aditya.png"><span class="ev">एवं</span><img class="k" src="${ART}tint/${d.tc ? "tc_" + d.tc : d.pal}/khushboo.png"></div>
+`}
+      ${MH ? `<div class="mh">${MH}</div>${d.sv ? '<div class="hline mhl"></div>' : ''}` : ''}
+      <div class="to ${d.nv ? "v" + d.nv : ""}"><div class="sa2">${d.sa || 'सादर आमंत्रित'}</div><div class="nmw"><span class="fl"></span><div class="nm ${cls}">${d.hi.replace(/\n/g, '<br>')}</div><span class="fl r"></span></div></div>
+    </div>
+    <div class="mid"><div class="fn ${strip ? 'hs' : ''}">${rows}${strip}</div></div>
+    <div class="bot">
+      <div class="chaupai">॥ जब तें रामु ब्याहि घर आए । नित नव मंगल मोद बधाए ॥</div>
+      ${d.sv ? '<div class="hline"></div>' : ''}<div class="sw">स्वागताकांक्षी</div>
+      <div class="bp">बिड़ला परिवार</div>
+    </div>
+  </div>`;
+}
+const DATA = (function () {
+  const m = /[?&]k=(?:([ABC])?([01]{4})?\.)?([A-Za-z0-9_-]+)/.exec(location.search), esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  let nm = '', bits = '1111';
+  try { if (m) { if (m[2] && m[2] !== '0000') bits = m[2]; let b = m[3].replace(/-/g, '+').replace(/_/g, '/'); while (b.length % 4) b += '=';
+    const bi = atob(b), u = new Uint8Array(bi.length); for (let i = 0; i < bi.length; i++) u[i] = bi.charCodeAt(i); nm = new TextDecoder().decode(u).trim().slice(0, 90); } } catch (e) {}
+  if (window.self !== window.top) document.documentElement.classList.add('ifr');
+  const d = { card: 1, pal: 'boxivory', orient: 'port', motif: 'peacock', logo: 1, sv: 1, hi: esc(nm), en: '', label: '' };
+  ['f18', 'f20e', 'f21m', 'f21e'].forEach((f, i) => { if (bits[i] === '1') d[f] = ' '; });   // ' ' = invited, nothing written (no member count)
+  return [d]; })();
+document.getElementById('out').innerHTML = DATA.map(card).join('');
+document.fonts.ready.then(() => Promise.all([...document.images].map(i => i.decode().catch(() => {})))).then(() => {
+  document.querySelectorAll('.card.sv.port').forEach(c => {
+    const lg = c.querySelector('.logo'), mid = c.querySelector('.mid'), fn = c.querySelector('.fn');
+    if (!lg || !mid || !fn) return;
+    let h = lg.getBoundingClientRect().height; const h0 = h, min = 24 * 3.7795, G = 3.3 * 3.7795;
+    const to = c.querySelector('.to'), ch = c.querySelector('.chaupai');
+    const free = () => ch.getBoundingClientRect().top - to.getBoundingClientRect().bottom - fn.getBoundingClientRect().height;
+    while ((free() < 2 * G || fn.scrollHeight > mid.clientHeight - 4) && h > min) { h -= 1.5; lg.style.height = h + 'px'; }
+    if (free() < 2 * G) { c.classList.add('tight'); const m2 = 22 * 3.7795;          // very long names: tighter boxes, logo down to 22 mm
+      while ((free() < 2 * G || fn.scrollHeight > mid.clientHeight - 4) && h > m2) { h -= 1; lg.style.height = h + 'px'; }
+      while (free() > 2 * G + 2 && h < h0) { h += 0.5; lg.style.height = h + 'px'; } }   // give back any spare room to the logo
+    if (c.querySelector('.fn .f .cal')) {          // same gap above and below the grid
+      const want = to.getBoundingClientRect().bottom + Math.max(0, free()) / 2;
+      fn.style.top = (want - fn.getBoundingClientRect().top) + 'px';
+    }
+  });
+  document.querySelectorAll('.card.sv.land').forEach(c => {    // landscape: keep the left block clear of the peacock corners
+    const lg = c.querySelector('.logo'), ctr = c.querySelector('.ctr');
+    if (!lg || !ctr) return;
+    let h = lg.getBoundingClientRect().height; const min = 30 * 3.7795, maxH = (134.7 - 41) * 3.7795;
+    while (ctr.getBoundingClientRect().height > maxH && h > min) { h -= 1.5; lg.style.height = h + 'px'; }
+  });
+  fitView(); document.body.dataset.ready = '1'; });
+function fitView() { const o = document.getElementById('out'), c = o.querySelector('.card'); if (!c) return; const W = c.offsetWidth, H = c.offsetHeight;
+  const f = () => { const ifr = document.documentElement.classList.contains('ifr'); let s = document.documentElement.clientWidth / W; if (!ifr) s = Math.min(s * 0.96, 1.6);
+    c.style.transform = 'scale(' + s + ')'; o.style.width = W * s + 'px'; o.style.height = H * s + 'px'; };
+  f(); addEventListener('resize', f); }
+</script>
+</body>
+</html>

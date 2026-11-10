@@ -313,7 +313,7 @@ html:not(.js) .cd{display:none}
 <div class="petals"><i style="left:31.7vw;background:#B8892E;--dx:-42px;--r:712deg;--du:3.37s;--de:4.46s"></i><i style="left:35.8vw;background:#E9C46A;--dx:-53px;--r:634deg;--du:3.29s;--de:4.29s"></i><i style="left:6.8vw;background:#C8102E;--dx:-49px;--r:589deg;--du:5.18s;--de:3.80s"></i><i style="left:21.9vw;background:#E07A1F;--dx:15px;--r:872deg;--du:4.59s;--de:4.23s"></i><i style="left:95.7vw;background:#F3D98B;--dx:-54px;--r:824deg;--du:3.90s;--de:3.83s"></i><i style="left:11.5vw;background:#B8892E;--dx:-23px;--r:801deg;--du:3.63s;--de:4.53s"></i><i style="left:62.6vw;background:#E9C46A;--dx:-15px;--r:656deg;--du:3.35s;--de:3.70s"></i><i style="left:20.2vw;background:#C8102E;--dx:22px;--r:591deg;--du:3.95s;--de:4.54s"></i><i style="left:44.4vw;background:#E07A1F;--dx:-24px;--r:789deg;--du:4.88s;--de:3.99s"></i><i style="left:56.3vw;background:#F3D98B;--dx:3px;--r:833deg;--du:4.95s;--de:4.06s"></i><i style="left:96.1vw;background:#B8892E;--dx:-46px;--r:586deg;--du:5.02s;--de:3.84s"></i><i style="left:47.9vw;background:#E9C46A;--dx:-55px;--r:721deg;--du:5.03s;--de:4.52s"></i><i style="left:85.8vw;background:#C8102E;--dx:-22px;--r:735deg;--du:4.63s;--de:4.53s"></i><i style="left:44.7vw;background:#E07A1F;--dx:41px;--r:870deg;--du:4.34s;--de:4.66s"></i><i style="left:5.9vw;background:#F3D98B;--dx:24px;--r:709deg;--du:5.58s;--de:4.92s"></i><i style="left:27.9vw;background:#B8892E;--dx:-14px;--r:721deg;--du:3.25s;--de:4.34s"></i><i style="left:16.5vw;background:#E9C46A;--dx:-46px;--r:392deg;--du:5.04s;--de:3.81s"></i><i style="left:24.3vw;background:#C8102E;--dx:-13px;--r:831deg;--du:3.39s;--de:4.32s"></i><i style="left:53.8vw;background:#E07A1F;--dx:46px;--r:802deg;--du:5.27s;--de:4.05s"></i><i style="left:40.7vw;background:#F3D98B;--dx:-17px;--r:837deg;--du:5.50s;--de:3.84s"></i><i style="left:17.3vw;background:#B8892E;--dx:-32px;--r:486deg;--du:4.36s;--de:4.54s"></i><i style="left:25.7vw;background:#E9C46A;--dx:-60px;--r:586deg;--du:4.09s;--de:4.51s"></i><i style="left:93.4vw;background:#C8102E;--dx:23px;--r:638deg;--du:4.68s;--de:4.68s"></i><i style="left:5.3vw;background:#E07A1F;--dx:48px;--r:781deg;--du:5.30s;--de:4.88s"></i><i style="left:38.5vw;background:#F3D98B;--dx:-12px;--r:416deg;--du:4.72s;--de:3.70s"></i><i style="left:6.6vw;background:#B8892E;--dx:-35px;--r:448deg;--du:4.02s;--de:3.68s"></i><i style="left:0.0vw;background:#E9C46A;--dx:-42px;--r:415deg;--du:4.07s;--de:3.64s"></i><i style="left:85.7vw;background:#C8102E;--dx:14px;--r:440deg;--du:3.81s;--de:4.16s"></i><i style="left:35.7vw;background:#E07A1F;--dx:-45px;--r:818deg;--du:5.58s;--de:4.35s"></i><i style="left:47.4vw;background:#F3D98B;--dx:-50px;--r:415deg;--du:4.02s;--de:4.02s"></i></div>
 <button class="mus" id="mus" type="button" aria-label="संगीत चालू / बंद"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17.5V5.2l10-2.2v12.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="6.6" cy="17.6" r="2.6" fill="currentColor"/><circle cx="16.6" cy="15.4" r="2.6" fill="currentColor"/><path class="x" d="M3.5 3.5l17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><script>(function(){
 var EV=[{"t": 1795185000000, "lab": "स्नेहिल निमंत्रण"}], R=[].slice.call(document.querySelectorAll('input[name=pg]'));
-function cur(){for(var i=0;i<R.length;i++) if(R[i].checked) return i; return 0;}
+function cur(){R=[].slice.call(document.querySelectorAll('input[name=pg]'));for(var i=0;i<R.length;i++) if(R[i].checked) return i; return 0;}
 function go(i){ if(i<0||i>=R.length) return; R[i].checked=true; }
 var x0=null,y0=null;
 document.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
@@ -331,11 +331,41 @@ if(A){ A.volume=.75; A.addEventListener('play',ui); A.addEventListener('pause',u
   M.addEventListener('click',function(){ if(A.paused){ want=true; play(); } else { want=false; A.pause(); } });
   document.addEventListener('visibilitychange',function(){ if(document.hidden) A.pause(); else if(want) play(); }); }
 })();</script><script>(function(){
+function prog(kv){   /* 10 Nov: outside guests -> programme card page (progcard.html, no member count) just before the contact page */
+  var book=document.getElementById('book'); if(!book||document.getElementById('rk')) return;
+  var secs=[].slice.call(book.querySelectorAll('section.pg')), N=secs.length; if(N<2) return;
+  var C=secs.map(function(x){ return (/\bp(\d+)\b/.exec(x.className)||[])[1]; }), last=secs[N-1], rl=document.getElementById('r'+C[N-1]); if(!rl) return;
+  var u='progcard.html?k='+kv, S=document.createElement('section'); S.className='pg pkp';
+  S.innerHTML='<div class="in"><i class="cr tl"></i><i class="cr tr"></i><i class="cr bl"></i><i class="cr br"></i><i class="bar t"></i><i class="bar b"></i>'
+    +'<p class="hd pkh">कार्यक्रम पत्र</p><div class="pkw"><iframe src="'+u+'" title="कार्यक्रम पत्र" tabindex="-1"></iframe><a class="pka" href="'+u+'" target="_blank" rel="noopener" aria-label="कार्यक्रम पत्र बड़ा करके देखें"></a></div>'
+    +'<a class="mapbtn pkb" href="'+u+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.3" cy="10.3" r="6.3" fill="none" stroke="#FBF8EF" stroke-width="2.4"/><path d="M15.2 15.2l5.3 5.3" stroke="#FBF8EF" stroke-width="2.7" stroke-linecap="round"/></svg>बड़ा करके देखें</a></div><i class="bk"></i><i class="shd"></i>';
+  book.insertBefore(S,last);
+  var rk=document.createElement('input'); rk.className='sr'; rk.type='radio'; rk.name='pg'; rk.id='rk'; rk.setAttribute('aria-label','कार्यक्रम पत्र'); rl.parentNode.insertBefore(rk,rl);
+  var h0=C.slice(0,N-1), P=h0.map(function(c){return 'p'+c;}).concat(['pkp','p'+C[N-1]]), RI=h0.map(function(c){return 'r'+c;}).concat(['rk','r'+C[N-1]]),
+      GI=h0.map(function(c){return 'g'+c;}).concat(['gk','g'+C[N-1]]), QI=h0.map(function(c){return 'q'+c;}).concat(['qk','q'+C[N-1]]), M=P.length, h='', ph='', i, j;
+  for(i=0;i<M;i++){ var d=''; for(j=0;j<M;j++) d+='<i class="'+(j===i?'on':'')+'"></i>';
+    h+='<div class="g '+GI[i]+'">'+(i?'<label class="b" for="'+RI[i-1]+'">‹ पीछे</label>':'<span class="b off">‹ पीछे</span>')+'<div><div class="c">पन्ना '+(i+1)+' / '+M+'</div><div class="dots">'+d+'</div></div>'
+      +(i<M-1?'<label class="b nx" for="'+RI[i+1]+'">आगे ›</label>':'<label class="b nx" for="'+RI[0]+'">↺ शुरू से</label>')+'</div>';
+    if(i<M-1) ph+='<label class="peel nx '+QI[i]+'" for="'+RI[i+1]+'" aria-label="अगला पन्ना"></label>';
+    if(i>0) ph+='<label class="peel pv '+QI[i]+'" for="'+RI[i-1]+'" aria-label="पिछला पन्ना"></label>'; }
+  var nav=document.querySelector('.nav'), pe=document.querySelector('.peels'); if(nav) nav.innerHTML=h; if(pe) pe.innerHTML=ph;
+  var F='{transform:rotateY(-178deg);visibility:hidden;transition:transform 1s cubic-bezier(.55,.06,.45,.94),visibility 0s linear 1s}', css='',
+      bef=P.slice(0,M-2).map(function(p){return '#rk:checked ~ .book .'+p;}), rn='#'+RI[M-1]+':checked ~ .book .pkp';
+  for(i=0;i<M;i++) css+='.book .'+P[i]+'{z-index:'+(M-i)+'}';
+  css+=bef.join(',')+F+bef.map(function(x){return x+' .bk';}).join(',')+'{opacity:1}'+bef.map(function(x){return x+' .shd';}).join(',')+'{opacity:1}'
+    +'#rk:checked ~ .book .pkp{position:relative;height:auto;min-height:100vh;min-height:100svh;animation:clamp 1.05s both}#rk:checked ~ .book .pkp .shd{opacity:0}'
+    +'#rk:checked ~ .nav .gk,#rk:checked ~ .peels .qk{display:flex}'+rn+F+rn+' .bk{opacity:1}'+rn+' .shd{opacity:1}'
+    +'.pkp .in{padding:26px 14px 22px}.pkh{margin:2px 0 12px}.pkw{position:relative;width:100%;max-width:440px;margin:0 auto;background:#FBF8EF;box-shadow:0 6px 22px rgba(60,40,10,.28);border-radius:2px;overflow:hidden}'
+    +'.pkw:before{content:"";display:block;padding-top:132%}.pkw iframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0;pointer-events:none}.pka{position:absolute;left:0;top:0;right:0;bottom:0}.pkb{margin-top:14px}';
+  var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
+}
 var L=document.getElementById('mlink'), web=/^https?:$/.test(location.protocol);
 if(web){ if(L) L.parentNode.removeChild(L);
-  var m=/[#&]n=([^&]*)/.exec(location.hash), s=document.querySelector('p.f-nm'), nm='';
-  try{ nm=m?decodeURIComponent(m[1]).trim().slice(0,90):''; }catch(e){}
+  var q=location.search, m=/[#&]n=([^&]*)/.exec(location.hash)||/[?&]n=([^&]*)/.exec(q), k=/[?&]k=(?:([ABC])?([01]{4})?\.)?([A-Za-z0-9_-]+)/.exec(q), s=document.querySelector('p.f-nm'), nm='';
+  try{ if(m) nm=decodeURIComponent(m[1].replace(/[+]/g,' ')).trim().slice(0,90);
+    else if(k){ var b=k[3].replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='='; var bi=atob(b), u=new Uint8Array(bi.length); for(var i=0;i<bi.length;i++) u[i]=bi.charCodeAt(i); nm=new TextDecoder().decode(u).trim().slice(0,90); } }catch(e){}
   if(nm&&s&&!s.textContent){ s.className=nm.length>46?'f-nm l3':nm.length>30?'f-nm l2':'f-nm'; var sp=document.createElement('span'); sp.textContent=nm; s.appendChild(sp); }
+  if(k&&k[2]&&k[2]!=='0000'){ try{ prog((k[1]||'')+k[2]+'.'+k[3]); }catch(e){} }
   return; }
 var A=document.getElementById('bgm'), R=document.documentElement; if(!A||!L) return;
 function bad(){ R.classList.add('merr'); }

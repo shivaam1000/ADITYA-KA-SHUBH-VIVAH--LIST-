@@ -100,9 +100,9 @@ mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 .tk.ed{flex:0 0 auto;border-color:var(--gd);color:#7A5A10}@media(max-width:520px){.act{flex-wrap:wrap}.tk.ed{flex:1 1 40%;padding:5px}}.nbad{color:#A33A2C;font-size:13.5px;font-weight:600;margin-top:3px}#ed-sheet textarea.in{font-family:inherit}</style>
 <div class="sheet-in"><div class="sheet-h"><span>✏️ नाम सुधारें</span><button class="x2" id="ed-x" aria-label="बंद करें">×</button></div><div id="ef" style="display:none;margin-top:10px;border-top:2px solid var(--gd);padding-top:6px">
 <p class="muted" id="ef-t"></p>
-<label>भाग › ज़ोन › क्षेत्र (सूची में कहाँ दिखे)</label><select class="in" id="f-g"></select><p class="muted" id="f-gh" style="text-align:left;margin:3px 0 0;color:#1E6B3A"></p>
+<label>भाग › ज़ोन › क्षेत्र (सूची में कहाँ दिखे)</label><input class="in" id="f-gq" placeholder="🔍 क्षेत्र खोजें – जैसे: कमला / Kamla / Pune" autocomplete="off" style="margin-bottom:6px"><select class="in" id="f-g"></select><div id="f-gn" style="display:none;background:#F1F8EC;border:1.5px solid #B9D59A;border-radius:12px;padding:8px 10px;margin:6px 0"><label>किसके अंदर बनाना है</label><select class="in" id="f-gz"></select><div id="f-gzw" style="display:none"><label>नए ज़ोन का नाम</label><input class="in" id="f-gzn" placeholder="जैसे: गुजरात / Gujarat"></div><label>नए क्षेत्र / शहर का नाम</label><input class="in" id="f-gnm" placeholder="जैसे: सरदारपुरा / Pune"></div><p class="muted" id="f-gh" style="text-align:left;margin:3px 0 0;color:#1E6B3A"></p>
 <label>स्टिकर / नंबर</label><input class="in" id="f-no" placeholder="जैसे 535, D-63, E">
-<label>नाम (हिंदी)</label><input class="in" id="f-hi"><label>Name (English)</label><input class="in" id="f-en">
+<label>नाम (हिंदी)</label><div id="f-pfx" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px"><button type="button" class="nob" data-pfx="श्री|Shri" style="font-size:15px;padding:7px 14px">श्री</button><button type="button" class="nob" data-pfx="श्रीमती|Smt." style="font-size:15px;padding:7px 14px">श्रीमती</button><button type="button" class="nob" data-pfx="श्रीमती एवं श्री|Smt. &amp; Shri" style="font-size:15px;padding:7px 14px">श्रीमती एवं श्री</button></div><input class="in" id="f-hi"><label>Name (English)</label><input class="in" id="f-en">
 <p class="muted" style="text-align:left;margin:4px 0 0">English में लिखेंगे (या हिंदी वाले खाने में English लिख देंगे) तो हिंदी अपने-आप बन जाएगी – सूची में पहले से जो सही स्पेलिंग है वही आएगी, नए नाम एक बार जाँच लें।</p>
 <label>हेडिंग (हिंदी)</label><input class="in" id="f-hh" list="dl-hh"><label>Heading (English)</label><input class="in" id="f-he" list="dl-he">
 <label>क्षेत्र / पता (हिंदी)</label><input class="in" id="f-ah"><label>Area / Address (English)</label><input class="in" id="f-ae">
@@ -373,7 +373,8 @@ function edResults(){ const q=$('#eq').value.trim(); if(q.length<1){ $('#eres').
   $('#eres').innerHTML = hits.length ? hits.map(i=>{const r=D[i];return `<div class="req"><div class="w"><b>${esc(r[2])} · ${esc(nmL(r))}</b><small>${esc(arL(r,G[r[1]]))}${r[9]?' · '+esc(r[9].split('\n')[0]):''}</small></div><button class="ok" data-ed="${esc(r[0])}">सुधारें</button></div>`}).join('') : '<p class="muted">कोई नाम नहीं मिला</p>'; }
 const gLab=g=>`${g[0].replace(/^\d+\.\s*/,'').split('(')[0].trim()} › ${g[2]}${g[2]!==g[4]?' › '+g[4]:''}`;
 const gOpts=sel=>G.map((g,i)=>g[6]==='ho'&&i!==sel?'':`<option value="${i}" ${i===sel?'selected':''}>${esc(gLab(g))}</option>`).join('');
-function fillGroups(sel){ $('#f-g').innerHTML = gOpts(sel); $('#f-g').dataset.man=''; const gh=$('#f-gh'); if(gh) gh.textContent='';
+const GNEW='<option value="new">➕ नया क्षेत्र / नई हेडिंग बनाएँ…</option>';
+function fillGroups(sel){ $('#f-g').innerHTML = gOpts(sel)+GNEW; { const q=$('#f-gq'), gn=$('#f-gn'); if(q) q.value=''; if(gn) gn.style.display='none'; } $('#f-g').dataset.man=''; const gh=$('#f-gh'); if(gh) gh.textContent='';
   $('#dl-hh').innerHTML=HEADS.map(h=>`<option value="${esc(h[0])}">`).join(''); $('#dl-he').innerHTML=HEADS.map(h=>`<option value="${esc(h[1])}">`).join(''); }
 function edOpen(rid){ const r = rid==='new' ? null : D.find(x=>x[0]===rid); EDIT = rid; $('#ef').style.display='block'; $('#f-err').textContent='';
   $('#ef-t').textContent = r ? 'सुधार रहे हैं: '+r[3] : 'नया नाम – सब भरकर "सेव करें" दबाएँ'; fillGroups(r ? r[1] : 0); $('#f-del').style.display = r ? 'block' : 'none';
@@ -386,6 +387,33 @@ function edClose(){ $('#ef').style.display='none'; const sh=$('#ed-sheet'); if(s
 async function writeChunk(i, rows){ await setDoc(doc(db,'list','c'+i), {d: JSON.stringify(rows)}); }
 const hiOf=(h,e)=>{ h=(h||'').trim(); e=(e||'').trim(); return /[A-Za-z]/.test(h)?toHi(h):(h||(e?toHi(e):'')); };
 // 10 Nov (his words): "ab ye english me likhne par hindi me khud aayega ya nahi" -> one tap: Hindi name made again from the English one
+// 10 Nov (his words): "yaha bhi search bar lagane ko kaha tha" + "heading hi nayi lagani hai toh kya karu" -> search box over the area list,
+//   and "➕ नया क्षेत्र / नई हेडिंग बनाएँ" (new area inside a zone, or a whole new zone) right from this form
+const gLabEn=g=>`${String(g[1]||g[0]).replace(/^\d+\.\s*/,'').split('(')[0].trim()} › ${g[3]||g[2]}${(g[3]||g[2])!==(g[5]||g[4])?' › '+(g[5]||g[4]):''}`;
+function gNewFill(){ const z=$('#f-gz'); if(!z) return; const seen=new Set(), secs=new Set(), o=[], n=[];
+  G.forEach((g,i)=>{ if(g[6]==='ho') return; const k=g[6]+'|'+g[2]; if(!seen.has(k)){ seen.add(k); o.push(`<option value="z${i}">${esc(gLab([g[0],g[1],g[2],g[3],g[2],g[3],g[6]]))}</option>`); }
+    if(!secs.has(g[6])){ secs.add(g[6]); n.push(`<option value="s${i}">${esc(g[0].replace(/^\d+\.\s*/,'').split('(')[0].trim())} › ➕ नया ज़ोन</option>`); } });
+  z.innerHTML=o.join('')+n.join(''); const s0=$('#f-g').dataset.last; if(s0&&z.querySelector(`option[value="z${s0}"]`)) z.value='z'+s0; $('#f-gzw').style.display=z.value[0]==='s'?'block':'none'; }
+document.addEventListener('change',e=>{ const t=e.target; if(!t) return;
+  if(t.id==='f-g'){ const gn=$('#f-gn'); if(t.value==='new'){ gn.style.display='block'; gNewFill(); const f=$('#f-gnm'); if(f) f.focus(); } else { gn.style.display='none'; t.dataset.last=t.value; } }
+  if(t.id==='f-gz') $('#f-gzw').style.display=t.value[0]==='s'?'block':'none'; });
+document.addEventListener('input',e=>{ if(!e.target||e.target.id!=='f-gq') return; const sel=$('#f-g'), q0=e.target.value.trim().toLowerCase(), cur=sel.value;
+  if(!q0){ sel.innerHTML=gOpts(cur==='new'?-1:+cur)+GNEW; if(cur!=='new') sel.value=cur; return; }
+  const qs=[q0]; if(/[a-z]/.test(q0)) qs.push(toHi(q0).toLowerCase());
+  const M=G.map((g,i)=>[g,i]).filter(([g])=>g[6]!=='ho'&&qs.some(q=>(gLab(g)+' '+gLabEn(g)).toLowerCase().includes(q)));
+  sel.innerHTML=(M.length?M.map(([g,i])=>`<option value="${i}">${esc(gLab(g))}</option>`).join(''):'<option value="" disabled selected>कोई क्षेत्र नहीं मिला – नीचे “➕ नया” चुनें</option>')+GNEW;
+  if(M.length){ sel.value=String(M[0][1]); sel.dataset.man='1'; sel.dataset.last=sel.value; const gn=$('#f-gn'); if(gn) gn.style.display='none'; } });
+async function gNewMake(){ const z=$('#f-gz').value, b=G[+z.slice(1)], nz=z[0]==='s', zn=$('#f-gzn').value.trim(), an=$('#f-gnm').value.trim();
+  if(!b) throw new Error('ज़ोन चुनें'); if(nz&&!zn) throw new Error('नए ज़ोन का नाम लिखें'); if(!nz&&!an) throw new Error('नए क्षेत्र का नाम लिखें');
+  const H=x=>/[A-Za-z]/.test(x)?toHi(x):x, E=x=>/[A-Za-z]/.test(x)?x:toEn(x), a2=an||zn;
+  const ng=[b[0],b[1],nz?H(zn):b[2],nz?E(zn):b[3],H(a2),E(a2),b[6]], k=gLab(ng), ex=G.findIndex(g=>gLab(g)===k); if(ex>=0) return ex;
+  const G2=G.map(g=>g.slice()); G2.push(ng); await updateDoc(doc(db,'list','meta'),{G:JSON.stringify(G2)}); G=G2; return G2.length-1; }
+// 10 Nov (his words): "har naam me prefix lagao / smt. / shri / smt. & shri / hath se likhna padta hai" -> one tap puts the prefix in both names
+//   (an old prefix at the start is swapped, not doubled)
+document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-pfx]'); if(!b) return; e.preventDefault(); const [ph,pe]=b.dataset.pfx.split('|'), h=$('#f-hi'), en=$('#f-en');
+  const HP=/^\s*(शाहजी\s+श्री|श्रीमती\s+(एवं|व|और|&)\s+श्री|श्री\s+(एवं|व|और|&)\s+श्रीमती|श्रीमती|श्री|सुश्री|कुमारी)(\s+|$)/, EP=/^\s*(smt\.?\s*(&|and)\s*shri|shri\s*(&|and)\s*smt\.?|mrs\.?\s*(&|and)\s*mr\.?|mr\.?\s*(&|and)\s*mrs\.?|shahji\s+shri|smt\.?|shrimati|shri|shree|sri|mrs\.?|mr\.?|ms\.?)(\s+|$)/i;
+  h.value=(ph+' '+h.value.replace(HP,'')).trim()+' '; if(en.value.trim()) en.value=(pe+' '+en.value.replace(EP,'')).trim();
+  h.focus(); try{ h.setSelectionRange(h.value.length,h.value.length); }catch(_){} });
 async function edSave(){ let hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi){ $('#f-err').textContent='नाम लिखें (हिंदी या English)'; return }
   { const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=$('#f-en').value.trim();   // 10 Nov: Sanjay ji saw "विनोद ऋषभ चांडक" – only one name had जगदीश; now the other is made by itself
     if(o){ const hc=String(o[3]||'').trim()!==hi.trim(), ec=String(o[4]||'').trim()!==en;
@@ -393,7 +421,9 @@ async function edSave(){ let hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi)
     else if(!en&&hi) $('#f-en').value=toEn(hi); }
   if(!$('#f-en').value.trim()&&/[A-Za-z]/.test($('#f-hi').value)) $('#f-en').value=$('#f-hi').value.trim();
   $('#f-hh').value=hiOf($('#f-hh').value,$('#f-he').value); $('#f-ah').value=hiOf($('#f-ah').value,$('#f-ae').value);
-  const pc=$('#f-pc').value, gi=+$('#f-g').value;
+  let gi=+$('#f-g').value; if($('#f-g').value==='new'){ try{ gi=await gNewMake(); }catch(e){ $('#f-err').textContent=e.message||String(e); return } }
+  if(!(gi>=0)||!G[gi]){ $('#f-err').textContent='क्षेत्र चुनें'; return }
+  const pc=$('#f-pc').value;
   const row=[EDIT==='new' ? 'N'+Date.now().toString(36) : EDIT, gi, $('#f-no').value.trim()||'–', hi, $('#f-en').value.trim(), $('#f-hh').value.trim(), $('#f-he').value.trim(),
     $('#f-ah').value.trim(), $('#f-ae').value.trim(), $('#f-mob').value.trim(), [0,1,2,3].map(k=>nfv($('#f-f'+k).value)), parseInt($('#f-gift').value)||0, pc, PEN[pc]??pc, $('#f-env').value,
     $('#f-nh').value.trim(), $('#f-ne').value.trim()];

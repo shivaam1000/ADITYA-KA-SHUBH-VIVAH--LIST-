@@ -292,7 +292,8 @@ function subscribeList(cb){                       // live: meta + every chunk; a
     for(let i=0;i<META.chunks;i++) if(!SUBS[i]){ SUBS[i]=1; onSnapshot(doc(db,'list','c'+i), c => { CH[i]=c.exists()?JSON.parse(c.data().d):[]; build(); }); }
     build(); });
   function build(){ if(!META) return; const n=META.chunks; for(let i=0;i<n;i++) if(CH[i]===undefined) return; setData(G, CH.slice(0,n).flat()); cb(META); } }
-function dlFile(name, text, type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500); }
+function dlFile(name, text, type){ const a=document.createElement('a'); const B=String.fromCharCode(0xFEFF); if(/csv/.test(type)&&String(text).charAt(0)!==B) text=B+text;   // 10 Nov: Excel shows Hindi right only with this mark
+  a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500); }
 // 8 Nov: "jis naam ke aage 1 se zyada phone number hai usi same naam ko uske neeche wali row me phir se copy kardo – mere api wale ko problem ho rahi hai /
 //   sirf 20e ki list aur 20e and 21e ki list ... aur aage ke bhi invitation isi hisab se jaaye"  (same rules as Claude's 8 Nov Deepawali files)
 function apiRows(){ const on=v=>!(v==null||v===''||v===0||v==='0'||v==='–'), L={'20':[],'2021':[]}, seen={'20':new Set(),'2021':new Set()};

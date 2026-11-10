@@ -266,6 +266,26 @@ function trWord(w){ let out='', i=0, pend=null, lastA=false, lastC=null;
     i+=hit[1].length; }
   if(lastA&&w.length>2&&!/(dra|tra|shna|kra)$/.test(w)) out+='ा';
   return out; }
+// 10 Nov (his words): "puchna nahi hai / khud hi kar dena hai" -> Hindi -> English name too: words the list already has in both languages first,
+//   anything new by simple letters (जगदीश -> Jagdeesh); used when only one of the two names is changed while editing
+let TRE={}; const TRE0={'एवं':'&','जी':'Ji','श्री':'Shri','श्रीमती':'Smt.','सा':'Sa','परिवार':'Parivar','सपरिवार':'Saparivar','शाहजी':'Shahji','कँवरसाहब':'Kanwarsahab','कँवरसा':'Kanwarsa','सुश्री':'Sushri','कुमारी':'Kumari','डॉ.':'Dr.'};
+function teBuild(rows){ const C={}; const add=(en,hi)=>{ const a=trTok(en), b=trTok(hi); if(!a.length||a.length!==b.length) return;
+    a.forEach((w,k)=>{ const h=b[k]; if(!/[A-Za-z]/.test(w)||/[A-Za-z]/.test(h)) return; const o=C[h]=C[h]||{}; o[w]=(o[w]||0)+1; }); };
+  rows.forEach(r=>{ add(r[4],r[3]); add(r[8],r[7]); add(r[6],r[5]); });
+  const M={}; for(const [h,o] of Object.entries(C)) M[h]=Object.entries(o).sort((x,y)=>y[1]-x[1])[0][0]; return M; }
+const TEC={'क':'k','ख':'kh','ग':'g','घ':'gh','ङ':'n','च':'ch','छ':'chh','ज':'j','झ':'jh','ञ':'n','ट':'t','ठ':'th','ड':'d','ढ':'dh','ण':'n','त':'t','थ':'th','द':'d','ध':'dh','न':'n',
+  'प':'p','फ':'ph','ब':'b','भ':'bh','म':'m','य':'y','र':'r','ल':'l','ळ':'l','व':'v','श':'sh','ष':'sh','स':'s','ह':'h'},
+  TEN={'़':''}, TEM={'ा':'a','ि':'i','ी':'ee','ु':'u','ू':'oo','ृ':'ri','े':'e','ै':'ai','ो':'o','ौ':'au','ॉ':'o'}, TEI={'अ':'a','आ':'aa','इ':'i','ई':'ee','उ':'u','ऊ':'oo','ऋ':'ri','ए':'e','ऐ':'ai','ओ':'o','औ':'au'};
+function teWord(w){ const N={'क़':'q','ख़':'kh','ग़':'g','ज़':'z','फ़':'f','ड़':'r','ढ़':'rh'}; const ch=[...w.normalize('NFC')], P=[];   // syllables: [consonant, vowel or null(=inherent a) or '' (virama)]
+  for(let i=0;i<ch.length;i++){ let c=ch[i]; if(ch[i+1]==='़'){ c=c+'़'; i++; }
+    if(N[c]||TEC[c]){ P.push([N[c]||TEC[c], null]); continue; }
+    if(TEM[c]&&P.length){ P[P.length-1][1]=TEM[c]; continue; } if(c==='्'&&P.length){ P[P.length-1][1]=''; continue; }
+    if(c==='ं'||c==='ँ'){ P.push(['n','']); continue; } if(c==='ः'){ P.push(['h','']); continue; } if(TEI[c]){ P.push(['',TEI[c]]); continue; } P.push([c,'']); }
+  const hasV=x=>x&&x[1]!==''&&x[0]!=='n'||(x&&x[0]===''&&x[1]);
+  for(let k=0;k<P.length;k++) if(P[k][1]===null){ const last=k===P.length-1, prev=P[k-1], next=P[k+1];
+    if(last&&k>0) P[k][1]=''; else if(k>0&&prev&&prev[1]!==''&&next&&next[1]!==''&&next[1]!==null&&k<P.length-1) P[k][1]=''; else P[k][1]='a'; }
+  const out=P.map(x=>x[0]+x[1]).join(''); return out?out[0].toUpperCase()+out.slice(1):out; }
+function toEn(s){ return trTok(s).map(w=>{ if(/[A-Za-z]/.test(w)) return w; return TRE[w]||TRE0[w]||teWord(w); }).join(' ').replace(/ & /g,' & '); }
 function toHi(s){ return trTok(s).map(w=>{ if(w==='&') return 'एवं'; if(!/[A-Za-z]/.test(w)) return w; const k=w.toLowerCase().replace(/\./g,''); return TRD[k]||TRW[k]||trWord(k.replace(/[^a-z]/g,'').replace(/^(.{3,}[bcdfghjklmnpqstvz])er$/,'$1ar')); }).join(' '); }
 let G=[],D=[],IX=[],ZSUB={},ZF={},ZONES=[],HEADS=[], ST={}, ME={uid:'',name:'',admin:false,team:false,mgr:false,wr:false};
 let L='hi', Q='', SEC='all', FN=null, STF='all', PC=false, GF=false, ZN='', HD='', LIMIT=400, OPEN=new Set();
@@ -279,7 +299,7 @@ function nfv(v){const s=String(v??'').trim(); if(!s) return ''; const u=s.toUppe
   if(u.startsWith('WF')||u==='W/F'||['SAPARIVAAR','SAPARIVAR','SPARIVAR','FAMILY','सपरिवार'].includes(u)) return 'सपरिवार';
   if(['TICK','HAAN','HA','YES','Y','✓','✔','√','OK'].includes(u)) return '✓'; if(['0','-','–','NO','N','NA','NAHI'].includes(u)) return '';
   if(/^\d+$/.test(u)) return +u>2?'सपरिवार':String(+u); return s;}
-function setData(g,d){G=g;D=d;D.forEach(r=>{ if(Array.isArray(r[10])) r[10]=r[10].map(nfv); }); TRD=trBuild(D); D.forEach(r=>{ if(/[A-Za-z]/.test(r[3]||'')) r[3]=toHi(r[3]); });ZSUB={};G.forEach(x=>{ZSUB[x[0]+x[2]]=(ZSUB[x[0]+x[2]]||0)+1});
+function setData(g,d){G=g;D=d;D.forEach(r=>{ if(Array.isArray(r[10])) r[10]=r[10].map(nfv); }); TRD=trBuild(D); TRE=teBuild(D); D.forEach(r=>{ if(/[A-Za-z]/.test(r[3]||'')) r[3]=toHi(r[3]); });ZSUB={};G.forEach(x=>{ZSUB[x[0]+x[2]]=(ZSUB[x[0]+x[2]]||0)+1});
   IX=D.map(r=>{const x=G[r[1]];return{hi:nHi([r[3],r[7],x[4]].join(' ')),en:nEn([r[4],r[8],x[5]].join(' ')),hw:toks([r[3],r[7],x[4]].join(' '),1),ew:toks([r[4],r[8],x[5]].join(' '),0),
     mob:(r[9]||'').replace(/\D/g,''),no:String(r[2]).toLowerCase()}});
   ZONES=[...new Set(G.map(x=>x[2]+'|'+x[3]))].map(z=>z.split('|')); ZF={}; G.forEach((x,i)=>{ const z=x[0]+x[2]; if(!(z in ZF)) ZF[z]=i; }); HEADS=[...new Set(D.map(r=>r[5]+'|'+r[6]).filter(h=>h!=='|'))].map(h=>h.split('|'));}
@@ -434,11 +454,12 @@ function edOpen(rid){ const r = rid==='new' ? null : D.find(x=>x[0]===rid); EDIT
 function edClose(){ $('#ef').style.display='none'; const sh=$('#ed-sheet'); if(sh){ sh.classList.remove('on'); document.body.style.overflow=''; } }
 async function writeChunk(i, rows){ await setDoc(doc(db,'list','c'+i), {d: JSON.stringify(rows)}); }
 const hiOf=(h,e)=>{ h=(h||'').trim(); e=(e||'').trim(); return /[A-Za-z]/.test(h)?toHi(h):(h||(e?toHi(e):'')); };
-async function edSave(){ const hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi){ $('#f-err').textContent='नाम लिखें (हिंदी या English)'; return }
-  { const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=$('#f-en').value.trim();   // 10 Nov: Sanjay ji saw "विनोद ऋषभ चांडक" – only the Hindi name had जगदीश added
+// 10 Nov (his words): "ab ye english me likhne par hindi me khud aayega ya nahi" -> one tap: Hindi name made again from the English one
+async function edSave(){ let hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi){ $('#f-err').textContent='नाम लिखें (हिंदी या English)'; return }
+  { const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=$('#f-en').value.trim();   // 10 Nov: Sanjay ji saw "विनोद ऋषभ चांडक" – only one name had जगदीश; now the other is made by itself
     if(o){ const hc=String(o[3]||'').trim()!==hi.trim(), ec=String(o[4]||'').trim()!==en;
-      if(hc&&!ec&&en&&!confirm('हिंदी नाम बदला है, पर English नाम वही पुराना है:\n"'+en+'"\n\nEnglish में सूची देखने वालों को यही पुराना नाम दिखेगा।\n\nOK = ऐसे ही सेव करें\nCancel = English नाम भी ठीक करूँगा')){ $('#f-en').focus(); return }
-      if(ec&&!hc&&String(o[3]||'').trim()&&!confirm('English नाम बदला है, पर हिंदी नाम वही पुराना है:\n"'+hi+'"\n\nहिंदी में सूची देखने वालों को यही पुराना नाम दिखेगा।\n\nOK = ऐसे ही सेव करें\nCancel = हिंदी नाम भी ठीक करूँगा')){ $('#f-hi').focus(); return } } }
+      if(ec&&!hc&&en){ hi=toHi(en); $('#f-hi').value=hi; } else if(hc&&!ec&&hi){ $('#f-en').value=toEn(hi); } }
+    else if(!en&&hi) $('#f-en').value=toEn(hi); }
   if(!$('#f-en').value.trim()&&/[A-Za-z]/.test($('#f-hi').value)) $('#f-en').value=$('#f-hi').value.trim();
   $('#f-hh').value=hiOf($('#f-hh').value,$('#f-he').value); $('#f-ah').value=hiOf($('#f-ah').value,$('#f-ae').value);
   const pc=$('#f-pc').value, gi=+$('#f-g').value;

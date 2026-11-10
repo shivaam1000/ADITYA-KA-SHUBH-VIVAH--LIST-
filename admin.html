@@ -435,6 +435,10 @@ function edClose(){ $('#ef').style.display='none'; const sh=$('#ed-sheet'); if(s
 async function writeChunk(i, rows){ await setDoc(doc(db,'list','c'+i), {d: JSON.stringify(rows)}); }
 const hiOf=(h,e)=>{ h=(h||'').trim(); e=(e||'').trim(); return /[A-Za-z]/.test(h)?toHi(h):(h||(e?toHi(e):'')); };
 async function edSave(){ const hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi){ $('#f-err').textContent='नाम लिखें (हिंदी या English)'; return }
+  { const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=$('#f-en').value.trim();   // 10 Nov: Sanjay ji saw "विनोद ऋषभ चांडक" – only the Hindi name had जगदीश added
+    if(o){ const hc=String(o[3]||'').trim()!==hi.trim(), ec=String(o[4]||'').trim()!==en;
+      if(hc&&!ec&&en&&!confirm('हिंदी नाम बदला है, पर English नाम वही पुराना है:\n"'+en+'"\n\nEnglish में सूची देखने वालों को यही पुराना नाम दिखेगा।\n\nOK = ऐसे ही सेव करें\nCancel = English नाम भी ठीक करूँगा')){ $('#f-en').focus(); return }
+      if(ec&&!hc&&String(o[3]||'').trim()&&!confirm('English नाम बदला है, पर हिंदी नाम वही पुराना है:\n"'+hi+'"\n\nहिंदी में सूची देखने वालों को यही पुराना नाम दिखेगा।\n\nOK = ऐसे ही सेव करें\nCancel = हिंदी नाम भी ठीक करूँगा')){ $('#f-hi').focus(); return } } }
   if(!$('#f-en').value.trim()&&/[A-Za-z]/.test($('#f-hi').value)) $('#f-en').value=$('#f-hi').value.trim();
   $('#f-hh').value=hiOf($('#f-hh').value,$('#f-he').value); $('#f-ah').value=hiOf($('#f-ah').value,$('#f-ae').value);
   const pc=$('#f-pc').value, gi=+$('#f-g').value;

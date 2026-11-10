@@ -70,7 +70,7 @@ mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 <div class="scr" id="s-list">
 <a class="btn" id="wa-link" href="tebteam.html" style="display:none;background:#1E7D45;text-align:center;text-decoration:none;margin:4px 0 8px"><i class="wai"></i>WhatsApp पर भेजें (इवेंट टीम)</a>
 <a class="btn" id="tm-link" href="admin.html" style="display:none;background:#B8892E;text-align:center;text-decoration:none;margin:0 0 8px">⭐ टीम पेज (अनुमति, अभियान, रिपोर्ट)</a>
-<a class="btn" href="tebmanagement.html" style="background:#7A5A10;text-align:center;text-decoration:none;margin:0 0 8px">🗓 TEB Management · आदित्य का शुभ विवाह</a>
+<a class="btn" id="cr-link" href="tebmanagement.html" style="display:none;background:#7A5A10;text-align:center;text-decoration:none;margin:0 0 8px">🗓 TEB Management · आदित्य का शुभ विवाह</a>
 <div class="card" id="adm-card" style="display:none;margin:4px 0 10px"><h2>⚙ एडमिन</h2>
 <p class="muted" id="dvl-st" style="font-size:15px">🪔 शुभ दीपावली …</p><button class="btn" id="dvl-go" style="background:#8A4A12;margin-top:6px">…</button>
 <a class="btn" href="tebteam.html#api" style="background:#1F5C8B;text-align:center;text-decoration:none"><i class="wai"></i>API वाले की रिपोर्ट डालें</a>
@@ -387,7 +387,7 @@ async function startList(){ if(started) return; started=true; show('s-load'); le
   onSnapshot(collection(db,'camps'), s => { const t={inv:'ई-निमंत्रण'}; s.docs.forEach(d=>{ t[d.id]=d.data().title||'WhatsApp'; }); WCT=t; rerender(); }, ()=>{});   // 8 Nov: campaign names for the WhatsApp line
   onSnapshot(doc(db,'members',ME.uid), s => { const wl=$('#wa-link'), tl=$('#tm-link'), dd=s.exists()?s.data():{}; if(wl){ const adm=dd.admin||ME.admin;   // 8 Nov: "normal logo ko ye event team wala nahi dikhna chahiye" – only senders see it, each with their own label
     wl.style.display=(!adm&&(dd.wa||dd.team))?'block':'none'; const wr=!!(adm||dd.wa||dd.team); ME.heads=Array.isArray(dd.heads)?dd.heads:[]; ME.wall=!!(adm||dd.team||dd.all); const dl=!!(adm||dd.team); if(dl!==ME.dl){ ME.dl=dl; if(D.length) rerender(); } if(wr!==ME.wr||D.length){ ME.wr=wr; if(D.length){ chips(); rerender(); } }
-    wl.innerHTML='<i class="wai"></i>'+(dd.team?'WhatsApp पर भेजें (इवेंट टीम)':dd.all?'सब मेहमानों को WhatsApp भेजें':'मेरे मेहमानों को WhatsApp भेजें')+(Array.isArray(dd.heads)&&dd.heads.length?' ('+dd.heads.length+' हेडिंग)':''); } if(tl) tl.style.display=dd.team?'block':'none'; if(!s.exists() && !ME.admin){ $('#no-h').textContent='अनुमति हटा दी गई'; $('#no-p').textContent='इस फ़ोन से सूची की अनुमति हटा दी गई है।'; show('s-no'); } }); }
+    wl.innerHTML='<i class="wai"></i>'+(dd.team?'WhatsApp पर भेजें (इवेंट टीम)':dd.all?'सब मेहमानों को WhatsApp भेजें':'मेरे मेहमानों को WhatsApp भेजें')+(Array.isArray(dd.heads)&&dd.heads.length?' ('+dd.heads.length+' हेडिंग)':''); } if(tl) tl.style.display=dd.team?'block':'none'; const cl=$('#cr-link'); if(cl) cl.style.display=(dd.team||dd.admin||ME.admin)?'block':'none';   /* 10 Nov: TEB Management button only for admin + ⭐ team */ if(!s.exists() && !ME.admin){ $('#no-h').textContent='अनुमति हटा दी गई'; $('#no-p').textContent='इस फ़ोन से सूची की अनुमति हटा दी गई है।'; show('s-no'); } }); }
 async function tick(i, key){ const r=D[i], rid=r[0], s=st(rid), on=!s[key]; const sk=sKey(rid);
   const upd={}; upd[rid+'.'+key]=on; upd[rid+'.'+key+'By']=ME.name; upd[rid+'.'+key+'At']=Date.now();
   ST[rid]=Object.assign({},s,{[key]:on,[key+'By']:ME.name,[key+'At']:Date.now()}); render();
@@ -461,7 +461,7 @@ async function yatraData(){ const A=await agLoad(), byR={}, out=[]; A.forEach(a=
   hitsNow(Q.trim()).filter(i=>/^(ba|eb)$/.test(G[D[i][1]][6])).forEach(i=>{ const r=D[i], g=G[r[1]], inv=(r[4]||r[3]||'').trim(), L2=(byR[r[0]]||[]).slice().sort((x,y)=>(x.cm?1:0)-(y.cm?1:0));
     (L2.length?L2:[{}]).forEach(a=>{ let ano=a.ano||'', pnr=''; const pm=/\s*·\s*PNR\s*(\S+)\s*$/.exec(ano); if(pm){ pnr=pm[1]; ano=ano.slice(0,pm.index); }
       out.push({g, row:[a.cm||inv, inv, p10(a.ph)||(a.cm?'':p10((r[9]||'').split('\n')[0])), a.city||g[5]||'', a.ppl||'', d2(a.ad), t2(a.ati), MDE[a.am]??(a.am||''), ano, pnr, a.ap||'', d2(a.dd), t2(a.dt), a.dno||'',
-        a.hotel||'', a.room||'', a.pick||'', a.car||'', a.drop||'', a.note||'']}); }); }); return out; }
+        a.hotel||'', a.room||'', [a.pick,a.pph].filter(Boolean).join(' '), a.car||'', [a.drop,a.dph].filter(Boolean).join(' '), a.note||'']}); }); }); return out; }
 async function dlYatra(pdf){ const b=document.getElementById(pdf?'dl-yp':'dl-y'), w=pdf?null:0; if(b) b.disabled=true;
   try{ if(pdf){ // the print window has to open straight from the tap – fill it after the data comes
       const X0=window.open('','_blank'); if(!X0){ toast(L==='en'?'Pop-up blocked – press again':'नई विंडो नहीं खुली – दोबारा दबाएँ'); if(b) b.disabled=false; return; } X0.document.write('<p style="font-family:sans-serif;padding:20px">…</p>');

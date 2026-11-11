@@ -128,11 +128,11 @@ details.card.dd[open]>summary{margin-bottom:8px}
 <p class="muted" id="ef-t"></p>
 <label>कार्ड</label><select class="in" id="f-kind" style="margin-bottom:4px"><option value="p">📮 फिज़िकल कार्ड</option><option value="e">📱 E-card</option><option value="">–</option></select><p class="muted" id="f-kh" style="text-align:left;margin:0 0 6px">E-card ↔ फिज़िकल कार्ड यहाँ से बदलें – क्षेत्र, स्टिकर नंबर और प्रोग्राम कार्ड अपने-आप ठीक हो जाएँगे।</p><label>भाग › ज़ोन › क्षेत्र (सूची में कहाँ दिखे)</label><input class="in" id="f-gq" placeholder="🔍 क्षेत्र खोजें – जैसे: कमला / Kamla / Pune" autocomplete="off" style="margin-bottom:6px"><select class="in" id="f-g"></select><div id="f-gn" style="display:none;background:#F1F8EC;border:1.5px solid #B9D59A;border-radius:12px;padding:8px 10px;margin:6px 0"><label>किसके अंदर बनाना है</label><select class="in" id="f-gz"></select><div id="f-gzw" style="display:none"><label>नए ज़ोन का नाम</label><input class="in" id="f-gzn" placeholder="जैसे: गुजरात / Gujarat"></div><label>नए क्षेत्र / शहर का नाम</label><input class="in" id="f-gnm" placeholder="जैसे: सरदारपुरा / Pune"></div><p class="muted" id="f-gh" style="text-align:left;margin:3px 0 0;color:#1E6B3A"></p>
 <label>स्टिकर / नंबर</label><input class="in" id="f-no" placeholder="जैसे 535, D-63, E"><p class="muted" style="text-align:left;margin:2px 0 6px">💡 सिर्फ़ "E" हटाने से कार्ड नहीं बदलता – E-card / फिज़िकल कार्ड ऊपर वाले <b>कार्ड</b> खाने से बदलें, नंबर अपने-आप आ जाएगा।</p>
-<label>नाम (हिंदी)</label><div id="f-pfx" data-keep style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px"><button type="button" class="nob" data-pfx="श्री|Shri" style="font-size:15px;padding:7px 14px">श्री</button><button type="button" class="nob" data-pfx="श्रीमती|Smt." style="font-size:15px;padding:7px 14px">श्रीमती</button><button type="button" class="nob" data-pfx="श्रीमती एवं श्री|Smt. &amp; Shri" style="font-size:15px;padding:7px 14px">श्रीमती एवं श्री</button></div><input class="in" id="f-hi"><label>Name (English)</label><input class="in" id="f-en">
+<label>नाम (हिंदी)</label><div id="f-pfx" data-keep style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px"><button type="button" class="nob" data-pfx="श्री|Shri" style="font-size:15px;padding:7px 14px">श्री</button><button type="button" class="nob" data-pfx="श्रीमती|Smt." style="font-size:15px;padding:7px 14px">श्रीमती</button><button type="button" class="nob" data-pfx="श्रीमती एवं श्री|Smt. &amp; Shri" style="font-size:15px;padding:7px 14px">श्रीमती एवं श्री</button></div><input class="in" id="f-hi"><label>Name (English)</label><input class="in" id="f-en"><div id="f-dup" style="display:none;background:#FFF4E0;border:1.5px solid #E8B86A;border-radius:10px;padding:8px 10px;margin:6px 0;text-align:left;font-size:14.5px"></div>
 <p class="muted" style="text-align:left;margin:4px 0 0">English में लिखेंगे (या हिंदी वाले खाने में English लिख देंगे) तो हिंदी अपने-आप बन जाएगी – सूची में पहले से जो सही स्पेलिंग है वही आएगी, नए नाम एक बार जाँच लें।</p>
 <label>हेडिंग (हिंदी)</label><input class="in" id="f-hh" list="dl-hh"><label>Heading (English)</label><input class="in" id="f-he" list="dl-he">
 <label>क्षेत्र / पता (हिंदी)</label><input class="in" id="f-ah"><label>Area / Address (English)</label><input class="in" id="f-ae">
-<label>मोबाइल (एक से ज़्यादा हों तो अलग लाइन में)</label><textarea class="in" id="f-mob" rows="2"></textarea>
+<label>मोबाइल (एक से ज़्यादा हों तो अलग लाइन में)</label><textarea class="in" id="f-mob" rows="2"></textarea><div id="f-dupm" style="display:none;background:#FFF4E0;border:1.5px solid #E8B86A;border-radius:10px;padding:8px 10px;margin:6px 0;text-align:left;font-size:14.5px"></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 10px">
 <div><label>18 विनायक</label><input class="in" id="f-f0" list="dl-f"></div><div><label>20 तिलक-स्वागत</label><input class="in" id="f-f1" list="dl-f"></div>
 <div><label>21 गीत-भोज</label><input class="in" id="f-f2" list="dl-f"></div><div><label>21 शुभ विवाह</label><input class="in" id="f-f3" list="dl-f"></div>
@@ -577,7 +577,7 @@ function edOpen(rid){ const r = rid==='new' ? null : D.find(x=>x[0]===rid); EDIT
   const v = (id,x)=>{ $(id).value = x ?? '' }; v('#f-no', r?r[2]:''); $('#f-no').dataset.auto=''; v('#f-hi', r?r[3]:''); v('#f-en', r?r[4]:''); v('#f-hh', r?r[5]:''); v('#f-he', r?r[6]:'');
   v('#f-ah', r?r[7]:''); v('#f-ae', r?r[8]:''); v('#f-mob', r?r[9]:''); for(let k=0;k<4;k++) v('#f-f'+k, r?r[10][k]:''); v('#f-gift', r&&r[11]?r[11]:'');
   v('#f-pc', r?r[12]:'✓'); v('#f-env', r?r[14]:''); v('#f-nh', r?r[15]:''); v('#f-ne', r?r[16]:'');
-  const sh=$('#ed-sheet'); if(sh){ sh.classList.add('on'); document.body.style.overflow='hidden'; sh.scrollTop=0; } else $('#ef').scrollIntoView({behavior:'smooth'}); }
+  dupShow(); const sh=$('#ed-sheet'); if(sh){ sh.classList.add('on'); document.body.style.overflow='hidden'; sh.scrollTop=0; } else $('#ef').scrollIntoView({behavior:'smooth'}); }
 function edClose(){ $('#ef').style.display='none'; const sh=$('#ed-sheet'); if(sh){ sh.classList.remove('on'); document.body.style.overflow=''; } }
 async function writeChunk(i, rows){ await setDoc(doc(db,'list','c'+i), {d: JSON.stringify(rows)}); }
 const hiOf=(h,e)=>{ h=(h||'').trim(); e=(e||'').trim(); return /[A-Za-z]/.test(h)?toHi(h):(h||(e?toHi(e):'')); };
@@ -633,6 +633,23 @@ function rpOf(o,n,ch){ if(!n||!gIsP(n[1])||n[12]==='भगवान'||n[12]==='E
   const sk=newP||fs.some(f=>SKF.has(f)), cd=(n[12]==='✓'||n[12]==='बन चुका')&&(newP||fs.some(f=>CDF.has(f))); return sk||cd?{s:sk?1:0,c:cd?1:0}:null; }
 async function rpMark(rid){ try{ const s=st(rid); if(!s.r) return; await updateDoc(doc(db,'status',sKey(rid)), {[rid+'.r']:false, [rid+'.rBy']:ME.name, [rid+'.rAt']:Date.now()}); ST[rid]=Object.assign({},s,{r:false}); }catch(e){ console.warn('rp',e); } }
 const rpTxt=rp=>!rp?'':L==='en'?' · 🖨 print a new '+[rp.s?'sticker':'',rp.c?'programme card':''].filter(Boolean).join(' + '):' · 🖨 नया '+[rp.s?'स्टिकर':'',rp.c?'प्रोग्राम कार्ड':''].filter(Boolean).join(' + ')+' छापना है';
+// 12 Nov (his words): "jab koi naam add hoga aur agar wahi naam ya number duplicate hai toh kya website popup show karegi?"
+//   -> while typing: a yellow note under the name / mobile box shows who already has it ("✏️ खोलें" opens that entry);
+//      on "सेव करें": a popup asks first before a second entry with the same name or mobile is saved
+const DPX=/^(श्रीमती|श्री|सुश्री|कुमारी|डॉ\.?|smt\.?|shrimati|shri|shree|sri|mrs\.?|mr\.?|ms\.?|dr\.?)\s*/i;
+const nmKey=s=>{ s=String(s||'').trim().toLowerCase(); for(let i=0;i<3;i++) s=s.replace(DPX,'').replace(/^(एवं|व|और|&|and)\s+/,'');
+  return s.replace(/(^|\s)(ji|jee|sa|saheb|sahab|जी|सा|साहब)(?=\s|$)/g,' ').replace(/[\s.,\-()&'’]/g,''); };
+const mobsOf=s=>String(s||'').split(/[\n,\/;]+/).map(x=>x.replace(/\D/g,'')).filter(d=>d.length>=10).map(d=>d.slice(-10));
+function dupFind(rows){ rows=rows||D; const hk=nmKey($('#f-hi').value), ek=nmKey($('#f-en').value), ms=mobsOf($('#f-mob').value), N=[], M=[];
+  rows.forEach(r=>{ if(r[0]===EDIT) return; if((hk.length>=3&&nmKey(r[3])===hk)||(ek.length>=3&&nmKey(r[4])===ek)) N.push(r);
+    const rm=mobsOf(r[9]), hit=ms.filter(m=>rm.includes(m)); if(hit.length) M.push([r,hit]); });
+  return {N,M}; }
+function dupShow(){ const box=$('#f-dup'), boxm=$('#f-dupm'); if(!box||!boxm) return; const {N,M}=dupFind(), en=L==='en';
+  const one=(r,extra)=>`<div style="display:flex;align-items:center;gap:8px;margin-top:5px"><div style="flex:1">${esc((r[2]&&r[2]!=='–'?r[2]+' · ':'')+(en&&r[4]?r[4]:r[3]))} <small>(${esc(G[r[1]]?gLab(G[r[1]]):'')})</small>${extra||''}</div><button type="button" class="nob" data-dupopen="${esc(r[0])}" style="font-size:12.5px;padding:5px 9px;flex:none">✏️ ${en?'Open':'खोलें'}</button></div>`;
+  box.style.display=N.length?'block':'none'; box.innerHTML=N.length?'<b>⚠ '+(en?'This name is already in the list:':'यह नाम पहले से सूची में है:')+'</b>'+N.slice(0,5).map(r=>one(r)).join(''):'';
+  boxm.style.display=M.length?'block':'none'; boxm.innerHTML=M.length?'<b>⚠ '+(en?'This number is already in the list:':'यह नंबर पहले से सूची में है:')+'</b>'+M.slice(0,5).map(([r,h])=>one(r,' · 📱 '+esc(h.join(', ')))).join(''):''; }
+{ let t; ['#f-hi','#f-en','#f-mob'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(dupShow,300); }); }); }
+document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-dupopen]'); if(!b) return; e.preventDefault(); edOpen(b.dataset.dupopen); });
 async function edSave(){ let hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi){ $('#f-err').textContent='नाम लिखें (हिंदी या English)'; return }
   { const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=$('#f-en').value.trim();   // 10 Nov: Sanjay ji saw "विनोद ऋषभ चांडक" – only one name had जगदीश; now the other is made by itself
     if(o){ const hc=String(o[3]||'').trim()!==hi.trim(), ec=String(o[4]||'').trim()!==en;
@@ -650,6 +667,9 @@ async function edSave(){ let hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi)
   $('#f-save').disabled=true; $('#f-err').textContent='सेव हो रहा है…';
   let O=null, NOTE='';
   try{ const R=await freshRows(); O=EDIT!=='new'?R.find(x=>x[0]===EDIT)||null:null; const autoNo=$('#f-no').dataset.auto==='1';
+    if(!O||nmKey(O[3])!==nmKey(row[3])||nmKey(O[4])!==nmKey(row[4])||mobsOf(O[9]).join()!==mobsOf(row[9]).join()){ const {N,M}=dupFind(R), en=L==='en';
+      if(N.length||M.length){ const ls=[...new Set([...N,...M.map(x=>x[0])])].slice(0,6).map(r=>'• '+(r[2]&&r[2]!=='–'?r[2]+' · ':'')+(en&&r[4]?r[4]:r[3])+(r[9]?' · '+mobsOf(r[9]).join(', '):'')).join('\n');
+        if(!confirm((en?'⚠ This name / number is already in the list:\n':'⚠ यह नाम / नंबर पहले से सूची में है:\n')+ls+(en?'\n\nSave this one too?':'\n\nफिर भी सेव करें?'))){ $('#f-save').disabled=false; $('#f-err').textContent=en?'Not saved – see the yellow note above':'सेव नहीं किया – ऊपर पीला बॉक्स देखें'; dupShow(); return; } } }
     if(gIsP(gi)&&noFree(row[2])&&(!O||noFree(O[2])||gIsE(O[1]))){ row[2]=nextNo(gi,R); NOTE=(L==='en'?' · sticker number ':' · स्टिकर नंबर ')+row[2]; }      // new physical-card name / E-card -> card: next free number
     const own=noOwner(row[2],row[0],R);
     if(own){ const nn=nextNo(gi,R), en=L==='en', nm=en&&own[4]?own[4]:own[3];

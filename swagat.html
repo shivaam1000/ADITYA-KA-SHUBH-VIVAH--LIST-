@@ -418,10 +418,14 @@ function form(){ if(!FV) fvInit(); const v=k=>esc(FV[k]??''), c=k=>FG.has(k)?' f
      return `<div class="two"><div><label>${EN?'Hotel room needed?':'होटल में कमरा चाहिए?'}</label>${yn('rmq',EN?'Yes, please':'हाँ, चाहिए',EN?'No – own arrangement':'नहीं – अपनी व्यवस्था है')}</div><div><label>${EN?'Pickup from station / airport?':'स्टेशन / एयरपोर्ट से पिकअप?'}</label>${yn('pkq',EN?'Yes, please':'हाँ, चाहिए',EN?'No':'नहीं')}</div></div>`; })():''}
    <label>कुछ और बताना हो</label><textarea class="in" id="q-note" rows="2">${v('note')}</textarea>
    <button class="btn" data-a="send">✓ ${EN?'Send details':'जानकारी भेजें'}</button><button type="button" class="lnk" data-a="cancel">${EN?'Cancel':'रद्द करें'}</button><div class="err" id="q-err"></div></div>`; }
+// 12 Nov (his choice "mujhe aur team dono ko"): the guest's own answer goes to the TEB team name and to Shivaam ji's own name
+let NTA=null;
+async function gPing(title,message,tags,click){ if(NTA===null){ NTA=''; try{ const p=await getDoc(doc(db,'config','public')); NTA=(p.exists()&&p.data().ntfy)||''; }catch(_){} }
+  [...new Set([GP.nt,NTA].filter(Boolean))].forEach(topic=>fetch('https://ntfy.sh',{method:'POST',body:JSON.stringify(Object.assign({topic,title,message,tags},click?{click}:{}))}).catch(()=>{})); }
 async function sendNo(){ const o={st:'n',at:Date.now()}; const b=document.querySelector('[data-a=rsno2]'); if(b) b.disabled=true;
   try{ try{ await setDoc(doc(db,'gq',tok),o); }catch(e){ await setDoc(doc(db,'gq',tok),{ppl:'0',note:'नहीं आ पाएंगे',at:o.at}); }   // older rules: no 'st' field
     GQ={...o}; RSV=false; EDIT=false; render(); window.scrollTo(0,0); toast(EN?'Thank you – we have noted it 🙏':'धन्यवाद – हमने नोट कर लिया 🙏');
-    if(GP.nt) fetch('https://ntfy.sh',{method:'POST',body:JSON.stringify({topic:GP.nt,title:'❌ नहीं आ पाएंगे',message:GP.name+' ने अपने स्वागत पेज पर बताया',tags:['x']})}).catch(()=>{}); }
+    gPing('📲 ❌ नहीं आ पाएंगे',GP.name+' ने अपने स्वागत पेज पर खुद बताया',['x']); }
   catch(e){ console.warn(e); toast(EN?'Not sent – please check the internet':'नहीं भेजा गया – नेट देखकर फिर दबाएँ'); if(b) b.disabled=false; } }
 async function send(){ const K=['ppl','ad','ati','am','ano','ap','dd','dt','dno','ph','note'].concat(GP.rsvp?['rmq','pkq']:[]), o={}; K.forEach(k=>{ const el=$('#q-'+k); if(el) FV[k]=el.value; o[k]=String(FV[k]||'').trim().slice(0,k==='note'?480:60); });
   if(!o.ad&&!o.dd){ $('#q-err').textContent=EN?'Please give an arrival or return date':'कृपया आने या वापसी की तारीख लिखें'; return; } o.at=Date.now(); const b=document.querySelector('[data-a=send]'); b.disabled=true;
@@ -439,7 +443,7 @@ async function send(){ const K=['ppl','ad','ati','am','ano','ap','dd','dt','dno'
         const ex=[o1.rmq?('कमरा चाहिए: '+o1.rmq):'',o1.pkq?('पिकअप चाहिए: '+o1.pkq):''].filter(Boolean).join(' · '); if(ex) o2.note=((o2.note||'')+' '+ex).trim().slice(0,480); await setDoc(doc(db,'gq',tok),o2); } }
     GQ=o; RSV=false; EDIT=false; FV=null; FG=new Set(); TK={arr:[],dep:[]}; TKS={arr:'',dep:''}; IDS={}; render(); toast(EN?'Thank you – details received ✓':'धन्यवाद – जानकारी मिल गई ✓');
     const tc=document.querySelectorAll('#out .gc')[1]; if(tc) tc.scrollIntoView({behavior:'smooth',block:'start'});
-    if(GP.nt) fetch('https://ntfy.sh',{method:'POST',body:JSON.stringify({topic:GP.nt,title:'📩 मेहमान की यात्रा जानकारी',message:GP.name+': आगमन '+(o.ad?dHi(o.ad)+' '+tHi(o.ati):'?')+(o.ano?' · '+o.ano:'')+(o.dd?' · वापसी '+dHi(o.dd):'')+(o.mem?' · 👥 '+(o.mem.length+1)+' लोग':'')+(tk.length?' · 🎫 टिकट':'')+(idf.length?' · 🪪 ID':''),click:SITE+'tebmanagement.html',tags:['envelope_with_arrow']})}).catch(()=>{}); }
+    gPing(GP.rsvp?'📲 ✅ आ रहे हैं – मेहमान ने खुद भरा':'📩 मेहमान की यात्रा जानकारी',GP.name+': आगमन '+(o.ad?dHi(o.ad)+' '+tHi(o.ati):'?')+(o.ano?' · '+o.ano:'')+(o.dd?' · वापसी '+dHi(o.dd):'')+(o.mem?' · 👥 '+(o.mem.length+1)+' लोग':'')+(tk.length?' · 🎫 टिकट':'')+(idf.length?' · 🪪 ID':''),['envelope_with_arrow'],SITE+'tebmanagement.html'); }
   catch(e){ console.error(e); $('#q-err').textContent=EN?'Could not send – check the internet and press again':'भेज नहीं पाए – नेट देखकर फिर दबाएँ'; b.disabled=false; b.textContent='✓ '+(EN?'Send details':'जानकारी भेजें'); } }
 document.addEventListener('click',e=>{ const u=e.target.closest('[data-up]'); if(u){ $('#up-'+u.dataset.up).click(); return; }
   const iu=e.target.closest('[data-idup]'); if(iu){ const x=$('#idf-'+iu.dataset.idup); if(x) x.click(); return; } const ix=e.target.closest('[data-idx]'); if(ix){ const n=idNames()[+ix.dataset.idx]; if(n) delete IDS[n]; idRefresh(); return; } const b=e.target.closest('[data-a]'); if(!b) return;

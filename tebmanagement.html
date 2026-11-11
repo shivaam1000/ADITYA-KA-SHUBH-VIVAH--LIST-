@@ -1312,7 +1312,8 @@ function rvLinkXl(){ if(!GU) return; const A=GU.filter(rvOut); if(A.some(g=>!rvT
   xlDown('Swagat links - sab bahar wale - '+TODAY()+'.xlsx',xlsxBlob('Links',rows,[30,15,46,70,16,14,26,30,20])); }
 async function rvWa(g){ const p=(g.phs&&g.phs[0])||ph10(g.ph||''); if(p.length!==10){ toast('मोबाइल नंबर नहीं है'); return; } const w=window.open('','_blank'); let tok='';
   try{ tok=await rvLinkMake(g); }catch(e){ if(w) w.close(); toast('लिंक नहीं बना – नेट देखें'); return; } const u='https://wa.me/91'+p+'?text='+encodeURIComponent(rvMsg(g,rvUrl(tok)));
-  if(w) w.location=u; else location.href=u; setDoc(doc(db,'cr_meta','rv_'+g.rid),{lkAt:Date.now(),lkBy:ME.name},{merge:true}).catch(()=>{}); }
+  if(w) w.location=u; else location.href=u; setDoc(doc(db,'cr_meta','rv_'+g.rid),{lkAt:Date.now(),lkBy:ME.name},{merge:true}).catch(()=>{});
+  rvPing('📞 RSVP: 🔗 स्वागत लिंक भेजा', g.name+(g.city?' ('+g.city+')':'')+'\n– '+ME.name); }
 // the guest's own answer from his page -> 📞 RSVP (and 🚉 for yes; details + tickets then come in by gqApply on the same link)
 async function rvGqApply(g,q,tok){ const r=rvMap().get(g.rid)||{}; if((q.at||0)<=(r.gqAt||0)) return false; const st=q.st==='n'||(!q.st&&String(q.ppl)==='0'&&!q.ad)?'n':'y';
   const nt=String(q.note||''), mR=/कमरा चाहिए: (हाँ|नहीं)/.exec(nt), mP=/पिकअप चाहिए: (हाँ|नहीं)/.exec(nt); q={...q,rmq:q.rmq||(mR?mR[1]:''),pkq:q.pkq||(mP?mP[1]:'')};   // older rules: room / pickup came in the note
@@ -1350,8 +1351,20 @@ function vRv(){ if(!GU){ $('#v-rv').innerHTML='<p class="muted">सूची ख
       ${ME.mgr?`<div class="rvb">${RVS.map(([k,l])=>`<button class="${s===k?'on':''}" data-a="${k==='y'?'rvy':'rvst'}" data-id="${esc(g.rid)}" data-v="${k}">${l}</button>`).join('')}</div>`:''}</div>`; }).join('')||'<p class="muted">कुछ नहीं मिला</p>';
   if(L.length>RVN) h+=`<button class="add" data-a="rvmore">और दिखाएँ (${L.length-RVN})</button>`;
   $('#v-rv').innerHTML=h; }
+// 12 Nov (his words): "outside guest ki jaankari bhi me laana chahta hu – aa rahe hai ya nahi, unhone khud se swagat link pe form bhara toh wo,
+//   teb team ne rsvp me jo bhi kiya ho jaise call laga uthaya nahi uthaya sab kuch" + (his choice) "mujhe aur team dono ko"
+//   -> every RSVP step goes as a phone notification (ntfy) to his own name and to the TEB team name
+const rvPing=(t,m)=>{ ping(t,m,{tag:'telephone_receiver'}); if(PUB.ntfy&&PUB.ntfy!==PUB.crNtfy) ping(t,m,{admin:1,tag:'telephone_receiver'}); };
+function rvMsg2(g,o,d){ const who=g.name+(g.city?' ('+g.city+')':''), L=[];
+  if(o.st==='y'){ if(o.ppl) L.push(o.ppl+' लोग'); if(o.ad) L.push('आगमन '+dHi(o.ad)+(o.ati?' '+tHi(o.ati):'')); if(o.am) L.push(o.am); if(o.rmq==='हाँ') L.push('🛏 कमरा चाहिए'); if(o.pkq==='हाँ') L.push('🚗 पिकअप चाहिए');
+    if(memNorm(o.mem).length) L.push('👥 साथ में: '+memTxt(o.mem)); }
+  if(o.st==='x'&&d.cnt>1) L.push(d.cnt+'वीं बार');
+  if(o.note) L.push('📝 '+o.note);
+  return who+(L.length?'\n'+L.join(' · '):'')+'\n– '+ME.name; }
 async function rvSave(g,o,tap){ const r=rvMap().get(g.rid)||{}, d={via:'',...o,rid:g.rid,name:g.name,by:ME.name,at:Date.now()}; if(tap) d.cnt=(r.cnt||0)+1;
-  try{ await setDoc(doc(db,'cr_meta','rv_'+g.rid),d,{merge:true}); toast('सेव हो गया ✓'); return true; }catch(e){ console.error(e); toast('सेव नहीं हुआ – नेट या अनुमति देखें'); return false; } }
+  try{ await setDoc(doc(db,'cr_meta','rv_'+g.rid),d,{merge:true}); toast('सेव हो गया ✓');
+    if(o.st) rvPing('📞 RSVP: '+(RVL[o.st]||o.st), rvMsg2(g,o,d)); else if(o.note&&o.note!==(r.note||'')) rvPing('📞 RSVP: 📝 नोट', rvMsg2(g,o,d));
+    return true; }catch(e){ console.error(e); toast('सेव नहीं हुआ – नेट या अनुमति देखें'); return false; } }
 async function rvToAg(g,o,quiet){ const say=quiet?(()=>{}):toast; const a=rvAg(g), d={}; if(o.rmq) d.rmq=o.rmq; if(o.pkq) d.pkq=o.pkq; if(memNorm(o.mem).length) d.mem=memNorm(o.mem);
   ['ppl','ad','ati','am'].forEach(k=>{ if(o[k]&&!(a&&a[k])) d[k]=o[k]; });     // a filled-in travel record (ticket / Excel) is never overwritten
   if(a){ if(!Object.keys(d).length) return; d.by=ME.name; d.at=Date.now(); try{ await updateDoc(doc(db,'cr_ag',a.id),d); if(a.tok) syncGp({...a,...d}); }catch(e){ say('🚉 मेहमान व होटल में नहीं जुड़ा – नेट देखें'); } return; }
@@ -1420,7 +1433,8 @@ async function rvApply(){ const P=RVP; if(!P) return; const L=[...P.y.map(g=>[g,
     if(z==='b'&&!r.note) d.note='WhatsApp पर "बात करनी है" दबाया – कॉल करें';
     try{ await setDoc(doc(db,'cr_meta','rv_'+g.rid),d,{merge:true}); if(z==='y') await rvToAg(g,{},true); ok++; }catch(e){ console.error(e); bad++; }
     if((ok+bad)%10===0) toast('भर रहे हैं… '+(ok+bad)+' / '+L.length); }
-  RVP=null; render(); toast(bad?('✓ '+ok+' भर गए · '+bad+' नहीं भरे – नेट देखकर फ़ाइल फिर डालें'):('✓ '+ok+' मेहमानों का जवाब भर गया')); }
+  RVP=null; render(); toast(bad?('✓ '+ok+' भर गए · '+bad+' नहीं भरे – नेट देखकर फ़ाइल फिर डालें'):('✓ '+ok+' मेहमानों का जवाब भर गया'));
+  if(ok) rvPing('📞 RSVP: 📥 WhatsApp (API) के जवाब', '✅ आ रहे हैं '+P.y.length+' · ❌ नहीं आ पाएंगे '+P.n.length+' · 🔁 बात करनी है '+P.b.length+'\n– '+ME.name); }
 document.addEventListener('change',e=>{ const t=e.target; if(t&&t.id==='rv-file'&&t.files&&t.files[0]){ const f=t.files[0]; t.value=''; rvImport(f); } });
 function rvXl(){ if(!GU) return; const RM=rvMap(), A=GU.filter(rvOut), yn=x=>x==='हाँ'?'हाँ':x==='नहीं'?'नहीं':'';
   const rows=[['नंबर','नाम','English name','मोबाइल','शहर','निमंत्रण','RSVP','कितने लोग','आने की तारीख','समय','कैसे आ रहे','कमरा चाहिए','पिकअप चाहिए','साथ में','नोट','किसने कॉल किया','कब','कितनी बार']]

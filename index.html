@@ -100,8 +100,8 @@ mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 .tk.ed{flex:0 0 auto;border-color:var(--gd);color:#7A5A10}@media(max-width:520px){.act{flex-wrap:wrap}.tk.ed{flex:1 1 40%;padding:5px}}.nbad{color:#A33A2C;font-size:13.5px;font-weight:600;margin-top:3px}#ed-sheet textarea.in{font-family:inherit}</style>
 <div class="sheet-in"><div class="sheet-h"><span>✏️ नाम सुधारें</span><button class="x2" id="ed-x" aria-label="बंद करें">×</button></div><div id="ef" style="display:none;margin-top:10px;border-top:2px solid var(--gd);padding-top:6px">
 <p class="muted" id="ef-t"></p>
-<label>भाग › ज़ोन › क्षेत्र (सूची में कहाँ दिखे)</label><input class="in" id="f-gq" placeholder="🔍 क्षेत्र खोजें – जैसे: कमला / Kamla / Pune" autocomplete="off" style="margin-bottom:6px"><select class="in" id="f-g"></select><div id="f-gn" style="display:none;background:#F1F8EC;border:1.5px solid #B9D59A;border-radius:12px;padding:8px 10px;margin:6px 0"><label>किसके अंदर बनाना है</label><select class="in" id="f-gz"></select><div id="f-gzw" style="display:none"><label>नए ज़ोन का नाम</label><input class="in" id="f-gzn" placeholder="जैसे: गुजरात / Gujarat"></div><label>नए क्षेत्र / शहर का नाम</label><input class="in" id="f-gnm" placeholder="जैसे: सरदारपुरा / Pune"></div><p class="muted" id="f-gh" style="text-align:left;margin:3px 0 0;color:#1E6B3A"></p>
-<label>स्टिकर / नंबर</label><input class="in" id="f-no" placeholder="जैसे 535, D-63, E">
+<label>कार्ड</label><select class="in" id="f-kind" style="margin-bottom:4px"><option value="p">📮 फिज़िकल कार्ड</option><option value="e">📱 E-card</option><option value="">–</option></select><p class="muted" id="f-kh" style="text-align:left;margin:0 0 6px">E-card ↔ फिज़िकल कार्ड यहाँ से बदलें – क्षेत्र, स्टिकर नंबर और प्रोग्राम कार्ड अपने-आप ठीक हो जाएँगे।</p><label>भाग › ज़ोन › क्षेत्र (सूची में कहाँ दिखे)</label><input class="in" id="f-gq" placeholder="🔍 क्षेत्र खोजें – जैसे: कमला / Kamla / Pune" autocomplete="off" style="margin-bottom:6px"><select class="in" id="f-g"></select><div id="f-gn" style="display:none;background:#F1F8EC;border:1.5px solid #B9D59A;border-radius:12px;padding:8px 10px;margin:6px 0"><label>किसके अंदर बनाना है</label><select class="in" id="f-gz"></select><div id="f-gzw" style="display:none"><label>नए ज़ोन का नाम</label><input class="in" id="f-gzn" placeholder="जैसे: गुजरात / Gujarat"></div><label>नए क्षेत्र / शहर का नाम</label><input class="in" id="f-gnm" placeholder="जैसे: सरदारपुरा / Pune"></div><p class="muted" id="f-gh" style="text-align:left;margin:3px 0 0;color:#1E6B3A"></p>
+<label>स्टिकर / नंबर</label><input class="in" id="f-no" placeholder="जैसे 535, D-63, E"><p class="muted" style="text-align:left;margin:2px 0 6px">💡 सिर्फ़ "E" हटाने से कार्ड नहीं बदलता – E-card / फिज़िकल कार्ड ऊपर वाले <b>कार्ड</b> खाने से बदलें, नंबर अपने-आप आ जाएगा।</p>
 <label>नाम (हिंदी)</label><div id="f-pfx" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px"><button type="button" class="nob" data-pfx="श्री|Shri" style="font-size:15px;padding:7px 14px">श्री</button><button type="button" class="nob" data-pfx="श्रीमती|Smt." style="font-size:15px;padding:7px 14px">श्रीमती</button><button type="button" class="nob" data-pfx="श्रीमती एवं श्री|Smt. &amp; Shri" style="font-size:15px;padding:7px 14px">श्रीमती एवं श्री</button></div><input class="in" id="f-hi"><label>Name (English)</label><input class="in" id="f-en">
 <p class="muted" style="text-align:left;margin:4px 0 0">English में लिखेंगे (या हिंदी वाले खाने में English लिख देंगे) तो हिंदी अपने-आप बन जाएगी – सूची में पहले से जो सही स्पेलिंग है वही आएगी, नए नाम एक बार जाँच लें।</p>
 <label>हेडिंग (हिंदी)</label><input class="in" id="f-hh" list="dl-hh"><label>Heading (English)</label><input class="in" id="f-he" list="dl-he">
@@ -275,7 +275,7 @@ function hitsNow(q){ const hits=[];
   for(let i=0;i<D.length;i++){const r=D[i],g=G[r[1]],s=st(r[0]);
     if(SEC!=='all'&&g[6]!==SEC)continue; if(FN!==null&&!r[10][FN])continue; if(PC&&r[12]!=='✓')continue; if(GF&&!r[11])continue;
     if(ZN&&g[3]!==ZN)continue; if(HD&&r[6]!==HD)continue; if(STF==='done'&&!s.d)continue; if(STF==='left'&&s.d)continue; if(WAF&&!wfailR(r))continue; if(NUMF&&!mobBad(r))continue; if(!match(i,q))continue; hits.push(i);}
-  const SO={jo:0,ba:1,ej:2,eb:3,ho:4}, key=i=>{ const g=G[D[i][1]]; return [SO[g[6]]??9, ZF[g[0]+g[2]]??D[i][1], D[i][1]]; };   // 10 Nov: a moved name shows inside its new area
+  const SO={jo:0,ba:1,ej:2,eb:3,ho:4}, key=i=>{ const g=G[D[i][1]]; if(!g) return [9,1e9,1e9,i]; return [SO[g[6]]??9, ZF[g[0]+g[2]]??D[i][1], D[i][1]]; };   // 10 Nov: a moved name shows inside its new area
   return hits.map(i=>[key(i),i]).sort((a,b)=>(a[0][0]-b[0][0])||(a[0][1]-b[0][1])||(a[0][2]-b[0][2])||(a[1]-b[1])).map(x=>x[1]); }
 function render(){if(!D.length)return;const t=T[L], q=Q.trim(), hits=hitsNow(q); if(typeof dlBar==='function') dlBar(hits);
   let done=0,gifts=0; for(const r of D){const s=st(r[0]); if(s.d)done++; if(s.g)gifts++;}
@@ -378,6 +378,7 @@ function fillGroups(sel){ $('#f-g').innerHTML = gOpts(sel)+GNEW; { const q=$('#f
   $('#dl-hh').innerHTML=HEADS.map(h=>`<option value="${esc(h[0])}">`).join(''); $('#dl-he').innerHTML=HEADS.map(h=>`<option value="${esc(h[1])}">`).join(''); }
 function edOpen(rid){ const r = rid==='new' ? null : D.find(x=>x[0]===rid); EDIT = rid; $('#ef').style.display='block'; $('#f-err').textContent='';
   $('#ef-t').textContent = r ? 'सुधार रहे हैं: '+r[3] : 'नया नाम – सब भरकर "सेव करें" दबाएँ'; fillGroups(r ? r[1] : 0); $('#f-del').style.display = r ? 'block' : 'none';
+  { const kd=$('#f-kind'), kh=$('#f-kh'); if(kd) kd.value=gKind(r?r[1]:0); if(kh) kh.textContent='E-card ↔ फिज़िकल कार्ड यहाँ से बदलें – क्षेत्र, स्टिकर नंबर और प्रोग्राम कार्ड अपने-आप ठीक हो जाएँगे।'; }
   ['#f-hi','#f-ah','#f-hh'].forEach(x=>{ $(x).dataset.auto=r?'':'1'; });
   const v = (id,x)=>{ $(id).value = x ?? '' }; v('#f-no', r?r[2]:''); v('#f-hi', r?r[3]:''); v('#f-en', r?r[4]:''); v('#f-hh', r?r[5]:''); v('#f-he', r?r[6]:'');
   v('#f-ah', r?r[7]:''); v('#f-ae', r?r[8]:''); v('#f-mob', r?r[9]:''); for(let k=0;k<4;k++) v('#f-f'+k, r?r[10][k]:''); v('#f-gift', r&&r[11]?r[11]:'');
@@ -423,6 +424,7 @@ async function edSave(){ let hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi)
   $('#f-hh').value=hiOf($('#f-hh').value,$('#f-he').value); $('#f-ah').value=hiOf($('#f-ah').value,$('#f-ae').value);
   let gi=+$('#f-g').value; if($('#f-g').value==='new'){ try{ gi=await gNewMake(); }catch(e){ $('#f-err').textContent=e.message||String(e); return } }
   if(!(gi>=0)||!G[gi]){ $('#f-err').textContent='क्षेत्र चुनें'; return }
+  { const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null; if(o&&gIsE(o[1])&&gIsP(gi)){ if($('#f-pc').value==='E-card') $('#f-pc').value=''; if(noFree($('#f-no').value)) $('#f-no').value=nextNo(gi); } }   // 11 Nov: E-card -> physical card
   const pc=$('#f-pc').value;
   const row=[EDIT==='new' ? 'N'+Date.now().toString(36) : EDIT, gi, $('#f-no').value.trim()||'–', hi, $('#f-en').value.trim(), $('#f-hh').value.trim(), $('#f-he').value.trim(),
     $('#f-ah').value.trim(), $('#f-ae').value.trim(), $('#f-mob').value.trim(), [0,1,2,3].map(k=>nfv($('#f-f'+k).value)), parseInt($('#f-gift').value)||0, pc, PEN[pc]??pc, $('#f-env').value,
@@ -460,6 +462,27 @@ function arAuto(v){ const sel=$('#f-g'); if(!sel||sel.dataset.man==='1') return;
   if(gh){ gh.textContent='📍 पते से अपने-आप चुना: '+gLab(G[gi])+' – बदलना हो तो ऊपर से चुनें'; gh.dataset.auto='1'; } }
 ['#f-ah','#f-ae'].forEach(id=>{ const el=$(id); if(el){ let t; el.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(()=>arAuto(el.value),350); }); el.addEventListener('blur',()=>setTimeout(()=>arAuto(el.value),50)); } });
 { const sel=$('#f-g'); if(sel) sel.addEventListener('change',()=>{ sel.dataset.man='1'; const gh=$('#f-gh'); if(gh) gh.textContent=''; }); }
+// 11 Nov (his words): "website pe kisi ka E card hai aur usko physical card me convert karna hai toh kya likhna padega? maine E hataya phir bhi hua nahi"
+//   -> E-card / physical card is decided by the भाग (section), not by the number. When a name goes from an E-card भाग to a physical-card भाग
+//      (↔ खिसकाएँ or ✏️ सुधारें): प्रोग्राम कार्ड "E-card" is cleared and an "E" / empty sticker number gets the next free number of that area's series
+const gIsE=gi=>!!G[gi]&&(G[gi][6]==='ej'||G[gi][6]==='eb'), gIsP=gi=>!!G[gi]&&(G[gi][6]==='jo'||G[gi][6]==='ba');
+const noFree=v=>{ v=String(v??'').trim(); return !v||v==='–'||/^E/i.test(v); };
+function nextNo(gi){ const NR=/^([A-Za-z]+-)?(\d+)$/, cnt=f=>{ const m=new Map(); D.forEach(r=>{ if(f(r)){ const x=NR.exec(String(r[2]||'').trim()); if(x) m.set(x[1]||'',(m.get(x[1]||'')||0)+1); } }); return m; };
+  let pre=cnt(r=>r[1]===gi); if(!pre.size) pre=cnt(r=>G[r[1]]&&G[r[1]][6]===G[gi][6]&&G[r[1]][4]===G[gi][4]); if(!pre.size) pre=cnt(r=>G[r[1]]&&G[r[1]][6]===G[gi][6]);
+  const p=pre.size?[...pre.entries()].sort((a,b)=>b[1]-a[1])[0][0]:''; let mx=0; D.forEach(r=>{ const x=NR.exec(String(r[2]||'').trim()); if(x&&(x[1]||'')===p) mx=Math.max(mx,+x[2]); }); return p+(mx+1); }
+// 11 Nov (his words): "usi mein drop down button daal do E card aur physical card, wo leke serial number ya sticker number khud hi nikal lega system se"
+//   -> कार्ड dropdown in ✏️: picks the same area in the other kind (E-card जोधपुर ↔ जोधपुर फिज़िकल, E-card बाहर ↔ बाहर फिज़िकल), sticker number by itself
+const gKind=gi=>gIsP(gi)?'p':gIsE(gi)?'e':'';
+function gTwin(gi,k){ const g=G[gi]; if(!g) return -1; const want=k==='p'?(g[6]==='eb'?'ba':g[6]==='ej'?'jo':g[6]):(g[6]==='ba'?'eb':g[6]==='jo'?'ej':g[6]);
+  let i=G.findIndex(x=>x[6]===want&&x[2]===g[2]&&x[4]===g[4]); if(i<0) i=G.findIndex(x=>x[6]===want&&x[4]===g[4]); if(i<0) i=G.findIndex(x=>x[6]===want&&x[2]===g[2]); return i; }
+function kindSet(){ const k=$('#f-kind').value, sel=$('#f-g'), gh=$('#f-kh'), cur=+sel.value; if(!k||!G[cur]||gKind(cur)===k) return;
+  const t=gTwin(cur,k); if(t<0){ gh.innerHTML='⚠ '+(k==='p'?'फिज़िकल कार्ड':'E-card')+' में यह क्षेत्र नहीं मिला – ऊपर से क्षेत्र खुद चुनें (या "➕ नया क्षेत्र")'; return; }
+  if(!sel.querySelector(`option[value="${t}"]`)) sel.innerHTML=gOpts(t)+GNEW; sel.value=String(t); sel.dataset.man='1';
+  const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, no=$('#f-no');
+  if(k==='p'){ if($('#f-pc').value==='E-card') $('#f-pc').value=''; if(noFree(no.value)||(o&&o[1]!==t&&/^E/i.test(String(o[2]||'')))) no.value=nextNo(t); }
+  else { no.value='E'; }
+  gh.innerHTML='✓ '+(k==='p'?'📮 फिज़िकल कार्ड':'📱 E-card')+': <b>'+esc(gLab(G[t]))+'</b> · स्टिकर नंबर <b>'+esc(no.value)+'</b> – "सेव करें" दबाएँ'; }
+{ const kd=$('#f-kind'), sel=$('#f-g'); if(kd) kd.addEventListener('change',kindSet); if(sel) sel.addEventListener('change',()=>{ const k=gKind(+sel.value); if(kd&&k) kd.value=k; }); }
 // 10 Nov: "↔ खिसकाएँ" next to ✏️ on every name (laptop and phone) – pick another भाग › ज़ोन › क्षेत्र or heading, one tap to save
 let MV=null;
 function mvOpen(rid){ const r=D.find(x=>x[0]===rid), sh=$('#mv-sheet'); if(!r||!sh) return; MV=rid; $('#mv-e').textContent='';
@@ -470,10 +493,11 @@ function mvOpen(rid){ const r=D.find(x=>x[0]===rid), sh=$('#mv-sheet'); if(!r||!
 function mvClose(){ const sh=$('#mv-sheet'); if(sh) sh.classList.remove('on'); document.body.style.overflow=''; MV=null; }
 async function mvSave(){ if(!MV) return; const gi=+$('#mv-g').value, h=($('#mv-h')._hs||[])[+$('#mv-h').value]||['',''], b=$('#mv-s'); b.disabled=true; $('#mv-e').textContent='सेव हो रहा है…';
   try{ let ci=-1, ri=-1; for(let i=0;i<META.chunks&&ci<0;i++){ const j=CH[i].findIndex(x=>x[0]===MV); if(j>=0){ ci=i; ri=j; } } if(ci<0) throw new Error('नाम नहीं मिला');
-    const rows=CH[ci].slice(), r=rows[ri].slice(), was=gLab(G[r[1]]); r[1]=gi; r[5]=h[0]; r[6]=h[1]; rows[ri]=r; await writeChunk(ci, rows);
+    const rows=CH[ci].slice(), r=rows[ri].slice(), was=gLab(G[r[1]]), e2p=gIsE(r[1])&&gIsP(gi); if(e2p){ if(r[12]==='E-card'){ r[12]=''; r[13]=''; } if(noFree(r[2])) r[2]=nextNo(gi); }
+    r[1]=gi; r[5]=h[0]; r[6]=h[1]; rows[ri]=r; await writeChunk(ci, rows);
     await updateDoc(doc(db,'list','meta'), {v: META.v.split(' · ')[0]+' · बदला '+tm(Date.now()), at: serverTimestamp()});
     await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'नाम खिसकाया: '+r[3]+' – '+was+' → '+gLab(G[gi])+(h[0]?' · '+h[0]:''), no:r[2]});
-    toast('↔ खिसका दिया ✓'); mvClose(); }
+    toast(e2p?'↔ फिज़िकल कार्ड में आ गया ✓ · स्टिकर नंबर '+r[2]:'↔ खिसका दिया ✓'); mvClose(); }
   catch(e){ $('#mv-e').textContent='सेव नहीं हुआ: '+(e.message||e); } b.disabled=false; }
 // 10 Nov (his words): "hold list ko seedha manglesh me shift kardo aur hold wala button hata do" + sticker no. "जोधपुर के आख़िरी नंबर के आगे"
 //   -> one time, on the admin's own phone: asks once, then every name in the old होल्ड part goes to its area (मंगलेश heading stays),
@@ -638,7 +662,7 @@ let PRI=[], PRK='', PRSEL=new Set();
 // 10 Nov (his words): "multiple heading ko add kar sakte the aur sabka mix hoke prog card aur sticker banta … paper bhi save hoga"
 //   + "sirf heading search ke alawa naam search bhi / zaruri nahi hai na sabke card bane" -> one basket of names:
 //   tick whole headings, add single names by search, remove any name with × ; everything prints together, area-wise
-const prOrd=a=>{ const SO={jo:0,ba:1,ej:2,eb:3,ho:4}, key=i=>{ const g=G[D[i][1]]; return [SO[g[6]]??9, ZF[g[0]+g[2]]??D[i][1], D[i][1], i]; };
+const prOrd=a=>{ const SO={jo:0,ba:1,ej:2,eb:3,ho:4}, key=i=>{ const g=G[D[i][1]]; if(!g) return [9,1e9,1e9,i]; return [SO[g[6]]??9, ZF[g[0]+g[2]]??D[i][1], D[i][1], i]; };
   return a.map(i=>[key(i),i]).sort((x,y)=>{ for(let j=0;j<4;j++) if(x[0][j]!==y[0][j]) return x[0][j]-y[0][j]; return 0; }).map(x=>x[1]); };
 const prHeads=()=>{ const m=new Map(); D.forEach((r,i)=>{ const k=r[5]||''; if(!m.has(k)) m.set(k,{hi:r[5]||'',en:r[6]||'',ix:[]}); m.get(k).ix.push(i); }); return [...m.values()].sort((a,b)=>(a.hi?0:1)-(b.hi?0:1)||a.hi.localeCompare(b.hi,'hi')); };
 const prOK=i=>{ const r=D[i], g=r&&G[r[1]]; return !!g&&(g[6]==='jo'||g[6]==='ba')&&r[12]!=='भगवान'&&r[12]!=='E-card'; };   // only names that get a sticker can go in the basket
@@ -682,6 +706,7 @@ function prGo(kind){ const P=prtRows(PRI), rows=kind==='stk'?P.S:P.C; if(!rows.l
   const tagEn=(HD||ZN||fltName()||'List').replace(/[^\x20-\x7E]/g,'').trim().slice(0,40)||'List';
   try{ localStorage.setItem('prt',JSON.stringify({kind,tag,tagEn,date:d.getDate()+' '+HMON[d.getMonth()]+' '+d.getFullYear(),dateEn:d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear(),rows})); }
   catch(e){ toast(L==='en'?'Could not open – phone storage full?':'नहीं खुला – फ़ोन की जगह भरी है?'); return; }
+  if(window.PK&&PK.MOB){ location.href='print-'+kind+'.html'; return; }   // 11 Nov: phones – same tab, the PDF is made there
   const w=window.open('print-'+kind+'.html','_blank'); if(!w) location.href='print-'+kind+'.html'; }
 const XE=v=>String(v??'').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const XC=i=>{ let s='', n=i+1; while(n){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; };
@@ -706,7 +731,135 @@ function xlsxBlob(sheet,rows,widths,red){ const X='<?xml version="1.0" encoding=
   return zipStore(F.map(([n,x])=>({name:n,data:te.encode(x)}))); }
 function xlDown(name,blob){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name.replace(/[\\/:*?"<>|]+/g,' '); document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500); }
 // PDF = a print page (Hindi shows right on every phone); the phone's print box has "Save as PDF"
-function pdfOpen(fname,title,sub,head,rows,o){ const w=window.open('','_blank'); if(!w){ toast((o&&o.blk)||'नई विंडो नहीं खुली – दोबारा दबाएँ'); return; }
+// 11 Nov (his words): "Mobile se pdf generate nahi ho raha" / "sabhi jagah jaha bhi pdf banta hai … theek karke" -> phones: real .pdf inside the page (PK kit); laptop: print page as before
+window.PK=window.PK||(function(){
+const MOB=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform||''))||!!(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
+const en=()=>{ try{ if(typeof EN!=='undefined'&&EN===true) return true; }catch(_){} try{ if(typeof L!=='undefined'&&L==='en') return true; }catch(_){} try{ return localStorage.getItem('lang')==='en'; }catch(_){} return false; };
+const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+let busyEl=null;
+function busy(t){ if(t==null){ if(busyEl) busyEl.style.display='none'; return; }
+  if(!busyEl){ busyEl=document.createElement('div'); busyEl.style.cssText='position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:2147483001;background:rgba(47,58,18,.94);color:#fff;padding:16px 22px;border-radius:14px;font:600 16px/1.4 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.35);text-align:center;max-width:86vw'; document.body.appendChild(busyEl); }
+  busyEl.textContent='⏳ '+t; busyEl.style.display='block'; }
+function say(t){ busy(t); setTimeout(()=>busy(null),2600); }
+let FP=null;
+function fonts(){ if(FP) return FP; const dv='U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+20F0,U+25CC,U+A830-A839,U+A8E0-A8FF', lt='U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122,U+2212';
+  const L2=[['PdfTiro','prt-tiro-dev.woff2',dv,'400'],['PdfTiro','prt-tiro-lat.woff2',lt,'400'],['PdfMartel','prt-martel-dev.woff2',dv,'700'],['PdfMartel','prt-martel-lat.woff2',lt,'700']];
+  FP=Promise.all(L2.map(([f,u,r,w])=>{ try{ const F=new FontFace(f,'url('+u+')',{unicodeRange:r,weight:w}); return F.load().then(x=>{ document.fonts.add(x); }).catch(()=>{}); }catch(_){ return Promise.resolve(); } }));
+  return Promise.race([FP,wait(6000)]); }
+function jpg(cv,q){ const b=atob(cv.toDataURL('image/jpeg',q||.88).split(',')[1]), u=new Uint8Array(b.length); for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i); return {d:u,w:cv.width,h:cv.height}; }
+// imgs: {d,w,h, pw,ph (page, pt), x,y,dw,dh (where the picture sits, pt from bottom-left)}
+function blob(imgs){ const te=new TextEncoder(), parts=[], offs=[]; let len=0; const push=b=>{ if(typeof b==='string') b=te.encode(b); parts.push(b); len+=b.length; };
+  const obj=(id,fn)=>{ offs[id]=len; push(id+' 0 obj\n'); fn(); push('\nendobj\n'); }, N=imgs.length, f=v=>(Math.round(v*100)/100).toString();
+  push('%PDF-1.4\n'); obj(1,()=>push('<< /Type /Catalog /Pages 2 0 R >>')); obj(2,()=>push('<< /Type /Pages /Kids ['+imgs.map((_,i)=>(3+i*3)+' 0 R').join(' ')+'] /Count '+N+' >>'));
+  imgs.forEach((im,i)=>{ const pg=3+i*3, pw=im.pw, ph=im.ph, dw=im.dw??pw, dh=im.dh??ph, x=im.x??0, y=im.y??0, cs='q 1 1 1 rg 0 0 '+f(pw)+' '+f(ph)+' re f Q q '+f(dw)+' 0 0 '+f(dh)+' '+f(x)+' '+f(y)+' cm /Im0 Do Q';
+    obj(pg,()=>push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+f(pw)+' '+f(ph)+'] /Resources << /XObject << /Im0 '+(pg+2)+' 0 R >> >> /Contents '+(pg+1)+' 0 R >>'));
+    obj(pg+1,()=>{ push('<< /Length '+cs.length+' >>\nstream\n'); push(cs); push('\nendstream'); });
+    obj(pg+2,()=>{ push('<< /Type /XObject /Subtype /Image /Width '+im.w+' /Height '+im.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.d.length+' >>\nstream\n'); push(im.d); push('\nendstream'); }); });
+  const xr=len, T=3+N*3; push('xref\n0 '+T+'\n0000000000 65535 f \n'); for(let i=1;i<T;i++) push(String(offs[i]).padStart(10,'0')+' 00000 n \n');
+  push('trailer\n<< /Size '+T+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF\n'); return new Blob(parts,{type:'application/pdf'}); }
+// the "ready" bar: Share (WhatsApp / Files) + Download (+ Open for a file someone uploaded)
+function give(bl,name,o){ o=o||{}; const E=en(), isPdf=/pdf/i.test(bl.type||'')||/\.pdf$/i.test(name||'');
+  let file=String(name||'file').replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim(); if(isPdf&&!/\.pdf$/i.test(file)) file+='.pdf';
+  const url=URL.createObjectURL(bl); let fl=null; try{ fl=new File([bl],file,{type:bl.type||'application/octet-stream'}); }catch(_){}
+  const can=!!(fl&&navigator.canShare&&(()=>{ try{ return navigator.canShare({files:[fl]}); }catch(_){ return false; } })());
+  const old=document.getElementById('pdfgive'); if(old) old.remove(); const d=document.createElement('div'); d.id='pdfgive';
+  d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:#FBF8EF;border-top:3px solid #B8892E;box-shadow:0 -6px 22px rgba(0,0,0,.28);padding:14px 14px calc(16px + env(safe-area-inset-bottom,0px));font:16px/1.4 system-ui,sans-serif;color:#2F3A12;text-align:center';
+  const B='display:inline-block;min-width:118px;margin:4px;padding:11px 16px;border-radius:999px;font:700 16px system-ui,sans-serif;text-decoration:none;border:0;cursor:pointer;';
+  const head=o.open?(E?'File is ready':'फ़ाइल तैयार है'):(E?'PDF is ready':'PDF तैयार है');
+  d.innerHTML='<div style="font-weight:700;font-size:17px">✅ '+head+'</div><div style="font-size:13px;color:#5E6450;margin:2px 0 8px;word-break:break-word">'+esc(file)+'</div>'
+    +(can?'<button id="pg-sh" style="'+B+'background:#4E5B2E;color:#fff">📤 '+(E?'Share / Save':'शेयर / सेव करें')+'</button>':'')
+    +(o.open?'<a id="pg-op" href="'+url+'" target="_blank" rel="noopener" style="'+B+'background:#1F5C8B;color:#fff">👁 '+(E?'Open':'खोलें')+'</a>':'')
+    +'<a id="pg-dl" href="'+url+'" download="'+esc(file)+'" style="'+B+'background:#C99A3B;color:#2F3A12">⬇ '+(E?'Download':'डाउनलोड')+'</a>'
+    +'<button id="pg-x" style="'+B+'min-width:0;background:#E4DCC6;color:#2F3A12">✕</button>';
+  document.body.appendChild(d);
+  const close=()=>{ d.remove(); setTimeout(()=>URL.revokeObjectURL(url),120000); };
+  d.querySelector('#pg-x').onclick=close;
+  const sh=d.querySelector('#pg-sh'); if(sh) sh.onclick=async()=>{ try{ await navigator.share({files:[fl],title:file}); }catch(e){ if(e&&e.name!=='AbortError') say(E?'Press Download':'डाउनलोड दबाएँ'); } }; }
+let HP=null;
+function h2c(){ if(window.html2canvas) return Promise.resolve(window.html2canvas); if(HP) return HP;
+  HP=new Promise((res,rej)=>{ const tryS=(src,next)=>{ const s=document.createElement('script'); s.src=src; s.onload=()=>window.html2canvas?res(window.html2canvas):next(); s.onerror=next; document.head.appendChild(s); };
+    tryS('pdf-h2c.js',()=>tryS('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',()=>{ HP=null; rej(new Error('html2canvas')); })); });
+  return HP; }
+// the page's own print rules (@media print), used as normal rules inside the copy that is turned into the PDF
+function printCss(){ let t=''; for(const ss of Array.from(document.styleSheets)){ let rs; try{ rs=ss.cssRules; }catch(_){ continue; } if(!rs) continue;
+    for(const r of Array.from(rs)){ if(r.type===4&&/print/.test(r.media&&r.media.mediaText||'')&&!/screen/.test(r.media.mediaText)) for(const x of Array.from(r.cssRules)) if(x.type===1) t+=x.cssText+'\n'; } }
+  return t; }
+let BUSY=false;
+async function run(fn){ const E=en(); if(BUSY) return; BUSY=true; try{ await fn(E); }catch(e){ console.error(e); busy(null); say(E?'Could not make the PDF – press again':'PDF नहीं बना – दोबारा दबाएँ'); } finally{ BUSY=false; } }
+// ---- lists / sheets (A4 landscape), drawn straight on canvas
+function table(fname,title,sub,head,rows,o){ o=o||{}; return run(async E=>{ busy(E?'Making the PDF…':'PDF बन रहा है…'); await fonts();
+    const PW=1123, PH=794, M=30, S=2, fs=o.fs||10.5, lh=Math.round(fs*1.32*10)/10, pad=3, n=head.length, TW=PW-2*M;
+    const FF='PdfTiro,"Tiro Devanagari Hindi","Noto Sans Devanagari","Kohinoor Devanagari",serif', FB='PdfMartel,"Martel",'+FF, fN=fs+'px '+FF, fH='700 '+fs+'px '+FB, fG='700 '+(fs+1)+'px '+FB;
+    const cv=document.createElement('canvas'); cv.width=PW*S; cv.height=PH*S; const x=cv.getContext('2d');
+    const seg=w=>{ try{ if(window.Intl&&Intl.Segmenter) return Array.from(new Intl.Segmenter().segment(w),s=>s.segment); }catch(_){} return Array.from(w); };
+    const wrap=(t,w,font)=>{ x.font=font; const out=[]; String(t??'').split('\n').forEach(par=>{ let line=''; par.split(/\s+/).forEach(wd=>{ if(!wd) return; const tl=line?line+' '+wd:wd;
+        if(x.measureText(tl).width<=w){ line=tl; return; } if(line) out.push(line); if(x.measureText(wd).width<=w){ line=wd; return; }
+        let cur=''; seg(wd).forEach(ch=>{ if(cur&&x.measureText(cur+ch).width>w){ out.push(cur); cur=ch; } else cur+=ch; }); line=cur; }); out.push(line); }); return out.length?out:['']; };
+    let W; if(o.w&&o.w.length===n){ const t=o.w.reduce((a,b)=>a+b,0); W=o.w.map(v=>v/t*TW); }
+    else { const mx=head.map((h,i)=>{ x.font=fH; let m=Math.min(160,x.measureText(String(h)).width); x.font=fN; rows.forEach(r=>{ if(Array.isArray(r)) m=Math.max(m,Math.min(300,x.measureText(String(r[i]??'')).width)); }); return m+2*pad+4; });
+      const t=mx.reduce((a,b)=>a+b,0); W=mx.map(v=>v/t*TW); }
+    const hl=head.map((h,i)=>wrap(h,W[i]-2*pad,fH)), hh=Math.max(...hl.map(l=>l.length))*lh+2*pad, top0=M+48, maxL=Math.max(1,Math.floor((PH-M-24-top0-hh-2*pad)/lh));
+    const R=rows.map(r=>{ if(!Array.isArray(r)){ const l=wrap(r&&r.grp!=null?r.grp:'',TW-2*pad,fG).slice(0,maxL); return {g:1,l,h:l.length*(lh+1)+2*pad+2}; }
+      const c=head.map((_,i)=>wrap(r[i],W[i]-2*pad,fN).slice(0,maxL)); return {c,h:Math.max(...c.map(l=>l.length))*lh+2*pad}; });
+    const pages=[]; let cur=[], y=top0+hh; R.forEach(r=>{ if(y+r.h>PH-M-24&&cur.length){ pages.push(cur); cur=[]; y=M+hh; } cur.push(r); y+=r.h; }); if(cur.length||!pages.length) pages.push(cur);
+    for(let k=0;k<pages.length-1;k++){ const P=pages[k]; if(P.length>1&&P[P.length-1].g) pages[k+1].unshift(P.pop()); }   // a group title never stays alone at a page end
+    const imgs=[], N=pages.length;
+    for(let k=0;k<N;k++){ if(N>2) busy((E?'Making the PDF… ':'PDF बन रहा है… ')+(k+1)+' / '+N);
+      x.setTransform(S,0,0,S,0,0); x.fillStyle='#fff'; x.fillRect(0,0,PW,PH); x.textBaseline='top'; let yy=M;
+      if(k===0){ x.fillStyle='#4E5B2E'; x.font='700 17px '+FB; x.fillText(String(title||''),M,M,TW); x.fillStyle='#7A5A10'; x.font='12px '+FF; x.fillText(String(sub||''),M,M+26,TW); yy=top0; }
+      x.fillStyle='#4E5B2E'; x.fillRect(M,yy,TW,hh); let xx=M; x.font=fH; x.fillStyle='#fff'; hl.forEach((l,i)=>{ l.forEach((t,j)=>x.fillText(t,xx+pad,yy+pad+j*lh)); xx+=W[i]; }); yy+=hh;
+      x.lineWidth=.7; x.strokeStyle='#D8CDAE';
+      pages[k].forEach(r=>{ if(r.g){ x.fillStyle='#EFE6CF'; x.fillRect(M,yy,TW,r.h); x.strokeRect(M,yy,TW,r.h); x.fillStyle='#8E1B0E'; x.font=fG; r.l.forEach((t,j)=>x.fillText(t,M+pad,yy+pad+1+j*(lh+1))); }
+        else { let cx=M; x.font=fN; x.fillStyle='#2F3A12'; r.c.forEach((l,i)=>{ x.strokeRect(cx,yy,W[i],r.h); const cc=(o.cc||[]).includes(i); l.forEach((t,j)=>{ if(cc){ x.textAlign='center'; x.fillText(t,cx+W[i]/2,yy+pad+j*lh); x.textAlign='left'; } else x.fillText(t,cx+pad,yy+pad+j*lh); }); cx+=W[i]; }); }
+        yy+=r.h; });
+      x.fillStyle='#7A7A6A'; x.font='10px '+FF; x.textAlign='right'; x.fillText((E?'Page ':'पेज ')+(k+1)+' / '+N+'  ·  '+String(fname||''),PW-M,PH-M-10,TW); x.textAlign='left';
+      imgs.push({...jpg(cv,.85),pw:842,ph:595}); await wait(0); }
+    busy(null); give(blob(imgs),fname); }); }
+// ---- any print view -> A4 portrait pages (laid out at A4 width, page breaks only between lines / rows / blocks)
+function html(el,o){ o=o||{}; return run(async E=>{ if(!el) throw new Error('no element'); busy(E?'Making the PDF…':'PDF बन रहा है…');
+    const H=await h2c(); await fonts(); try{ await document.fonts.ready; }catch(_){}
+    const W=o.W||760, S=o.S||2, id=el.id||(el.id='pk'+Date.now()), pc=printCss()+(o.css||'');
+    let BP=[], EH=0, EW=0;
+    const prep=(d,meas)=>{ const st=d.createElement('style'); st.textContent=pc+'\n*{animation:none!important;transition:none!important}'; d.head.appendChild(st); if(o.cls) o.cls.split(' ').forEach(c=>c&&d.body.classList.add(c));
+      const t=d.getElementById(id); if(!t) return; t.style.setProperty('display','block','important'); if(o.clean) t.querySelectorAll(o.clean).forEach(z=>z.remove()); t.querySelectorAll('details').forEach(z=>z.open=true);
+      if(meas){ const r0=t.getBoundingClientRect(); EH=Math.ceil(Math.max(t.scrollHeight,r0.height)); EW=Math.ceil(r0.width); const s=new Set();
+        t.querySelectorAll('tr,h1,h2,h3,h4,h5,p,li,summary,table,img,div,section,details').forEach(z=>{ const r=z.getBoundingClientRect(); if(r.height>0) s.add(Math.round(r.bottom-r0.top)); });
+        BP=[...s].filter(v=>v>0).sort((a,b)=>a-b); } };
+    const base={backgroundColor:'#ffffff',logging:false,useCORS:true,windowWidth:W,scrollX:0,scrollY:0};
+    await H(el,{...base,scale:.05,height:4,onclone:d=>prep(d,true)}); if(!EH||!EW) throw new Error('empty');
+    const ratio=(842-2*30)/(595-2*30), PC=Math.floor(EW*ratio), pages=[]; let s=0;
+    while(s<EH-2){ let b=s+PC; if(b<EH){ const c=BP.filter(v=>v>s+PC*.35&&v<=s+PC); if(c.length) b=c[c.length-1]; } else b=EH; pages.push([s,b]); s=b; }
+    const one=EW*S*EH*S<=12e6, imgs=[], N=pages.length, put=(cv,hCss)=>{ const dw=595-60, dh=dw*hCss/EW; imgs.push({...jpg(cv,.88),pw:595,ph:842,x:30,y:842-30-dh,dw,dh}); };
+    let big=null; if(one) big=await H(el,{...base,scale:S,height:EH,onclone:d=>prep(d,false)});
+    for(let k=0;k<N;k++){ const [a,b]=pages[k]; if(N>1) busy((E?'Making the PDF… ':'PDF बन रहा है… ')+(k+1)+' / '+N);
+      let cv; if(big){ cv=document.createElement('canvas'); cv.width=big.width; cv.height=Math.max(1,Math.round((b-a)*S)); const g=cv.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,cv.width,cv.height); g.drawImage(big,0,Math.round(a*S),big.width,cv.height,0,0,cv.width,cv.height); }
+      else cv=await H(el,{...base,scale:S,y:a,height:b-a,onclone:d=>prep(d,false)});
+      put(cv,b-a); await wait(0); }
+    busy(null); give(blob(imgs),o.fname||document.title||'print'); }); }
+// ---- 13 x 19 print sheets: every .sheet = one page, exact size
+function sheets(sel,wIn,hIn,fname,o){ o=o||{}; return run(async E=>{ const L2=[...document.querySelectorAll(sel)]; if(!L2.length) throw new Error('no sheets');
+    busy(E?'Making the PDF…':'PDF बन रहा है…'); const H=await h2c(); try{ await document.fonts.ready; }catch(_){}
+    // little SVG icons written straight into the CSS (e.g. the 📍 before a venue) -> base64, so the picture maker draws them too
+    let svgFix=''; for(const ss of Array.from(document.styleSheets)){ let rs; try{ rs=ss.cssRules; }catch(_){ continue; } for(const r of Array.from(rs||[])){ const bi=r.style&&r.style.backgroundImage||'';
+      const m=/url\(["']?data:image\/svg\+xml;utf8,([\s\S]*?)["']?\)$/.exec(bi); if(m&&r.selectorText){ try{ svgFix+=r.selectorText+'{background-image:url("data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(decodeURIComponent(m[1].replace(/\\"/g,'"')))))+'")!important}\n'; }catch(_){} } } }
+    const S=o.S||2.2, imgs=[], css='.sheet{zoom:1!important;transform:none!important;margin:0!important;box-shadow:none!important}'+svgFix+(o.css||'');
+    const opt=(extra,fix)=>({scale:S,backgroundColor:'#ffffff',logging:false,useCORS:true,scrollX:0,scrollY:0,onclone:d=>{ const st=d.createElement('style'); st.textContent=css+(extra||''); d.head.appendChild(st); if(fix) fix(d); }});
+    for(let i=0;i<L2.length;i++){ busy((E?'Making the PDF… sheet ':'PDF बन रहा है… शीट ')+(i+1)+' / '+L2.length);
+      // o.sub: scaled parts (programme cards) are drawn one by one at their own size, then put in place – keeps them exact
+      const cv=await H(L2[i],opt(o.sub?o.sub+'{visibility:hidden!important}':''));
+      if(o.sub){ const g=cv.getContext('2d'), k=cv.width/(wIn*96); let n=0; g.setTransform(1,0,0,1,0,0);   // html2canvas leaves its own scale on the canvas
+        for(const el of Array.from(L2[i].querySelectorAll(o.sub))){ const hold=el.parentElement, sc=parseFloat((/scale\(([\d.]+)\)/.exec(el.style.transform||'')||[])[1]||'1'), id=el.id||(el.id='pks'+i+'_'+(n++));
+          const tf=el.style.transform; el.style.transform='none'; let c2; try{ c2=await H(el,{...opt(''),scale:S*sc}); } finally{ el.style.transform=tf; }
+          g.setTransform(1,0,0,1,0,0); g.drawImage(c2,parseFloat(hold.style.left)*k,parseFloat(hold.style.top)*k,parseFloat(hold.style.width)*k,parseFloat(hold.style.height)*k); c2.width=c2.height=1; } }
+      imgs.push({...jpg(cv,.92),pw:wIn*72,ph:hIn*72}); cv.width=cv.height=1; await wait(0); }
+    busy(null); give(blob(imgs),fname||document.title||'print'); }); }
+return {MOB,en,busy,say,fonts,blob,give,table,html,sheets,h2c};
+})();
+
+const PDFMOB=PK.MOB;
+function pdfOpen(fname,title,sub,head,rows,o){ o=o||{}; if(PK.MOB) return PK.table(fname,title,sub,head,rows,o); return pdfPrint(fname,title,sub,head,rows,o); }
+function pdfPrint(fname,title,sub,head,rows,o){ const w=window.open('','_blank'); if(!w){ toast((o&&o.blk)||'नई विंडो नहीं खुली – दोबारा दबाएँ'); return; }
   const css=`@page{size:A4 landscape;margin:8mm}*{box-sizing:border-box}body{font-family:"Tiro Devanagari Hindi",serif;color:#2F3A12;margin:0;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 h1{font-family:"Martel",serif;font-size:17px;margin:0;color:#4E5B2E}.s{font-size:12px;color:#7A5A10;margin:2px 0 8px}table{width:100%;border-collapse:collapse;font-size:${o.fs||10.5}px;line-height:1.3}
 th{background:#4E5B2E;color:#fff;padding:4px 3px;border:1px solid #4E5B2E;text-align:left;font-weight:700}td{border:1px solid #D8CDAE;padding:3px;vertical-align:top}tr.g td{background:#EFE6CF;font-weight:700;color:#8E1B0E;font-size:${(o.fs||10.5)+1}px}
@@ -749,7 +902,7 @@ async function yatraData(){ const A=await agLoad(), byR={}, out=[]; A.forEach(a=
         a.hotel||'', a.room||'', [a.pick,a.pph].filter(Boolean).join(' '), a.car||'', [a.drop,a.dph].filter(Boolean).join(' '), a.note||'']}); }); }); return out; }
 async function dlYatra(pdf){ const b=document.getElementById(pdf?'dl-yp':'dl-y'), w=pdf?null:0; if(b) b.disabled=true;
   try{ if(pdf){ // the print window has to open straight from the tap – fill it after the data comes
-      const X0=window.open('','_blank'); if(!X0){ toast(L==='en'?'Pop-up blocked – press again':'नई विंडो नहीं खुली – दोबारा दबाएँ'); if(b) b.disabled=false; return; } X0.document.write('<p style="font-family:sans-serif;padding:20px">…</p>');
+      const X0=PDFMOB?null:window.open('','_blank'); if(!PDFMOB&&!X0){ toast(L==='en'?'Pop-up blocked – press again':'नई विंडो नहीं खुली – दोबारा दबाएँ'); if(b) b.disabled=false; return; } if(X0) X0.document.write('<p style="font-family:sans-serif;padding:20px">…</p>');
       const X=await yatraData(), hi=L==='hi', rows=[]; let last='';
       X.forEach(x=>{ const c=hi?x.g[4]:x.g[5]; if(c!==last){ last=c; rows.push({grp:c}); } const v=x.row;
         rows.push([v[0]+(v[0]!==v[1]?' ('+(hi?'निमं.: ':'inv.: ')+v[1]+')':''), v[2], v[4], [v[5],v[6]].filter(Boolean).join(' '), [v[7],v[8],v[9]?'PNR '+v[9]:'',v[10]].filter(Boolean).join(' · '), [v[11],v[12]].filter(Boolean).join(' '), v[13], [v[14],v[15]].filter(Boolean).join(' · '), [v[16],v[17],v[18]].filter(Boolean).join(' · '), v[19]]); });

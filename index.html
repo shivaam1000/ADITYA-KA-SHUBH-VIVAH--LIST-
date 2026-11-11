@@ -115,7 +115,7 @@ mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 <div><label>लिफ़ाफ़ा</label><select class="in" id="f-env"><option value="">–</option><option>①</option><option>②</option><option>③</option><option>④</option></select></div></div>
 <p class="muted" style="text-align:left">कार्यक्रम में <b>WF</b> या 3 से ज़्यादा लिखेंगे तो अपने-आप <b>सपरिवार</b>, <b>TICK</b> लिखेंगे तो <b>✓</b> हो जाएगा।</p>
 <label>नोट (हिंदी)</label><input class="in" id="f-nh"><label>Note (English)</label><input class="in" id="f-ne">
-<button class="btn" id="f-save">सेव करें</button><button class="btn" id="f-del" style="background:#fff;color:var(--mr);border:1.5px solid var(--mr)">यह नाम सूची से हटाएँ</button>
+<div id="f-q" style="display:none;background:#F3ECFA;border:1.5px solid #C9A6E8;border-radius:12px;padding:8px 10px;margin:8px 0;text-align:left"><b><span data-en="🖨 Put in the print queue:">🖨 छपाई की कतार में डालें:</span></b><br><label style="display:inline-flex;align-items:center;gap:6px;margin:6px 14px 0 0;font-size:16px"><input type="checkbox" id="f-qs" style="width:21px;height:21px;margin:0"> <span data-en="🏷 Sticker">🏷 स्टिकर</span></label><label style="display:inline-flex;align-items:center;gap:6px;margin:6px 0 0;font-size:16px"><input type="checkbox" id="f-qc" style="width:21px;height:21px;margin:0"> <span data-en="📜 Programme card">📜 प्रोग्राम कार्ड</span></label><small id="f-qh" style="display:block;color:#6B4E8A;margin-top:4px"></small></div><button class="btn" id="f-save">सेव करें</button><button class="btn" id="f-del" style="background:#fff;color:var(--mr);border:1.5px solid var(--mr)">यह नाम सूची से हटाएँ</button>
 <button class="btn" id="f-x" style="background:#EFE6CC;color:var(--ol)">रद्द करें</button><div class="err" id="f-err"></div></div>
 <datalist id="dl-f"><option value="✓"><option value="1"><option value="2"><option value="सपरिवार"></datalist><datalist id="dl-hh"></datalist><datalist id="dl-he"></datalist></div></div>
 <div class="sheet" id="mv-sheet"><div class="sheet-in"><div class="sheet-h"><span>↔ नाम खिसकाएँ</span><button class="x2" id="mv-x" aria-label="बंद करें">×</button></div>
@@ -501,7 +501,7 @@ function edOpen(rid){ const r = rid==='new' ? null : D.find(x=>x[0]===rid); EDIT
   const v = (id,x)=>{ $(id).value = x ?? '' }; v('#f-no', r?r[2]:''); $('#f-no').dataset.auto=''; v('#f-hi', r?r[3]:''); v('#f-en', r?r[4]:''); v('#f-hh', r?r[5]:''); v('#f-he', r?r[6]:'');
   v('#f-ah', r?r[7]:''); v('#f-ae', r?r[8]:''); v('#f-mob', r?r[9]:''); for(let k=0;k<4;k++) v('#f-f'+k, r?r[10][k]:''); v('#f-gift', r&&r[11]?r[11]:'');
   v('#f-pc', r?r[12]:'✓'); v('#f-env', r?r[14]:''); v('#f-nh', r?r[15]:''); v('#f-ne', r?r[16]:'');
-  dupShow(); const sh=$('#ed-sheet'); if(sh){ sh.classList.add('on'); document.body.style.overflow='hidden'; sh.scrollTop=0; } else $('#ef').scrollIntoView({behavior:'smooth'}); }
+  dupShow(); { const q=$('#f-q'); if(q) q.dataset.man=''; } qAuto(); const sh=$('#ed-sheet'); if(sh){ sh.classList.add('on'); document.body.style.overflow='hidden'; sh.scrollTop=0; } else $('#ef').scrollIntoView({behavior:'smooth'}); }
 function edClose(){ $('#ef').style.display='none'; const sh=$('#ed-sheet'); if(sh){ sh.classList.remove('on'); document.body.style.overflow=''; } }
 async function writeChunk(i, rows){ await setDoc(doc(db,'list','c'+i), {d: JSON.stringify(rows)}); }
 const hiOf=(h,e)=>{ h=(h||'').trim(); e=(e||'').trim(); return /[A-Za-z]/.test(h)?toHi(h):(h||(e?toHi(e):'')); };
@@ -574,6 +574,32 @@ function dupShow(){ const box=$('#f-dup'), boxm=$('#f-dupm'); if(!box||!boxm) re
   boxm.style.display=M.length?'block':'none'; boxm.innerHTML=M.length?'<b>⚠ '+(en?'This number is already in the list:':'यह नंबर पहले से सूची में है:')+'</b>'+M.slice(0,5).map(([r,h])=>one(r,' · 📱 '+esc(h.join(', ')))).join(''):''; }
 { let t; ['#f-hi','#f-en','#f-mob'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(dupShow,300); }); }); }
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-dupopen]'); if(!b) return; e.preventDefault(); edOpen(b.dataset.dupopen); });
+// 12 Nov (his words): "naam add ya modify kar raha hu toh usi time puch lena chahiye ki uska sticker / prog card print schedule me lena hai ya nahi,
+//   taaki admin page pe sabse end me jaake seedha pdf / excel generate kar saku bina kuch select kiye – mujhe yaad nahi rehta kiska kya change kiya tha"
+//   -> two ticks above "सेव करें" (they tick themselves when something on the sticker / card changed, or for a new name; can be taken off);
+//      the names wait in "🖨 छपाई की कतार" (status: qs = sticker, qc = programme card) – shared by every phone / laptop
+//   + "phone se bhi pdf bana ke printer ko bheju toh wo kataar me se hatt jaani chahiye" -> as soon as a PDF is made the names leave the queue
+//      (psAt / pcAt keep the time, so "↩ फिर से कतार में" can bring that batch back)
+const cardOk=r=>!!r&&(r[12]==='✓'||r[12]==='बन चुका');
+function draftRow(){ const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, gv=$('#f-g').value, r=o?o.slice():[];
+  r[0]=EDIT; r[1]=(gv==='new'||gv==='')?(o?o[1]:-1):+gv; r[2]=$('#f-no').value.trim()||'–'; r[3]=hiOf($('#f-hi').value,$('#f-en').value); r[4]=$('#f-en').value.trim();
+  r[5]=$('#f-hh').value.trim(); r[7]=$('#f-ah').value.trim(); r[9]=$('#f-mob').value.trim(); r[10]=[0,1,2,3].map(k=>nfv($('#f-f'+k).value)); r[11]=parseInt($('#f-gift').value)||0; r[12]=$('#f-pc').value; r[14]=$('#f-env').value; return r; }
+function qAuto(){ const box=$('#f-q'); if(!box) return; const d=draftRow(), o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=L==='en';
+  const phys=d[1]>=0&&gIsP(d[1])&&d[12]!=='भगवान'&&d[12]!=='E-card'; box.style.display=phys?'block':'none'; if(!phys) return;
+  const s0=o?st(o[0]):{}, ch=rowDiff(o,d), rp=(!o||ch.length)?rpOf(o,d,ch):null, cok=cardOk(d), man=box.dataset.man==='1';
+  if(!man){ $('#f-qs').checked=!!((rp&&rp.s)||s0.qs); $('#f-qc').checked=cok&&!!((rp&&rp.c)||s0.qc); }
+  $('#f-qc').disabled=!cok; if(!cok) $('#f-qc').checked=false;
+  $('#f-qh').textContent=man?'':(rp?(en?'Ticked by itself – something on the sticker / card changed':'अपने-आप लगा – स्टिकर / कार्ड पर दिखने वाली चीज़ बदली है'):(s0.qs||s0.qc)?(en?'Already in the print queue':'पहले से छपाई की कतार में है'):'')
+    +(cok?'':(en?' · no programme card for this name (प्रोग्राम कार्ड is not ✓)':' · इस नाम का प्रोग्राम कार्ड नहीं बनता (प्रोग्राम कार्ड ✓ नहीं है)')); }
+{ let t; const ef=$('#ef'); if(ef) ['input','change'].forEach(ev=>ef.addEventListener(ev,e=>{ const id=e.target&&e.target.id; if(id==='f-qs'||id==='f-qc'){ $('#f-q').dataset.man='1'; $('#f-qh').textContent=''; return; } clearTimeout(t); t=setTimeout(qAuto,250); })); }
+async function qSet(rid,qs,qc){ const s=st(rid), up={}; let ch=false;
+  if(qs!=null&&!!s.qs!==!!qs){ up[rid+'.qs']=!!qs; ch=true; } if(qc!=null&&!!s.qc!==!!qc){ up[rid+'.qc']=!!qc; ch=true; } if(!ch) return false;
+  up[rid+'.qAt']=Date.now(); up[rid+'.qBy']=ME.name;
+  try{ await updateDoc(doc(db,'status',sKey(rid)), up); ST[rid]=Object.assign({},s,{qs:qs==null?!!s.qs:!!qs, qc:qc==null?!!s.qc:!!qc, qAt:up[rid+'.qAt']}); return true; }catch(e){ console.warn('q',e); return false; } }
+async function qPrinted(kind,rids){ const ts=Date.now(), f=kind==='stk'?'qs':'qc', a=kind==='stk'?'psAt':'pcAt', by=new Map(); let n=0;
+  rids.forEach(rid=>{ const s=st(rid); if(!s[f]) return; const k=sKey(rid); if(!by.has(k)) by.set(k,{}); const u=by.get(k); u[rid+'.'+f]=false; u[rid+'.'+a]=ts; ST[rid]=Object.assign({},s,{[f]:false,[a]:ts}); n++; });
+  if(!n) return 0; try{ const wb=writeBatch(db); by.forEach((u,k)=>wb.update(doc(db,'status',k),u)); await wb.commit();
+    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'🖨 छपाई की कतार से छपे: '+n+(kind==='stk'?' स्टिकर':' प्रोग्राम कार्ड'), kind:'pr'}); }catch(e){ console.warn('qp',e); } return n; }
 async function edSave(){ let hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi){ $('#f-err').textContent='नाम लिखें (हिंदी या English)'; return }
   { const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=$('#f-en').value.trim();   // 10 Nov: Sanjay ji saw "विनोद ऋषभ चांडक" – only one name had जगदीश; now the other is made by itself
     if(o){ const hc=String(o[3]||'').trim()!==hi.trim(), ec=String(o[4]||'').trim()!==en;
@@ -605,9 +631,11 @@ async function edSave(){ let hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi)
            else { await writeChunk(n, [row]); } }
     const total = CH.slice(0,n).reduce((a,c)=>a+c.length,0) + (EDIT==='new'?1:0);
     await updateDoc(doc(db,'list','meta'), {v: META.v.split(' · ')[0]+' · बदला '+tm(Date.now()), n: total, chunks: (EDIT==='new' && CH[n-1].length>=100) ? n+1 : n, at: serverTimestamp()});
-    const CHG=rowDiff(O,row), RP=(EDIT==='new'||CHG.length)?rpOf(O,row,CHG):null; if(RP) await rpMark(row[0]);
-    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:(EDIT==='new'?'नाम जोड़ा: ':'नाम सुधारा: ')+hi, no:row[2], kind:'ed', rid:row[0], ch:CHG, rp:RP});
-    toast((EDIT==='new'?'नया नाम जुड़ गया':'सुधार सेव हो गया')+NOTE+rpTxt(RP)); edClose(); if($('#eq')){ $('#eq').value=''; edResults(); } $('#f-err').textContent=''; }
+    const CHG=rowDiff(O,row), RP=(EDIT==='new'||CHG.length)?rpOf(O,row,CHG):null, QB=$('#f-q'), QV=!!QB&&QB.style.display!=='none'&&gIsP(row[1]),
+      QS=QV&&$('#f-qs').checked, QC=QV&&$('#f-qc').checked&&cardOk(row);
+    if(QS||QC) await rpMark(row[0]); await qSet(row[0], QS, QC);
+    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:(EDIT==='new'?'नाम जोड़ा: ':'नाम सुधारा: ')+hi, no:row[2], kind:'ed', rid:row[0], ch:CHG, rp:RP, q:{s:QS?1:0,c:QC?1:0}});
+    toast((EDIT==='new'?'नया नाम जुड़ गया':'सुधार सेव हो गया')+NOTE+(QS||QC?(L==='en'?' · 🖨 in the print queue: ':' · 🖨 छपाई की कतार में: ')+[QS?(L==='en'?'sticker':'स्टिकर'):'',QC?(L==='en'?'card':'कार्ड'):''].filter(Boolean).join(' + '):'')); edClose(); if($('#eq')){ $('#eq').value=''; edResults(); } $('#f-err').textContent=''; }
   catch(e){ $('#f-err').textContent='सेव नहीं हुआ: '+(e.message||e); } $('#f-save').disabled=false; }
 async function edDel(){ const r=D.find(x=>x[0]===EDIT); if(!r||!confirm(r[3]+' को सूची से हटाएँ?')) return;
   for(let i=0;i<META.chunks;i++){ const j=CH[i].findIndex(x=>x[0]===EDIT); if(j>=0){ await writeChunk(i, CH[i].filter((_,k)=>k!==j)); break } }
@@ -666,7 +694,7 @@ async function mvSave(){ if(!MV) return; const gi=+$('#mv-g').value, h=($('#mv-h
     const rows=CH[ci].slice(), r0=rows[ri], r=r0.slice(), was=gLab(G[r[1]]), e2p=gIsE(r[1])&&gIsP(gi); if(e2p){ if(r[12]==='E-card'){ r[12]='✓'; r[13]='✓'; }   /* 11 Nov: "naya programme card banana hai" – a physical card gets its programme card */ if(noFree(r[2])||noOwner(r[2],r[0],R)) r[2]=nextNo(gi,R); }
     r[1]=gi; r[5]=h[0]; r[6]=h[1]; rows[ri]=r; await writeChunk(ci, rows);
     await updateDoc(doc(db,'list','meta'), {v: META.v.split(' · ')[0]+' · बदला '+tm(Date.now()), at: serverTimestamp()});
-    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'नाम खिसकाया: '+r[3]+' – '+was+' → '+gLab(G[gi])+(h[0]?' · '+h[0]:''), no:r[2], kind:'ed', rid:r[0], ch:rowDiff(r0,r), rp:(MVRP=rpOf(r0,r,rowDiff(r0,r)))}); if(MVRP) await rpMark(r[0]);
+    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'नाम खिसकाया: '+r[3]+' – '+was+' → '+gLab(G[gi])+(h[0]?' · '+h[0]:''), no:r[2], kind:'ed', rid:r[0], ch:rowDiff(r0,r), rp:(MVRP=rpOf(r0,r,rowDiff(r0,r)))}); if(MVRP) await rpMark(r[0]); if(!gIsP(gi)) await qSet(r[0],false,false); else if(MVRP) await qSet(r[0], MVRP.s?true:null, MVRP.c&&cardOk(r)?true:null);
     toast((e2p?'↔ फिज़िकल कार्ड में आ गया ✓ · स्टिकर नंबर '+r[2]:'↔ खिसका दिया ✓')+rpTxt(MVRP)); mvClose(); }
   catch(e){ $('#mv-e').textContent='सेव नहीं हुआ: '+(e.message||e); } b.disabled=false; }
 // 10 Nov (his words): "hold list ko seedha manglesh me shift kardo aur hold wala button hata do" + sticker no. "जोधपुर के आख़िरी नंबर के आगे"
@@ -880,8 +908,9 @@ function prGo(kind){ const P=prtRows(PRI), rows=kind==='stk'?P.S:P.C; if(!rows.l
   const tagEn=(HD||ZN||fltName()||'List').replace(/[^\x20-\x7E]/g,'').trim().slice(0,40)||'List';
   try{ localStorage.setItem('prt',JSON.stringify({kind,tag,tagEn,date:d.getDate()+' '+HMON[d.getMonth()]+' '+d.getFullYear(),dateEn:d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear(),rows})); }
   catch(e){ toast(L==='en'?'Could not open – phone storage full?':'नहीं खुला – फ़ोन की जगह भरी है?'); return; }
-  if(window.PK&&PK.MOB){ location.href='print-'+kind+'.html'; return; }   // 11 Nov: phones – same tab, the PDF is made there
-  const w=window.open('print-'+kind+'.html','_blank'); if(!w) location.href='print-'+kind+'.html'; }
+  const QR=PRI.map(i=>D[i]&&D[i][0]).filter(Boolean);   // 12 Nov: names that were waiting in 🖨 छपाई की कतार leave it now
+  if(window.PK&&PK.MOB){ let gone=false; const go=()=>{ if(gone) return; gone=true; location.href='print-'+kind+'.html'; }; qPrinted(kind,QR).finally(go); setTimeout(go,4000); return; }   // 11 Nov: phones – same tab, the PDF is made there
+  const w=window.open('print-'+kind+'.html','_blank'); if(!w) location.href='print-'+kind+'.html'; qPrinted(kind,QR); }
 const XE=v=>String(v??'').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const XC=i=>{ let s='', n=i+1; while(n){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; };
 const CRCT=(()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=c&1?0xEDB88320^(c>>>1):c>>>1; t[n]=c>>>0; } return t; })();

@@ -81,6 +81,7 @@ details.card.dd[open]>summary{margin-bottom:8px}
 .elx{padding:7px 0;border-bottom:1px dashed #E5D9B6;text-align:left}.elc{font-size:13.5px;margin:2px 0 0 12px;color:#4E5B2E}.elx s{color:#8E1B0E}.elp{display:inline-block;background:#FFF0D6;color:#8A5A00;border-radius:8px;padding:0 6px;font-size:12.5px}</style>
 <div class="topbar"><a class="btn" href="./"><span data-en="📋 Open list">📋 सूची खोलें</span></a><a class="btn" href="tebmanagement.html" style="background:#7A5A10"><span data-en="🗓 TEB Management">🗓 TEB Management</span></a><div class="lang" data-keep><button data-al="hi" class="on">हिं</button><button data-al="en">EN</button></div></div>
 <div class="card"><h2><span data-en="Access requests">अनुमति के अनुरोध</span> <span class="pill" id="rq-n">0</span></h2><div id="rq"><p class="muted">कोई नया अनुरोध नहीं</p></div><details id="rqx-d" style="margin-top:10px;display:none"><summary class="muted" style="cursor:pointer"><span data-en="Refused / removed – give access again">❌ मना किए / हटाए गए – फिर से अनुमति दें</span> (<span id="rqx-n">0</span>)</summary><div id="rqx"></div></details></div>
+<div id="q-top"></div>
 <div class="card" id="dup-card" style="display:none;border:2px solid #E8B86A"><h2>⚠ एक नंबर, दो नाम (<span id="dup-n"></span>)</h2><p class="muted" style="text-align:left">इन नामों पर एक ही स्टिकर नंबर है। जिसका बदलना है उसके आगे "नया नंबर दें" दबाएँ – अगला खाली नंबर लग जाएगा और वह नाम 🖨 छपाई बाकी में आ जाएगा।</p><div id="dup"></div></div>
 <div class="card" id="cm-card"><style>.cks label{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:15px;margin:6px 0}.cks input{width:20px;height:20px}
 .cmr{border:1px solid #E7DDC2;border-radius:12px;padding:10px;margin:8px 0;background:#fff}.cmr b{font-family:"Martel";color:var(--ol);font-size:16px}.cmr .tg{font-size:12.5px;color:var(--mu)}
@@ -141,7 +142,7 @@ details.card.dd[open]>summary{margin-bottom:8px}
 <div><label>लिफ़ाफ़ा</label><select class="in" id="f-env"><option value="">–</option><option>①</option><option>②</option><option>③</option><option>④</option></select></div></div>
 <p class="muted" style="text-align:left">कार्यक्रम में <b>WF</b> या 3 से ज़्यादा लिखेंगे तो अपने-आप <b>सपरिवार</b>, <b>TICK</b> लिखेंगे तो <b>✓</b> हो जाएगा।</p>
 <label>नोट (हिंदी)</label><input class="in" id="f-nh"><label>Note (English)</label><input class="in" id="f-ne">
-<button class="btn" id="f-save">सेव करें</button><button class="btn" id="f-del" style="background:#fff;color:var(--mr);border:1.5px solid var(--mr)">यह नाम सूची से हटाएँ</button>
+<div id="f-q" style="display:none;background:#F3ECFA;border:1.5px solid #C9A6E8;border-radius:12px;padding:8px 10px;margin:8px 0;text-align:left"><b><span data-en="🖨 Put in the print queue:">🖨 छपाई की कतार में डालें:</span></b><br><label style="display:inline-flex;align-items:center;gap:6px;margin:6px 14px 0 0;font-size:16px"><input type="checkbox" id="f-qs" style="width:21px;height:21px;margin:0"> <span data-en="🏷 Sticker">🏷 स्टिकर</span></label><label style="display:inline-flex;align-items:center;gap:6px;margin:6px 0 0;font-size:16px"><input type="checkbox" id="f-qc" style="width:21px;height:21px;margin:0"> <span data-en="📜 Programme card">📜 प्रोग्राम कार्ड</span></label><small id="f-qh" style="display:block;color:#6B4E8A;margin-top:4px"></small></div><button class="btn" id="f-save">सेव करें</button><button class="btn" id="f-del" style="background:#fff;color:var(--mr);border:1.5px solid var(--mr)">यह नाम सूची से हटाएँ</button>
 <button class="btn" id="f-x" style="background:#EFE6CC;color:var(--ol)">रद्द करें</button><div class="err" id="f-err"></div></div>
 <datalist id="dl-f"><option value="✓"><option value="1"><option value="2"><option value="सपरिवार"></datalist><datalist id="dl-hh"></datalist><datalist id="dl-he"></datalist></div>
 <div class="card"><h2><span data-en="Download">डाउनलोड</span></h2><p class="muted">सूची में जो अभी है (✓ समेत) वही आएगा।</p>
@@ -200,6 +201,9 @@ details.card>summary{font-family:"Martel";color:var(--ol);cursor:pointer;text-al
 <div class="srow" style="margin-top:8px"><div class="sbox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8892E" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
 <input id="wrq" type="text" autocomplete="off" placeholder="रिपोर्ट में खोजें – नाम / मोबाइल / स्टिकर नं. / क्षेत्र"></div></div><p class="muted" id="wrqn" style="margin:6px 2px 0"></p></div><div id="wrep"></div></div>
 
+<div class="card" id="q-card" style="display:none;border:2px solid #C9A6E8"><h2><span data-en="🖨 Print queue">🖨 छपाई की कतार</span></h2><div id="q-body"></div>
+<details id="q-old" style="margin-top:12px;text-align:left"><summary style="cursor:pointer;font-weight:700;color:#6B4E8A"><span data-en="🕘 Names changed / added earlier">🕘 पहले बदले / जोड़े गए नाम</span> <span class="pill" id="q-old-n">0</span></summary><div id="q-old-b"></div></details>
+<div id="q-past" style="margin-top:10px"></div></div>
 </div><div class="toast" id="toast"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -577,7 +581,7 @@ function edOpen(rid){ const r = rid==='new' ? null : D.find(x=>x[0]===rid); EDIT
   const v = (id,x)=>{ $(id).value = x ?? '' }; v('#f-no', r?r[2]:''); $('#f-no').dataset.auto=''; v('#f-hi', r?r[3]:''); v('#f-en', r?r[4]:''); v('#f-hh', r?r[5]:''); v('#f-he', r?r[6]:'');
   v('#f-ah', r?r[7]:''); v('#f-ae', r?r[8]:''); v('#f-mob', r?r[9]:''); for(let k=0;k<4;k++) v('#f-f'+k, r?r[10][k]:''); v('#f-gift', r&&r[11]?r[11]:'');
   v('#f-pc', r?r[12]:'✓'); v('#f-env', r?r[14]:''); v('#f-nh', r?r[15]:''); v('#f-ne', r?r[16]:'');
-  dupShow(); const sh=$('#ed-sheet'); if(sh){ sh.classList.add('on'); document.body.style.overflow='hidden'; sh.scrollTop=0; } else $('#ef').scrollIntoView({behavior:'smooth'}); }
+  dupShow(); { const q=$('#f-q'); if(q) q.dataset.man=''; } qAuto(); const sh=$('#ed-sheet'); if(sh){ sh.classList.add('on'); document.body.style.overflow='hidden'; sh.scrollTop=0; } else $('#ef').scrollIntoView({behavior:'smooth'}); }
 function edClose(){ $('#ef').style.display='none'; const sh=$('#ed-sheet'); if(sh){ sh.classList.remove('on'); document.body.style.overflow=''; } }
 async function writeChunk(i, rows){ await setDoc(doc(db,'list','c'+i), {d: JSON.stringify(rows)}); }
 const hiOf=(h,e)=>{ h=(h||'').trim(); e=(e||'').trim(); return /[A-Za-z]/.test(h)?toHi(h):(h||(e?toHi(e):'')); };
@@ -650,6 +654,32 @@ function dupShow(){ const box=$('#f-dup'), boxm=$('#f-dupm'); if(!box||!boxm) re
   boxm.style.display=M.length?'block':'none'; boxm.innerHTML=M.length?'<b>⚠ '+(en?'This number is already in the list:':'यह नंबर पहले से सूची में है:')+'</b>'+M.slice(0,5).map(([r,h])=>one(r,' · 📱 '+esc(h.join(', ')))).join(''):''; }
 { let t; ['#f-hi','#f-en','#f-mob'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(dupShow,300); }); }); }
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-dupopen]'); if(!b) return; e.preventDefault(); edOpen(b.dataset.dupopen); });
+// 12 Nov (his words): "naam add ya modify kar raha hu toh usi time puch lena chahiye ki uska sticker / prog card print schedule me lena hai ya nahi,
+//   taaki admin page pe sabse end me jaake seedha pdf / excel generate kar saku bina kuch select kiye – mujhe yaad nahi rehta kiska kya change kiya tha"
+//   -> two ticks above "सेव करें" (they tick themselves when something on the sticker / card changed, or for a new name; can be taken off);
+//      the names wait in "🖨 छपाई की कतार" (status: qs = sticker, qc = programme card) – shared by every phone / laptop
+//   + "phone se bhi pdf bana ke printer ko bheju toh wo kataar me se hatt jaani chahiye" -> as soon as a PDF is made the names leave the queue
+//      (psAt / pcAt keep the time, so "↩ फिर से कतार में" can bring that batch back)
+const cardOk=r=>!!r&&(r[12]==='✓'||r[12]==='बन चुका');
+function draftRow(){ const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, gv=$('#f-g').value, r=o?o.slice():[];
+  r[0]=EDIT; r[1]=(gv==='new'||gv==='')?(o?o[1]:-1):+gv; r[2]=$('#f-no').value.trim()||'–'; r[3]=hiOf($('#f-hi').value,$('#f-en').value); r[4]=$('#f-en').value.trim();
+  r[5]=$('#f-hh').value.trim(); r[7]=$('#f-ah').value.trim(); r[9]=$('#f-mob').value.trim(); r[10]=[0,1,2,3].map(k=>nfv($('#f-f'+k).value)); r[11]=parseInt($('#f-gift').value)||0; r[12]=$('#f-pc').value; r[14]=$('#f-env').value; return r; }
+function qAuto(){ const box=$('#f-q'); if(!box) return; const d=draftRow(), o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=L==='en';
+  const phys=d[1]>=0&&gIsP(d[1])&&d[12]!=='भगवान'&&d[12]!=='E-card'; box.style.display=phys?'block':'none'; if(!phys) return;
+  const s0=o?st(o[0]):{}, ch=rowDiff(o,d), rp=(!o||ch.length)?rpOf(o,d,ch):null, cok=cardOk(d), man=box.dataset.man==='1';
+  if(!man){ $('#f-qs').checked=!!((rp&&rp.s)||s0.qs); $('#f-qc').checked=cok&&!!((rp&&rp.c)||s0.qc); }
+  $('#f-qc').disabled=!cok; if(!cok) $('#f-qc').checked=false;
+  $('#f-qh').textContent=man?'':(rp?(en?'Ticked by itself – something on the sticker / card changed':'अपने-आप लगा – स्टिकर / कार्ड पर दिखने वाली चीज़ बदली है'):(s0.qs||s0.qc)?(en?'Already in the print queue':'पहले से छपाई की कतार में है'):'')
+    +(cok?'':(en?' · no programme card for this name (प्रोग्राम कार्ड is not ✓)':' · इस नाम का प्रोग्राम कार्ड नहीं बनता (प्रोग्राम कार्ड ✓ नहीं है)')); }
+{ let t; const ef=$('#ef'); if(ef) ['input','change'].forEach(ev=>ef.addEventListener(ev,e=>{ const id=e.target&&e.target.id; if(id==='f-qs'||id==='f-qc'){ $('#f-q').dataset.man='1'; $('#f-qh').textContent=''; return; } clearTimeout(t); t=setTimeout(qAuto,250); })); }
+async function qSet(rid,qs,qc){ const s=st(rid), up={}; let ch=false;
+  if(qs!=null&&!!s.qs!==!!qs){ up[rid+'.qs']=!!qs; ch=true; } if(qc!=null&&!!s.qc!==!!qc){ up[rid+'.qc']=!!qc; ch=true; } if(!ch) return false;
+  up[rid+'.qAt']=Date.now(); up[rid+'.qBy']=ME.name;
+  try{ await updateDoc(doc(db,'status',sKey(rid)), up); ST[rid]=Object.assign({},s,{qs:qs==null?!!s.qs:!!qs, qc:qc==null?!!s.qc:!!qc, qAt:up[rid+'.qAt']}); return true; }catch(e){ console.warn('q',e); return false; } }
+async function qPrinted(kind,rids){ const ts=Date.now(), f=kind==='stk'?'qs':'qc', a=kind==='stk'?'psAt':'pcAt', by=new Map(); let n=0;
+  rids.forEach(rid=>{ const s=st(rid); if(!s[f]) return; const k=sKey(rid); if(!by.has(k)) by.set(k,{}); const u=by.get(k); u[rid+'.'+f]=false; u[rid+'.'+a]=ts; ST[rid]=Object.assign({},s,{[f]:false,[a]:ts}); n++; });
+  if(!n) return 0; try{ const wb=writeBatch(db); by.forEach((u,k)=>wb.update(doc(db,'status',k),u)); await wb.commit();
+    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'🖨 छपाई की कतार से छपे: '+n+(kind==='stk'?' स्टिकर':' प्रोग्राम कार्ड'), kind:'pr'}); }catch(e){ console.warn('qp',e); } return n; }
 async function edSave(){ let hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi){ $('#f-err').textContent='नाम लिखें (हिंदी या English)'; return }
   { const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=$('#f-en').value.trim();   // 10 Nov: Sanjay ji saw "विनोद ऋषभ चांडक" – only one name had जगदीश; now the other is made by itself
     if(o){ const hc=String(o[3]||'').trim()!==hi.trim(), ec=String(o[4]||'').trim()!==en;
@@ -681,9 +711,11 @@ async function edSave(){ let hi=hiOf($('#f-hi').value,$('#f-en').value); if(!hi)
            else { await writeChunk(n, [row]); } }
     const total = CH.slice(0,n).reduce((a,c)=>a+c.length,0) + (EDIT==='new'?1:0);
     await updateDoc(doc(db,'list','meta'), {v: META.v.split(' · ')[0]+' · बदला '+tm(Date.now()), n: total, chunks: (EDIT==='new' && CH[n-1].length>=100) ? n+1 : n, at: serverTimestamp()});
-    const CHG=rowDiff(O,row), RP=(EDIT==='new'||CHG.length)?rpOf(O,row,CHG):null; if(RP) await rpMark(row[0]);
-    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:(EDIT==='new'?'नाम जोड़ा: ':'नाम सुधारा: ')+hi, no:row[2], kind:'ed', rid:row[0], ch:CHG, rp:RP});
-    toast((EDIT==='new'?'नया नाम जुड़ गया':'सुधार सेव हो गया')+NOTE+rpTxt(RP)); edClose(); if($('#eq')){ $('#eq').value=''; edResults(); } $('#f-err').textContent=''; }
+    const CHG=rowDiff(O,row), RP=(EDIT==='new'||CHG.length)?rpOf(O,row,CHG):null, QB=$('#f-q'), QV=!!QB&&QB.style.display!=='none'&&gIsP(row[1]),
+      QS=QV&&$('#f-qs').checked, QC=QV&&$('#f-qc').checked&&cardOk(row);
+    if(QS||QC) await rpMark(row[0]); await qSet(row[0], QS, QC);
+    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:(EDIT==='new'?'नाम जोड़ा: ':'नाम सुधारा: ')+hi, no:row[2], kind:'ed', rid:row[0], ch:CHG, rp:RP, q:{s:QS?1:0,c:QC?1:0}});
+    toast((EDIT==='new'?'नया नाम जुड़ गया':'सुधार सेव हो गया')+NOTE+(QS||QC?(L==='en'?' · 🖨 in the print queue: ':' · 🖨 छपाई की कतार में: ')+[QS?(L==='en'?'sticker':'स्टिकर'):'',QC?(L==='en'?'card':'कार्ड'):''].filter(Boolean).join(' + '):'')); edClose(); if($('#eq')){ $('#eq').value=''; edResults(); } $('#f-err').textContent=''; }
   catch(e){ $('#f-err').textContent='सेव नहीं हुआ: '+(e.message||e); } $('#f-save').disabled=false; }
 async function edDel(){ const r=D.find(x=>x[0]===EDIT); if(!r||!confirm(r[3]+' को सूची से हटाएँ?')) return;
   for(let i=0;i<META.chunks;i++){ const j=CH[i].findIndex(x=>x[0]===EDIT); if(j>=0){ await writeChunk(i, CH[i].filter((_,k)=>k!==j)); break } }
@@ -742,7 +774,7 @@ async function mvSave(){ if(!MV) return; const gi=+$('#mv-g').value, h=($('#mv-h
     const rows=CH[ci].slice(), r0=rows[ri], r=r0.slice(), was=gLab(G[r[1]]), e2p=gIsE(r[1])&&gIsP(gi); if(e2p){ if(r[12]==='E-card'){ r[12]='✓'; r[13]='✓'; }   /* 11 Nov: "naya programme card banana hai" – a physical card gets its programme card */ if(noFree(r[2])||noOwner(r[2],r[0],R)) r[2]=nextNo(gi,R); }
     r[1]=gi; r[5]=h[0]; r[6]=h[1]; rows[ri]=r; await writeChunk(ci, rows);
     await updateDoc(doc(db,'list','meta'), {v: META.v.split(' · ')[0]+' · बदला '+tm(Date.now()), at: serverTimestamp()});
-    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'नाम खिसकाया: '+r[3]+' – '+was+' → '+gLab(G[gi])+(h[0]?' · '+h[0]:''), no:r[2], kind:'ed', rid:r[0], ch:rowDiff(r0,r), rp:(MVRP=rpOf(r0,r,rowDiff(r0,r)))}); if(MVRP) await rpMark(r[0]);
+    await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'नाम खिसकाया: '+r[3]+' – '+was+' → '+gLab(G[gi])+(h[0]?' · '+h[0]:''), no:r[2], kind:'ed', rid:r[0], ch:rowDiff(r0,r), rp:(MVRP=rpOf(r0,r,rowDiff(r0,r)))}); if(MVRP) await rpMark(r[0]); if(!gIsP(gi)) await qSet(r[0],false,false); else if(MVRP) await qSet(r[0], MVRP.s?true:null, MVRP.c&&cardOk(r)?true:null);
     toast((e2p?'↔ फिज़िकल कार्ड में आ गया ✓ · स्टिकर नंबर '+r[2]:'↔ खिसका दिया ✓')+rpTxt(MVRP)); mvClose(); }
   catch(e){ $('#mv-e').textContent='सेव नहीं हुआ: '+(e.message||e); } b.disabled=false; }
 // 10 Nov (his words): "hold list ko seedha manglesh me shift kardo aur hold wala button hata do" + sticker no. "जोधपुर के आख़िरी नंबर के आगे"
@@ -1384,8 +1416,8 @@ async function tpInit(){ const c=$('#tp-card'); if(!c) return; c.style.display='
 async function open(){ show('s-admin'); ME.mgr=ME.admin||ME.team; $('#who').textContent='आप: '+ME.name+(ME.admin?' · एडमिन':' · ⭐ टीम');
   if(ME.admin) tpInit();
   document.querySelectorAll('.adm-only').forEach(el=>el.style.display=ME.admin?'':'none');
-  for(let k=0;k<10;k++) onSnapshot(doc(db,'status','s'+k), s => { const v=s.data()||{}; for(const [rid,o] of Object.entries(v)) ST[rid]=o; wrr(); elDraw(); });
-  subscribeList(m => { if(m) $('#up-v').textContent=`अभी सूची: ${D.length} नाम · अपडेट ${m.v}`; if($('#eq').value) edResults(); wrr(); dupDraw(); elDraw(); });
+  for(let k=0;k<10;k++) onSnapshot(doc(db,'status','s'+k), s => { const v=s.data()||{}; for(const [rid,o] of Object.entries(v)) ST[rid]=o; wrr(); elDraw(); qDraw(); });
+  subscribeList(m => { if(m) $('#up-v').textContent=`अभी सूची: ${D.length} नाम · अपडेट ${m.v}`; if($('#eq').value) edResults(); wrr(); dupDraw(); elDraw(); qDraw(); });
   $('#eq').addEventListener('input', edResults); $('#e-new').onclick=()=>edOpen('new'); $('#f-save').onclick=edSave; $('#f-del').onclick=edDel; $('#f-x').onclick=edClose;
   $('#dl-csv').onclick=()=>{ if(D.length) dlCsv(); else toast('पहले सूची अपलोड करें') }; $('#dl-json').onclick=()=>{ if(D.length) dlJson(); else toast('पहले सूची अपलोड करें') };
   $('#dl-api20').onclick=()=>{ if(D.length) dlApi('20'); else toast('पहले सूची अपलोड करें') }; $('#dl-api2021').onclick=()=>{ if(D.length) dlApi('2021'); else toast('पहले सूची अपलोड करें') };
@@ -1407,7 +1439,8 @@ async function open(){ show('s-admin'); ME.mgr=ME.admin||ME.team; $('#who').text
   onSnapshot(collection(db,'members'), s => { MBA=s.docs.map(d=>({id:d.id,...d.data()})); window._mb=Object.fromEntries(MBA.map(m=>[m.id,m])); mbDraw(); });
   onSnapshot(query(collection(db,'log'), orderBy('at','desc'), limit(100)), s => { LOGA=s.docs.map(d=>d.data()); logDraw(); });
   onSnapshot(doc(db,'config','public'), p => { LOGFROM=(p.exists()&&p.data().logFrom)||0; logDraw(); }, ()=>{});
-  if(ME.admin){ $('#el-card').style.display=''; onSnapshot(query(collection(db,'log'), where('kind','==','ed')), s => { ELA=s.docs.map(d=>d.data()); elDraw(); }, e=>console.warn('elog',e)); } }
+  if(ME.admin){ $('#el-card').style.display=''; onSnapshot(query(collection(db,'log'), where('kind','==','ed')), s => { ELA=s.docs.map(d=>d.data()); elDraw(); }, e=>console.warn('elog',e));
+    onSnapshot(query(collection(db,'log'), orderBy('at','desc'), limit(600)), s => { QOLD=s.docs.map(d=>d.data()); qDraw(); }, e=>console.warn('qold',e)); } }
 // 11 Nov (his words): "yaha pe clear content button aana chahiye na" (People with access) + "yaha bhi" (Change log)
 //   -> People with access: one person on many phones shown once (· 3 फ़ोन); tick boxes + "☑ सब चुनें" + "🗑 चुने हुए हटाएँ" (admin rows and this phone are never removed)
 //   -> Change log: "🗑 रिकॉर्ड साफ़ करें" hides what is there now (nothing is lost – "🕘 पुराना रिकॉर्ड भी दिखाएँ" brings it back)
@@ -1424,14 +1457,102 @@ function logDraw(){ const ms=l=>l.at&&l.at.toMillis?l.at.toMillis():Date.now(), 
   $('#log').innerHTML=(ME.admin&&vis.length&&!LOGALL?`<button class="nob" data-logclr="1" style="margin:2px 0 8px;font-size:13.5px;padding:8px 12px">🗑 रिकॉर्ड साफ़ करें</button>`:'')
     +(vis.length?vis.map(l=>`<div>${l.at?tm(l.at.toMillis()):''} · <b>${esc(l.name)}</b> · ${l.act==='r'?(l.on?'कार्ड तैयार ✓':'कार्ड तैयार हटाया'):l.act==='d'?(l.on?'पहुँचा ✓':'पहुँचा हटाया'):l.act==='g'?(l.on?'गिफ्ट दिया ✓':'गिफ्ट हटाया'):esc(l.act)} ${l.no?'· '+esc(l.no):''} ${esc(l.nm||'')}</div>`).join(''):'<p class="muted">अभी कुछ नहीं</p>')
     +(hid||LOGALL&&LOGFROM?`<button class="nob" data-logall="1" style="margin-top:8px;font-size:13px;padding:6px 10px">${LOGALL?'पुराना रिकॉर्ड छुपाएँ':'🕘 पुराना रिकॉर्ड भी दिखाएँ ('+hid+')'}</button>`:''); }
-// 11 Nov: 📝 name / number / card changes – only the admin; 🖨 names whose sticker / programme card has to be printed again
+const OWNOUT=['तिंवरी','मथानिया','ओसियां'];
+const gmOf=m=>String(m||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,2).map(x=>{ x=x.split(' (')[0].trim(); const d=x.replace(/\D/g,''); return (!x.startsWith('+')||x.replace(/\s/g,'').startsWith('+91'))&&d.length>=10?d.slice(-10):x; }).join(', ');
+function prtRows(idx){ const S=[],C=[],X=[]; idx.forEach(i=>{ const r=D[i]; if(!r) return; const g=G[r[1]], out=g[6]==='ba';
+    if(!(g[6]==='jo'||out)||r[12]==='भगवान'||r[12]==='E-card'||/भगवान \/ मंदिर|स्टिकर नहीं बनेगा/.test(g[4])){ X.push(r); return; }
+    const no=String(r[2]||'').trim(), area=out?g[4]:(r[7]||g[4]);
+    S.push({sr:/^\d+$/.test(no)?no:'',hi:r[3],area,gm:gmOf(r[9]),v:'wb2 m2',code:'',grp:g[4]});
+    if(r[12]!=='✓'&&r[12]!=='बन चुका') return; const x={card:1,pal:'boxivory',orient:'port',motif:'peacock',logo:1,sv:1,sr:no||'–',hi:r[3],en:r[4],label:'',area:g[4]}, K=['f18','f20e','f21m','f21e'];
+    if(out&&!OWNOUT.some(c=>(String(r[7])+g[4]).includes(c))){ K.forEach(k=>x[k]=' '); x.member=false; } else K.forEach((k,j)=>{ const v=String((r[10]||[])[j]||'').trim(); if(v) x[k]=v; });
+    if(K.some(k=>x[k])) C.push(x); }); return {S,C,X}; }
+
+// 12 Nov (his words): "admin page pe sabse end me jaake seedha pdf / excel generate karni pade bina kuch select kiye" +
+//   "website ye bhi dikha de ki ek sheet pe 18 naam hai aur apni sheet pe 15 hi aaye hai toh 3 kam pad rahe hai, kuch aur add karna hai ya nahi – same goes with prog card"
+//   -> 🖨 छपाई की कतार: sheets + empty places (sticker 18 / sheet, card 4 / sheet), "और नाम जोड़ें?" (search + suggestions), one tap PDF / Excel,
+//      🕘 earlier changed / added names (from the log) can be put in with one tap, "↩ फिर से कतार में" for the last prints
+const QSO={jo:0,ba:1}, QHM=['जनवरी','फ़रवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'], QEM=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let QOLD=[], QDAYS=3, QQ='';
+const qPhys=r=>!!r&&gIsP(r[1])&&r[12]!=='भगवान'&&r[12]!=='E-card';
+function qList(){ const S=[], C=[]; D.forEach((r,i)=>{ const s=st(r[0]); if(!(s.qs||s.qc)||!qPhys(r)) return; const P=prtRows([i]); if(s.qs&&P.S.length) S.push({i,rid:r[0]}); if(s.qc&&P.C.length) C.push({i,rid:r[0]}); });
+  const key=x=>{ const r=D[x.i], g=G[r[1]]; return [QSO[g[6]]??9, r[1], parseInt(String(r[2]).replace(/\D/g,''))||1e9]; };
+  const srt=a=>a.sort((x,y)=>{ const p=key(x), q=key(y); for(let j=0;j<3;j++) if(p[j]!==q[j]) return p[j]-q[j]; return 0; }); return {S:srt(S), C:srt(C)}; }
+const qName=r=>(r[2]&&r[2]!=='–'?r[2]+' · ':'')+(L==='en'&&r[4]?r[4]:r[3]);
+function qDraw(){ const card=$('#q-card'), top=$('#q-top'); if(!card||!ME.admin||!D.length) return; card.style.display=''; const en=L==='en', Q=qList(), nS=Q.S.length, nC=Q.C.length;
+  const sS=Math.ceil(nS/18), fS=sS*18-nS, sC=Math.ceil(nC/4), fC=sC*4-nC;
+  top.innerHTML=nS||nC?`<a href="#q-card" class="btn" style="display:block;background:#6B4E8A;text-align:center;text-decoration:none;margin:0 0 10px">🖨 ${en?'Print queue':'छपाई की कतार'}: 🏷 ${nS} · 📜 ${nC} ↓</a>`:'';
+  const line=(ic,lab,n,sh,fr,per)=>`<div style="font-size:16px;margin:4px 0">${ic} ${lab}: <b>${n}</b>${n?` → ${sh} ${en?(sh>1?'sheets':'sheet'):'शीट'} <small>(${per} ${en?'per sheet':'एक शीट पर'})</small>${fr?` · <b style="color:#B5520B">${fr} ${en?'places empty':'जगह खाली'}</b>`:` · <b style="color:#1E7D45">${en?'sheet full ✓':'शीट पूरी ✓'}</b>`}`:''}</div>`;
+  let h=`<div style="text-align:left">`+line('🏷',en?'Stickers':'स्टिकर',nS,sS,fS,18)+line('📜',en?'Programme cards':'प्रोग्राम कार्ड',nC,sC,fC,4)+`</div>`;
+  if(!nS&&!nC) h+=`<p class="muted">${en?'Nothing waiting. When you add / change a name, tick 🖨 above "Save" and it comes here.':'अभी कुछ नहीं। नाम जोड़ते / सुधारते समय "सेव करें" के ऊपर 🖨 वाला टिक लगेगा तो नाम यहाँ आ जाएगा।'}</p>`;
+  if(nS||nC){ h+=`<div class="btns" style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"><button class="ok" data-qpr="stk" style="flex:1" ${nS?'':'disabled'}>🏷 ${en?'Sticker PDF':'स्टिकर PDF'} (${nS})</button><button class="ok" data-qpr="card" style="flex:1;background:#7A1E2C" ${nC?'':'disabled'}>📜 ${en?'Card PDF':'कार्ड PDF'} (${nC})</button><button class="nob" data-qxl="1" style="flex:1">⬇ Excel</button></div>`
+      +`<p class="muted" style="font-size:13px;margin:0 0 6px">${en?'As soon as a PDF is made, those names leave the queue (they can be brought back below).':'PDF बनते ही वे नाम कतार से हट जाएँगे (नीचे से वापस ला सकते हैं)।'}</p>`;
+    let fill=''; if(fS||fC){ fill=`<div style="background:#FFF4E0;border:1.5px solid #E8B86A;border-radius:12px;padding:8px 10px;margin:6px 0;text-align:left"><b>➕ ${en?'Empty places':'खाली जगह'}: ${[fS?'🏷 '+fS:'',fC?'📜 '+fC:''].filter(Boolean).join(' · ')} – ${en?'add more names? Or print as it is.':'और नाम जोड़ने हैं? या ऐसे ही छाप दें।'}</b>
+      <input class="in" id="q-q" placeholder="${en?'Search name, sticker no., mobile…':'नाम, स्टिकर नं., मोबाइल खोजें…'}" value="${esc(QQ)}" autocomplete="off" style="margin:6px 0 4px"><div id="q-res">${qRes()}</div></div>`; }
+    const all=[...new Set([...Q.S,...Q.C].map(x=>x.i))].sort((a,b)=>{ const p=Q.S.concat(Q.C), ia=p.findIndex(x=>x.i===a), ib=p.findIndex(x=>x.i===b); return ia-ib; });
+    h+=`<div style="text-align:left;margin-top:6px">`+all.map(i=>{ const r=D[i], s=st(r[0]), inS=Q.S.some(x=>x.i===i), inC=Q.C.some(x=>x.i===i);
+      return `<div class="req" style="padding:6px 0"><div class="w"><b>${esc(qName(r))}</b><small>${esc(G[r[1]]?gLab(G[r[1]]):'')}</small></div>`
+        +`<button class="${inS?'ok':'nob'}" data-qt="${esc(r[0])}" data-k="s" style="font-size:12.5px;padding:6px 8px">🏷${inS?' ✓':''}</button>`
+        +(cardOk(r)?`<button class="${inC?'ok':'nob'}" data-qt="${esc(r[0])}" data-k="c" style="font-size:12.5px;padding:6px 8px;${inC?'background:#7A1E2C':''}">📜${inC?' ✓':''}</button>`:'')
+        +`<button class="nob" data-qx="${esc(r[0])}" style="font-size:12.5px;padding:6px 9px" aria-label="हटाएँ">×</button></div>`; }).join('')+`</div>`+fill; }
+  $('#q-body').innerHTML=h; qOldDraw(); qPastDraw(); const qq=$('#q-q'); if(qq&&QQ&&document.activeElement!==qq){ /* keep */ } }
+function qRes(){ const en=L==='en', q=QQ.trim().toLowerCase(), dq=q.replace(/\D/g,'');
+  let L2=D.map((r,i)=>[r,i]).filter(([r])=>qPhys(r)&&!(st(r[0]).qs));
+  if(q) L2=L2.filter(([r])=>[r[2],r[3],r[4],r[7],r[8]].join(' ').toLowerCase().includes(q)||(dq.length>=4&&String(r[9]||'').replace(/\D/g,'').includes(dq)));
+  else L2=L2.filter(([r])=>!st(r[0]).r).sort((a,b)=>(parseInt(String(b[0][2]).replace(/\D/g,''))||0)-(parseInt(String(a[0][2]).replace(/\D/g,''))||0));
+  const T2=L2.slice(0,q?8:6); if(!T2.length) return `<p class="muted" style="margin:4px 0">${en?'No name found':'कोई नाम नहीं मिला'}</p>`;
+  return (q?'':`<small class="muted">${en?'Suggestions – card not ready yet:':'सुझाव – जिनका ✓ कार्ड तैयार अभी नहीं:'}</small>`)+T2.map(([r])=>`<div class="req" style="padding:5px 0"><div class="w"><b>${esc(qName(r))}</b><small>${esc(G[r[1]]?gLab(G[r[1]]):'')}</small></div><button class="ok" data-qa="${esc(r[0])}" style="font-size:12.5px;padding:6px 9px">+ ${en?'Add':'जोड़ें'}</button></div>`).join(''); }
+// 🕘 names changed / added earlier (from the change log – also the ones from before the 🖨 ticks existed)
+function qOldList(){ const since=Date.now()-QDAYS*864e5, M=new Map();
+  QOLD.forEach(l=>{ const at=l.at&&l.at.toMillis?l.at.toMillis():0; if(at<since) return; const a=String(l.act||''); let rows=[], why='';
+    if(/^नाम हटाया/.test(a)||(l.kind==='ed'&&('rp' in l)&&!l.rp)) return;   // a save with nothing changed on the sticker / card is not a reprint
+    if(l.rid){ const r=D.find(x=>x[0]===l.rid); if(r) rows=[r]; why=/^नाम जोड़ा/.test(a)?'नया':/^नाम खिसकाया/.test(a)?'खिसकाया':/^नया स्टिकर/.test(a)?'नया नंबर':'सुधारा'; }
+    else { const m=/^(नाम जोड़ा|नाम सुधारा|नाम खिसकाया|नया स्टिकर नंबर): (.+)$/.exec(a);
+      if(m){ const nm=m[2].split(' – ')[0].trim(); const r=D.find(x=>x[3]===nm&&(!l.no||String(x[2])===String(l.no)))||D.find(x=>x[3]===nm); if(r) rows=[r]; why=m[1]==='नाम जोड़ा'?'नया':m[1]==='नाम खिसकाया'?'खिसकाया':m[1]==='नया स्टिकर नंबर'?'नया नंबर':'सुधारा'; }
+      const h=/होल्ड → मंगलेश: .*स्टिकर (\d+)–(\d+)/.exec(a); if(h){ const lo=+h[1], hi=+h[2]; rows=D.filter(x=>/^\d+$/.test(String(x[2]).trim())&&+x[2]>=lo&&+x[2]<=hi); why='होल्ड से निकला'; } }
+    rows.forEach(r=>{ if(!qPhys(r)) return; const o=M.get(r[0]); if(!o||o.at<at) M.set(r[0],{r,at,why}); }); });
+  return [...M.values()].sort((a,b)=>b.at-a.at); }
+const QWHY={'नया':'New','सुधारा':'Edited','खिसकाया':'Moved','नया नंबर':'New number','होल्ड से निकला':'Out of Hold'};
+function qOldDraw(){ const b=$('#q-old-b'); if(!b) return; const en=L==='en', A=qOldList(), W=A.filter(x=>!st(x.r[0]).qs); $('#q-old-n').textContent=W.length;
+  b.innerHTML=`<div class="chips" style="margin:6px 0">${[[1,en?'Today':'आज'],[3,en?'3 days':'3 दिन'],[7,en?'7 days':'7 दिन']].map(([d,l])=>`<button class="chip${QDAYS===d?' on':''}" data-qd="${d}">${l}</button>`).join('')}</div>`
+    +(A.length?`<p class="muted" style="font-size:13px;margin:0 0 4px">${en?'Ticked ones go into the queue (sticker + card where there is one).':'टिक वाले कतार में जाएँगे (स्टिकर + जहाँ कार्ड बनता है वहाँ कार्ड भी)।'}</p>`
+      +A.map(x=>{ const inQ=!!st(x.r[0]).qs; return `<label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed #E5D9B6;font-size:15px"><input type="checkbox" class="qoc" value="${esc(x.r[0])}" ${inQ?'checked disabled':'checked'} style="width:20px;height:20px;flex:none"><span style="flex:1"><b>${esc(qName(x.r))}</b> <small class="muted">· ${en?QWHY[x.why]||x.why:x.why} · ${tm(x.at)}${inQ?(en?' · already in the queue':' · पहले से कतार में'):''}</small></span></label>`; }).join('')
+      +(W.length?`<button class="ok" data-qoa="1" style="width:100%;margin-top:8px">➕ ${en?'Put the ticked ones in the queue':'टिक वाले कतार में डालें'} (${W.length})</button>`:'')
+      :`<p class="muted">${en?'No changed / new names in these days':'इन दिनों में कोई नाम नहीं बदला / जुड़ा'}</p>`); }
+function qPastDraw(){ const b=$('#q-past'); if(!b) return; const en=L==='en', B=new Map();
+  D.forEach(r=>{ const s=st(r[0]); [['psAt','s'],['pcAt','c']].forEach(([a,k])=>{ if(s[a]){ if(!B.has(s[a])) B.set(s[a],{s:[],c:[]}); B.get(s[a])[k].push(r[0]); } }); });
+  const L2=[...B.entries()].sort((a,b)=>b[0]-a[0]).slice(0,3);
+  b.innerHTML=L2.length?`<div style="text-align:left;border-top:1px dashed #C9A6E8;padding-top:8px"><b style="color:#6B4E8A">🕘 ${en?'Last prints':'पिछली छपाई'}</b>`+L2.map(([ts,x])=>`<div class="req" style="padding:6px 0"><div class="w"><b>${tm(ts)}</b><small>${x.s.length?'🏷 '+x.s.length+(en?' stickers':' स्टिकर'):''}${x.s.length&&x.c.length?' · ':''}${x.c.length?'📜 '+x.c.length+(en?' cards':' कार्ड'):''}</small></div><button class="nob" data-qback="${ts}" style="font-size:12.5px;padding:6px 9px">↩ ${en?'Back in the queue':'फिर से कतार में'}</button></div>`).join('')+`</div>`:''; }
+function qPrint(kind){ const Q=qList(), L2=kind==='stk'?Q.S:Q.C; if(!L2.length) return; const P=prtRows(L2.map(x=>x.i)), rows=kind==='stk'?P.S:P.C, d=new Date();
+  try{ localStorage.setItem('prt',JSON.stringify({kind,tag:'नए / बदले हुए',tagEn:'New - changed',date:d.getDate()+' '+QHM[d.getMonth()]+' '+d.getFullYear(),dateEn:d.getDate()+' '+QEM[d.getMonth()]+' '+d.getFullYear(),rows})); }
+  catch(e){ toast(L==='en'?'Could not open – phone storage full?':'नहीं खुला – फ़ोन की जगह भरी है?'); return; }
+  const rids=L2.map(x=>x.rid), mob=window.PK?PK.MOB:(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||navigator.standalone===true);
+  if(mob){ let gone=false; const go=()=>{ if(gone) return; gone=true; location.href='print-'+kind+'.html'; }; qPrinted(kind,rids).finally(go); setTimeout(go,4000); return; }
+  const w=window.open('print-'+kind+'.html','_blank'); if(!w) location.href='print-'+kind+'.html'; qPrinted(kind,rids).then(()=>qDraw()); }
+function qExcel(){ const Q=qList(), en=L==='en', all=[...new Set([...Q.S,...Q.C].map(x=>x.i))], cs=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const H=en?['Sticker no.','Name (Hindi)','Name (English)','Area','Mobile','Sticker','Programme card','Put in by','When']:['स्टिकर नं.','नाम','Name (English)','क्षेत्र','मोबाइल','स्टिकर','प्रोग्राम कार्ड','किसने डाला','कब'];
+  const R=all.map(i=>{ const r=D[i], s=st(r[0]); return [r[2],r[3],r[4],G[r[1]]?gLab(G[r[1]]):'',String(r[9]||'').split('\n').join(', '),Q.S.some(x=>x.i===i)?'✓':'',Q.C.some(x=>x.i===i)?'✓':'',s.qBy||'',s.qAt?tm(s.qAt):'']; });
+  const d=new Date(); dlFile('Chhapai ki kataar - '+d.getDate()+' '+QEM[d.getMonth()]+'.csv',[H].concat(R).map(r=>r.map(cs).join(',')).join('\r\n'),'text/csv;charset=utf-8'); }
+document.addEventListener('click', e=>{ if(e.target.closest&&e.target.closest('[data-al]')) setTimeout(()=>{ qDraw(); elDraw(); dupDraw(); },0); });
+document.addEventListener('input', e=>{ if(e.target&&e.target.id==='q-q'){ QQ=e.target.value; const b=$('#q-res'); if(b) b.innerHTML=qRes(); } });
+document.addEventListener('click', async e=>{ const b=e.target.closest&&e.target.closest('button'); if(!b||!b.closest('#q-card')) return;
+  if(b.dataset.qpr){ qPrint(b.dataset.qpr); return; } if(b.dataset.qxl){ qExcel(); return; }
+  if(b.dataset.qd){ QDAYS=+b.dataset.qd; qOldDraw(); return; }
+  if(b.dataset.qa){ const r=D.find(x=>x[0]===b.dataset.qa); if(!r) return; b.disabled=true; await qSet(r[0],true,cardOk(r)?true:null); QQ=''; qDraw(); return; }
+  if(b.dataset.qt){ const r=D.find(x=>x[0]===b.dataset.qt); if(!r) return; const s=st(r[0]); b.disabled=true; if(b.dataset.k==='s') await qSet(r[0],!s.qs,null); else await qSet(r[0],null,!s.qc); qDraw(); return; }
+  if(b.dataset.qx){ b.disabled=true; await qSet(b.dataset.qx,false,false); qDraw(); return; }
+  if(b.dataset.qoa){ const ids=[...document.querySelectorAll('.qoc:checked:not(:disabled)')].map(x=>x.value); if(!ids.length) return; b.disabled=true;
+    for(const id of ids){ const r=D.find(x=>x[0]===id); if(r) await qSet(id,true,cardOk(r)?true:null); } toast('✓ '+ids.length+(L==='en'?' names in the print queue':' नाम छपाई की कतार में')); qDraw(); return; }
+  if(b.dataset.qback){ const ts=+b.dataset.qback, by=new Map(); D.forEach(r=>{ const s=st(r[0]); const u={}; if(s.psAt===ts){ u[r[0]+'.qs']=true; u[r[0]+'.psAt']=0; } if(s.pcAt===ts){ u[r[0]+'.qc']=true; u[r[0]+'.pcAt']=0; }
+      if(Object.keys(u).length){ const k=sKey(r[0]); by.set(k,Object.assign(by.get(k)||{},u)); ST[r[0]]=Object.assign({},s,{qs:s.psAt===ts?true:s.qs,qc:s.pcAt===ts?true:s.qc,psAt:s.psAt===ts?0:s.psAt,pcAt:s.pcAt===ts?0:s.pcAt}); } });
+    if(!by.size) return; b.disabled=true; try{ const wb=writeBatch(db); by.forEach((u,k)=>wb.update(doc(db,'status',k),u)); await wb.commit(); toast(L==='en'?'↩ Back in the print queue':'↩ फिर से कतार में आ गए'); }catch(err){ toast('नहीं हुआ – नेट देखें'); } qDraw(); return; } });
+// 11 Nov: 📝 name / number / card changes – only the admin
 let ELA=[];
 const lms=l=>l.at&&l.at.toMillis?l.at.toMillis():Date.now();
 function elDraw(){ const box=$('#el'); if(!box||!ME.admin) return; const q=($('#el-q').value||'').trim().toLowerCase(), A=ELA.slice().sort((a,b)=>lms(b)-lms(a));
   const L=A.filter(l=>!q||[l.act,l.no,l.name,JSON.stringify(l.ch||[])].join(' ').toLowerCase().includes(q)); $('#el-n').textContent=A.length;
   const P=[...new Set(A.filter(l=>l.rp&&l.rid).map(l=>l.rid))].filter(id=>D.some(r=>r[0]===id&&gIsP(r[1]))&&!st(id).r);
   const sk=P.filter(id=>A.some(l=>l.rid===id&&l.rp&&l.rp.s)).length, cd=P.filter(id=>A.some(l=>l.rid===id&&l.rp&&l.rp.c)).length;
-  $('#el-rp').innerHTML=P.length?`<div style="background:#FFF4E0;border:1.5px solid #E8B86A;border-radius:12px;padding:10px 12px;margin-bottom:10px;text-align:left"><b>🖨 छपाई बाकी (${P.length})</b><br><small>🏷 नया स्टिकर ${sk} · 📜 नया प्रोग्राम कार्ड ${cd} – छापकर सूची में "✓ कार्ड तैयार" लगाते ही यहाँ से हट जाएँगे</small>`
+  $('#el-rp').innerHTML=''; if(false) $('#el-rp').innerHTML=P.length?`<div style="background:#FFF4E0;border:1.5px solid #E8B86A;border-radius:12px;padding:10px 12px;margin-bottom:10px;text-align:left"><b>🖨 छपाई बाकी (${P.length})</b><br><small>🏷 नया स्टिकर ${sk} · 📜 नया प्रोग्राम कार्ड ${cd} – छापकर सूची में "✓ कार्ड तैयार" लगाते ही यहाँ से हट जाएँगे</small>`
     +`<div style="margin-top:6px;font-size:14px">${P.map(id=>{ const r=D.find(x=>x[0]===id); return esc((r[2]&&r[2]!=='–'?r[2]+' · ':'')+r[3]); }).join('<br>')}</div><a class="btn" href="./#print=${encodeURIComponent(P.join(','))}" style="display:block;margin-top:8px;background:#B8892E;text-align:center;text-decoration:none">🖨 इनके स्टिकर / कार्ड छापें</a></div>`:'';
   box.innerHTML=L.length?L.slice(0,300).map(l=>`<div class="elx"><div>${l.at&&l.at.toMillis?tm(l.at.toMillis()):''} · <b>${esc(l.name)}</b> · ${esc(l.act)}${l.no&&l.no!=='–'?' · <b>'+esc(l.no)+'</b>':''}${l.rp?` <span class="elp">🖨 ${[l.rp.s?'नया स्टिकर':'',l.rp.c?'नया प्रोग्राम कार्ड':''].filter(Boolean).join(' + ')}</span>`:''}</div>${(l.ch||[]).map(c=>`<div class="elc">• ${esc(c.f)}: ${c.o?`<s>${esc(c.o)}</s> → `:''}<b>${c.n?esc(c.n):'(खाली)'}</b></div>`).join('')}</div>`).join('')
     :'<p class="muted">अभी कुछ नहीं – अब से हर नया नाम / सुधार / खिसकाना / हटाना यहाँ दिखेगा</p>'; }
@@ -1460,7 +1581,7 @@ document.addEventListener('click', async e => { const b=e.target.closest('button
       const rows=CH[ci].slice(), o=rows[ri], r=o.slice(), en=L==='en'; if(!noOwner(o[2],o[0],R)){ toast(en?'This number is not repeated any more':'यह नंबर अब दोहराया नहीं है'); b.disabled=false; return; } r[2]=nextNo(r[1],R);
       if(!confirm((en&&o[4]?o[4]:o[3])+'\n'+(en?'Sticker number ':'स्टिकर नंबर ')+o[2]+' → '+r[2]+' ?')){ b.disabled=false; return; }
       rows[ri]=r; await writeChunk(ci, rows); await updateDoc(doc(db,'list','meta'), {v: META.v.split(' · ')[0]+' · बदला '+tm(Date.now()), at: serverTimestamp()});
-      const ch=[{f:'स्टिकर नं.',o:String(o[2]),n:String(r[2])}], rp=rpOf(o,r,ch); if(rp) await rpMark(r[0]);
+      const ch=[{f:'स्टिकर नं.',o:String(o[2]),n:String(r[2])}], rp=rpOf(o,r,ch); if(rp){ await rpMark(r[0]); await qSet(r[0], rp.s?true:null, rp.c&&cardOk(r)?true:null); }
       await addDoc(collection(db,'log'), {at:serverTimestamp(), uid:ME.uid, name:ME.name, act:'नया स्टिकर नंबर: '+r[3], no:r[2], kind:'ed', rid:r[0], ch, rp});
       toast('✓ '+(en&&r[4]?r[4]:r[3])+(en?' – new sticker number ':' – नया स्टिकर नंबर ')+r[2]+rpTxt(rp)); }
     catch(err){ console.error(err); toast('नहीं हुआ: '+(err.message||err)); b.disabled=false; } return }

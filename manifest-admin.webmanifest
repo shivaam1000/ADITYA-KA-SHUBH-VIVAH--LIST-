@@ -1,6 +1,6 @@
 {
  "id": "admin.html",
- "name": "घर की सूची · एडमिन",
+ "name": "निमंत्रण सूची · एडमिन",
  "short_name": "एडमिन",
  "start_url": "admin.html",
  "scope": "./",

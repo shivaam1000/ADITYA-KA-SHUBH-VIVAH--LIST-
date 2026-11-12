@@ -666,10 +666,13 @@ function draftRow(){ const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, gv=$('#f-
   r[5]=$('#f-hh').value.trim(); r[7]=$('#f-ah').value.trim(); r[9]=$('#f-mob').value.trim(); r[10]=[0,1,2,3].map(k=>nfv($('#f-f'+k).value)); r[11]=parseInt($('#f-gift').value)||0; r[12]=$('#f-pc').value; r[14]=$('#f-env').value; return r; }
 function qAuto(){ const box=$('#f-q'); if(!box) return; const d=draftRow(), o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=L==='en';
   const phys=d[1]>=0&&gIsP(d[1])&&d[12]!=='भगवान'&&d[12]!=='E-card'; box.style.display=phys?'block':'none'; if(!phys) return;
-  const s0=o?st(o[0]):{}, ch=rowDiff(o,d), rp=(!o||ch.length)?rpOf(o,d,ch):null, cok=cardOk(d), man=box.dataset.man==='1';
+  // 12 Nov (his words): "jo naam me edit kar raha hu – sirf naam edit ya mobile number edit, ya main bol raha hu ki iska naya print karna hai –
+  //   to hi wo print queue me aaye, otherwise na aaye" -> auto tick only for: new name / E-card -> card, name changed, mobile changed
+  const s0=o?st(o[0]):{}, ch=rowDiff(o,d), fs=new Set(ch.map(x=>x.f)), newP=!o||!gIsP(o[1]), nmCh=fs.has('नाम')||fs.has('Name'), mbCh=fs.has('मोबाइल'),
+    rp=(newP||nmCh||mbCh)?{s:1,c:(newP||nmCh)?1:0}:null, cok=cardOk(d), man=box.dataset.man==='1';
   if(!man){ $('#f-qs').checked=!!((rp&&rp.s)||s0.qs); $('#f-qc').checked=cok&&!!((rp&&rp.c)||s0.qc); }
   $('#f-qc').disabled=!cok; if(!cok) $('#f-qc').checked=false;
-  $('#f-qh').textContent=man?'':(rp?(en?'Ticked by itself – something on the sticker / card changed':'अपने-आप लगा – स्टिकर / कार्ड पर दिखने वाली चीज़ बदली है'):(s0.qs||s0.qc)?(en?'Already in the print queue':'पहले से छपाई की कतार में है'):'')
+  $('#f-qh').textContent=man?'':(rp?(en?(newP?'Ticked by itself – new name':nmCh?'Ticked by itself – the name changed':'Ticked by itself – the mobile changed'):(newP?'अपने-आप लगा – नया नाम':nmCh?'अपने-आप लगा – नाम बदला':'अपने-आप लगा – मोबाइल बदला')):(s0.qs||s0.qc)?(en?'Already in the print queue':'पहले से छपाई की कतार में है'):'')
     +(cok?'':(en?' · no programme card for this name (प्रोग्राम कार्ड is not ✓)':' · इस नाम का प्रोग्राम कार्ड नहीं बनता (प्रोग्राम कार्ड ✓ नहीं है)')); }
 { let t; const ef=$('#ef'); if(ef) ['input','change'].forEach(ev=>ef.addEventListener(ev,e=>{ const id=e.target&&e.target.id; if(id==='f-qs'||id==='f-qc'){ $('#f-q').dataset.man='1'; $('#f-qh').textContent=''; return; } clearTimeout(t); t=setTimeout(qAuto,250); })); }
 async function qSet(rid,qs,qc){ const s=st(rid), up={}; let ch=false;
@@ -1441,7 +1444,7 @@ async function open(){ show('s-admin'); ME.mgr=ME.admin||ME.team; $('#who').text
     `${can?`<button class="nob" data-rm="${m.id}" data-ids="${ids.join(',')}" data-nm="${esc(m.name)}">हटाएँ</button>`:''}</div>`;
   onSnapshot(collection(db,'members'), s => { MBA=s.docs.map(d=>({id:d.id,...d.data()})); window._mb=Object.fromEntries(MBA.map(m=>[m.id,m])); mbDraw(); });
   onSnapshot(query(collection(db,'log'), orderBy('at','desc'), limit(100)), s => { LOGA=s.docs.map(d=>d.data()); logDraw(); });
-  onSnapshot(doc(db,'config','public'), p => { LOGFROM=(p.exists()&&p.data().logFrom)||0; logDraw(); }, ()=>{});
+  onSnapshot(doc(db,'config','public'), p => { LOGFROM=(p.exists()&&p.data().logFrom)||0; QOFROM=(p.exists()&&p.data().qOldFrom)||0; logDraw(); qOldDraw(); }, ()=>{});
   if(ME.admin){ $('#el-card').style.display=''; onSnapshot(query(collection(db,'log'), where('kind','==','ed')), s => { ELA=s.docs.map(d=>d.data()); elDraw(); }, e=>console.warn('elog',e));
     onSnapshot(query(collection(db,'log'), orderBy('at','desc'), limit(600)), s => { QOLD=s.docs.map(d=>d.data()); qDraw(); }, e=>console.warn('qold',e)); } }
 // 11 Nov (his words): "yaha pe clear content button aana chahiye na" (People with access) + "yaha bhi" (Change log)
@@ -1475,9 +1478,14 @@ function prtRows(idx){ const S=[],C=[],X=[]; idx.forEach(i=>{ const r=D[i]; if(!
 //   -> 🖨 छपाई की कतार: sheets + empty places (sticker 18 / sheet, card 4 / sheet), "और नाम जोड़ें?" (search + suggestions), one tap PDF / Excel,
 //      🕘 earlier changed / added names (from the log) can be put in with one tap, "↩ फिर से कतार में" for the last prints
 const QSO={jo:0,ba:1}, QHM=['जनवरी','फ़रवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'], QEM=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let QOLD=[], QDAYS=3, QQ='';
+let QOLD=[], QDAYS=3, QQ='', QOFROM=0;
 const qPhys=r=>!!r&&gIsP(r[1])&&r[12]!=='भगवान'&&r[12]!=='E-card';
-function qList(){ const S=[], C=[]; D.forEach((r,i)=>{ const s=st(r[0]); if(!(s.qs||s.qc)||!qPhys(r)) return; const P=prtRows([i]); if(s.qs&&P.S.length) S.push({i,rid:r[0]}); if(s.qc&&P.C.length) C.push({i,rid:r[0]}); });
+// 12 Nov (his words): "jo card de chuke hain wo bhi print ki queue me aa rahe hain, ya jis pe likh diya hai card delivered, gift given, card ready,
+//   usme bhi wo edited me aa raha hai, jabki wo nahi aana chahiye" -> (1) a ✓ delivered / ✓ card-ready name never shows in the queue or the earlier list;
+//   (2) ticking delivered / gift / card-ready is not an "edit" (only real name / number / card changes count);
+//   + "clear history ka option ... aur select / deselect all ka bhi" -> 🧹 clears the earlier list (shared: config/public.qOldFrom), ☑ all / ☐ none
+const qDone=s=>!!(s&&(s.d||s.r));
+function qList(){ const S=[], C=[]; D.forEach((r,i)=>{ const s=st(r[0]); if(!(s.qs||s.qc)||!qPhys(r)||qDone(s)) return; const P=prtRows([i]); if(s.qs&&P.S.length) S.push({i,rid:r[0]}); if(s.qc&&P.C.length) C.push({i,rid:r[0]}); });
   const key=x=>{ const r=D[x.i], g=G[r[1]]; return [QSO[g[6]]??9, r[1], parseInt(String(r[2]).replace(/\D/g,''))||1e9]; };
   const srt=a=>a.sort((x,y)=>{ const p=key(x), q=key(y); for(let j=0;j<3;j++) if(p[j]!==q[j]) return p[j]-q[j]; return 0; }); return {S:srt(S), C:srt(C)}; }
 const qName=r=>(r[2]&&r[2]!=='–'?r[2]+' · ':'')+(L==='en'&&r[4]?r[4]:r[3]);
@@ -1505,19 +1513,23 @@ function qRes(){ const en=L==='en', q=QQ.trim().toLowerCase(), dq=q.replace(/\D/
   const T2=L2.slice(0,q?8:6); if(!T2.length) return `<p class="muted" style="margin:4px 0">${en?'No name found':'कोई नाम नहीं मिला'}</p>`;
   return (q?'':`<small class="muted">${en?'Suggestions – card not ready yet:':'सुझाव – जिनका ✓ कार्ड तैयार अभी नहीं:'}</small>`)+T2.map(([r])=>`<div class="req" style="padding:5px 0"><div class="w"><b>${esc(qName(r))}</b><small>${esc(G[r[1]]?gLab(G[r[1]]):'')}</small></div><button class="ok" data-qa="${esc(r[0])}" style="font-size:12.5px;padding:6px 9px">+ ${en?'Add':'जोड़ें'}</button></div>`).join(''); }
 // 🕘 names changed / added earlier (from the change log – also the ones from before the 🖨 ticks existed)
-function qOldList(){ const since=Date.now()-QDAYS*864e5, M=new Map();
+function qOldList(){ const since=Math.max(Date.now()-QDAYS*864e5,QOFROM||0), M=new Map();
   QOLD.forEach(l=>{ const at=l.at&&l.at.toMillis?l.at.toMillis():0; if(at<since) return; const a=String(l.act||''); let rows=[], why='';
+    if(l.rid&&l.kind!=='ed') return;   // ✓ delivered / 🎁 gift / ✓ card-ready ticks carry rid too – they are not edits
+    if(l.kind==='ed'&&Array.isArray(l.ch)&&!/^नाम जोड़ा/.test(a)&&!l.ch.some(x=>x.f==='नाम'||x.f==='Name'||x.f==='मोबाइल'||x.f==='कार्ड')) return;   // only name / mobile / E-card→card changes
+    if(/^(नाम खिसकाया|नया स्टिकर नंबर)/.test(a)) return;
     if(/^नाम हटाया/.test(a)||(l.kind==='ed'&&('rp' in l)&&!l.rp)) return;   // a save with nothing changed on the sticker / card is not a reprint
     if(l.rid){ const r=D.find(x=>x[0]===l.rid); if(r) rows=[r]; why=/^नाम जोड़ा/.test(a)?'नया':/^नाम खिसकाया/.test(a)?'खिसकाया':/^नया स्टिकर/.test(a)?'नया नंबर':'सुधारा'; }
     else { const m=/^(नाम जोड़ा|नाम सुधारा|नाम खिसकाया|नया स्टिकर नंबर): (.+)$/.exec(a);
       if(m){ const nm=m[2].split(' – ')[0].trim(); const r=D.find(x=>x[3]===nm&&(!l.no||String(x[2])===String(l.no)))||D.find(x=>x[3]===nm); if(r) rows=[r]; why=m[1]==='नाम जोड़ा'?'नया':m[1]==='नाम खिसकाया'?'खिसकाया':m[1]==='नया स्टिकर नंबर'?'नया नंबर':'सुधारा'; }
       const h=/होल्ड → मंगलेश: .*स्टिकर (\d+)–(\d+)/.exec(a); if(h){ const lo=+h[1], hi=+h[2]; rows=D.filter(x=>/^\d+$/.test(String(x[2]).trim())&&+x[2]>=lo&&+x[2]<=hi); why='होल्ड से निकला'; } }
-    rows.forEach(r=>{ if(!qPhys(r)) return; const o=M.get(r[0]); if(!o||o.at<at) M.set(r[0],{r,at,why}); }); });
+    rows.forEach(r=>{ if(!qPhys(r)||qDone(st(r[0]))) return; const o=M.get(r[0]); if(!o||o.at<at) M.set(r[0],{r,at,why}); }); });
   return [...M.values()].sort((a,b)=>b.at-a.at); }
 const QWHY={'नया':'New','सुधारा':'Edited','खिसकाया':'Moved','नया नंबर':'New number','होल्ड से निकला':'Out of Hold'};
 function qOldDraw(){ const b=$('#q-old-b'); if(!b) return; const en=L==='en', A=qOldList(), W=A.filter(x=>!st(x.r[0]).qs); $('#q-old-n').textContent=W.length;
   b.innerHTML=`<div class="chips" style="margin:6px 0">${[[1,en?'Today':'आज'],[3,en?'3 days':'3 दिन'],[7,en?'7 days':'7 दिन']].map(([d,l])=>`<button class="chip${QDAYS===d?' on':''}" data-qd="${d}">${l}</button>`).join('')}</div>`
     +(A.length?`<p class="muted" style="font-size:13px;margin:0 0 4px">${en?'Ticked ones go into the queue (sticker + card where there is one).':'टिक वाले कतार में जाएँगे (स्टिकर + जहाँ कार्ड बनता है वहाँ कार्ड भी)।'}</p>`
+      +`<div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px"><button class="nob" data-qosel="1" style="font-size:13px;padding:6px 10px">☑ ${en?'Select all':'सब चुनें'}</button><button class="nob" data-qosel="0" style="font-size:13px;padding:6px 10px">☐ ${en?'Deselect all':'सब हटाएँ'}</button><button class="nob" data-qoclr="1" style="font-size:13px;padding:6px 10px;margin-left:auto">🧹 ${en?'Clear this list':'यह सूची साफ़ करें'}</button></div>`
       +A.map(x=>{ const inQ=!!st(x.r[0]).qs; return `<label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed #E5D9B6;font-size:15px"><input type="checkbox" class="qoc" value="${esc(x.r[0])}" ${inQ?'checked disabled':'checked'} style="width:20px;height:20px;flex:none"><span style="flex:1"><b>${esc(qName(x.r))}</b> <small class="muted">· ${en?QWHY[x.why]||x.why:x.why} · ${tm(x.at)}${inQ?(en?' · already in the queue':' · पहले से कतार में'):''}</small></span></label>`; }).join('')
       +(W.length?`<button class="ok" data-qoa="1" style="width:100%;margin-top:8px">➕ ${en?'Put the ticked ones in the queue':'टिक वाले कतार में डालें'} (${W.length})</button>`:'')
       :`<p class="muted">${en?'No changed / new names in these days':'इन दिनों में कोई नाम नहीं बदला / जुड़ा'}</p>`); }
@@ -1543,6 +1555,9 @@ document.addEventListener('click', async e=>{ const b=e.target.closest&&e.target
   if(b.dataset.qa){ const r=D.find(x=>x[0]===b.dataset.qa); if(!r) return; b.disabled=true; await qSet(r[0],true,cardOk(r)?true:null); QQ=''; qDraw(); return; }
   if(b.dataset.qt){ const r=D.find(x=>x[0]===b.dataset.qt); if(!r) return; const s=st(r[0]); b.disabled=true; if(b.dataset.k==='s') await qSet(r[0],!s.qs,null); else await qSet(r[0],null,!s.qc); qDraw(); return; }
   if(b.dataset.qx){ b.disabled=true; await qSet(b.dataset.qx,false,false); qDraw(); return; }
+  if(b.dataset.qosel!=null){ const on=b.dataset.qosel==='1'; document.querySelectorAll('.qoc:not(:disabled)').forEach(x=>x.checked=on); return; }
+  if(b.dataset.qoclr){ if(!confirm(L==='en'?'Clear the list of earlier changed / added names? (Names already in the print queue stay there; new changes will show again.)':'पहले बदले / जोड़े गए नामों की सूची साफ़ करें? (जो नाम छपाई की कतार में हैं वे वहीं रहेंगे; आगे के बदलाव फिर से दिखेंगे।)')) return;
+    b.disabled=true; try{ await setDoc(doc(db,'config','public'), {qOldFrom:Date.now()}, {merge:true}); QOFROM=Date.now(); qOldDraw(); toast(L==='en'?'✓ List cleared':'✓ सूची साफ़ हो गई'); }catch(err){ toast(L==='en'?'Not done – check the net':'नहीं हुआ – नेट देखें'); } b.disabled=false; return; }
   if(b.dataset.qoa){ const ids=[...document.querySelectorAll('.qoc:checked:not(:disabled)')].map(x=>x.value); if(!ids.length) return; b.disabled=true;
     for(const id of ids){ const r=D.find(x=>x[0]===id); if(r) await qSet(id,true,cardOk(r)?true:null); } toast('✓ '+ids.length+(L==='en'?' names in the print queue':' नाम छपाई की कतार में')); qDraw(); return; }
   if(b.dataset.qback){ const ts=+b.dataset.qback, by=new Map(); D.forEach(r=>{ const s=st(r[0]); const u={}; if(s.psAt===ts){ u[r[0]+'.qs']=true; u[r[0]+'.psAt']=0; } if(s.pcAt===ts){ u[r[0]+'.qc']=true; u[r[0]+'.pcAt']=0; }

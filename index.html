@@ -586,10 +586,13 @@ function draftRow(){ const o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, gv=$('#f-
   r[5]=$('#f-hh').value.trim(); r[7]=$('#f-ah').value.trim(); r[9]=$('#f-mob').value.trim(); r[10]=[0,1,2,3].map(k=>nfv($('#f-f'+k).value)); r[11]=parseInt($('#f-gift').value)||0; r[12]=$('#f-pc').value; r[14]=$('#f-env').value; return r; }
 function qAuto(){ const box=$('#f-q'); if(!box) return; const d=draftRow(), o=EDIT!=='new'?D.find(x=>x[0]===EDIT):null, en=L==='en';
   const phys=d[1]>=0&&gIsP(d[1])&&d[12]!=='भगवान'&&d[12]!=='E-card'; box.style.display=phys?'block':'none'; if(!phys) return;
-  const s0=o?st(o[0]):{}, ch=rowDiff(o,d), rp=(!o||ch.length)?rpOf(o,d,ch):null, cok=cardOk(d), man=box.dataset.man==='1';
+  // 12 Nov (his words): "jo naam me edit kar raha hu – sirf naam edit ya mobile number edit, ya main bol raha hu ki iska naya print karna hai –
+  //   to hi wo print queue me aaye, otherwise na aaye" -> auto tick only for: new name / E-card -> card, name changed, mobile changed
+  const s0=o?st(o[0]):{}, ch=rowDiff(o,d), fs=new Set(ch.map(x=>x.f)), newP=!o||!gIsP(o[1]), nmCh=fs.has('नाम')||fs.has('Name'), mbCh=fs.has('मोबाइल'),
+    rp=(newP||nmCh||mbCh)?{s:1,c:(newP||nmCh)?1:0}:null, cok=cardOk(d), man=box.dataset.man==='1';
   if(!man){ $('#f-qs').checked=!!((rp&&rp.s)||s0.qs); $('#f-qc').checked=cok&&!!((rp&&rp.c)||s0.qc); }
   $('#f-qc').disabled=!cok; if(!cok) $('#f-qc').checked=false;
-  $('#f-qh').textContent=man?'':(rp?(en?'Ticked by itself – something on the sticker / card changed':'अपने-आप लगा – स्टिकर / कार्ड पर दिखने वाली चीज़ बदली है'):(s0.qs||s0.qc)?(en?'Already in the print queue':'पहले से छपाई की कतार में है'):'')
+  $('#f-qh').textContent=man?'':(rp?(en?(newP?'Ticked by itself – new name':nmCh?'Ticked by itself – the name changed':'Ticked by itself – the mobile changed'):(newP?'अपने-आप लगा – नया नाम':nmCh?'अपने-आप लगा – नाम बदला':'अपने-आप लगा – मोबाइल बदला')):(s0.qs||s0.qc)?(en?'Already in the print queue':'पहले से छपाई की कतार में है'):'')
     +(cok?'':(en?' · no programme card for this name (प्रोग्राम कार्ड is not ✓)':' · इस नाम का प्रोग्राम कार्ड नहीं बनता (प्रोग्राम कार्ड ✓ नहीं है)')); }
 { let t; const ef=$('#ef'); if(ef) ['input','change'].forEach(ev=>ef.addEventListener(ev,e=>{ const id=e.target&&e.target.id; if(id==='f-qs'||id==='f-qc'){ $('#f-q').dataset.man='1'; $('#f-qh').textContent=''; return; } clearTimeout(t); t=setTimeout(qAuto,250); })); }
 async function qSet(rid,qs,qc){ const s=st(rid), up={}; let ch=false;

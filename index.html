@@ -301,7 +301,7 @@ function render(){if(!D.length)return;const t=T[L], q=Q.trim(), hits=hitsNow(q);
       <div class="sub2">${hl(hi?r[7]:r[8])}${(hi?r[5]:r[6])?' · '+esc(hi?r[5]:r[6]):''}</div>${mobs}${(b=>b&&(NUMF||ME.admin)?`<div class="nbad">${b==='p'?(hi?'📵 नंबर नहीं है':'📵 No number'):(hi?'⚠ नंबर गलत लगता है – जाँचें':'⚠ Number looks wrong – check')}</div>`:'')(mobBad(r))}</div></div><div class="fn">${f}</div>${meta?`<div class="meta">${meta}</div>`:''}${wline(r)}
       ${note?`<div class="note">${esc(note)}</div>`:''}<div class="act"><button class="tk ${s.r?'on':''}" data-rk="${i}">${s.r?'✓ ':''}${t.rtick}${s.r?`<small>${esc(s.rBy||'')} · ${s.rAt?tm(s.rAt):''}</small>`:''}</button>
       <button class="tk ${s.d?'on':''}" data-tk="${i}">${s.d?'✓ ':''}${t.tick}${s.d?`<small>${esc(s.dBy||'')} · ${s.dAt?tm(s.dAt):''}</small>`:''}</button>
-      <button class="tk ${s.g?'on':''}" data-gk="${i}">${s.g?'✓ ':''}${t.gtick}${s.g?`<small>${esc(s.gBy||'')} · ${s.gAt?tm(s.gAt):''}</small>`:''}</button>${ME.admin?`<button class="tk ed" data-edit="${esc(r[0])}">✏️ सुधारें</button><button class="tk ed" data-mv="${esc(r[0])}">↔ खिसकाएँ</button><button class="tk ed" data-pr="${esc(r[0])}">🖨 प्रिंट</button>`:''}</div></div>`;}
+      ${gOk(r)?`<button class="tk ${s.g?'on':''}" data-gk="${i}">${s.g?'✓ ':''}${t.gtick}${s.g?`<small>${esc(s.gBy||'')} · ${s.gAt?tm(s.gAt):''}</small>`:''}</button>`:''}${ME.admin?`<button class="tk ed" data-edit="${esc(r[0])}">✏️ सुधारें</button><button class="tk ed" data-mv="${esc(r[0])}">↔ खिसकाएँ</button><button class="tk ed" data-pr="${esc(r[0])}">🖨 प्रिंट</button>`:''}</div></div>`;}
   if(la>=0)h+='</div>'; if(lz)h+='</div>'; if(shown>LIMIT)h+=`<button class="more" id="more">${t.more} (${shown-LIMIT})</button>`;
   const hq=Q.trim().toLowerCase().replace(/\s+/g,' '), hsug=hq.length>=2&&!HD?HEADS.filter(h=>h[0].toLowerCase().includes(hq)||h[1].toLowerCase().includes(hq)).slice(0,6):[];   // 10 Nov: "heading search ka option bhi"
   $('#out').innerHTML=(hsug.length?`<div class="hsug">${L==='en'?'Heading':'हेडिंग'}: ${hsug.map(h=>`<button data-hsug="${esc(h[1])}">🏷 ${esc(L==='en'?h[1]:h[0])} <small>${D.filter(r=>r[6]===h[1]).length}</small></button>`).join('')}</div>`:'')+`<label class="selall"><input type="checkbox" class="sk" id="sel-all"> ${L==='en'?'Select all in this list':'इस सूची के सब चुनें'} (${hits.length})</label>`+h; LASTHITS=hits; selMarks(); bulkBar();}
@@ -789,10 +789,13 @@ function selMarks(){ const H=LASTHITS, grp=(f)=>{ const m=new Map(); H.forEach(i
   document.querySelectorAll('#out [data-sz]').forEach(el=>set(el,Z.get(el.dataset.sz)||[])); document.querySelectorAll('#out [data-sa]').forEach(el=>set(el,A.get(el.dataset.sa)||[]));
   const all=document.getElementById('sel-all'); if(all) set(all,H.map(i=>D[i][0])); }
 const BK=[['r','rtick'],['d','tick'],['g','gtick']];
+// 12 Nov (his words): "invitation me jisko gift nahi hai toh uske aage gift ka button kyun aata hai" -> 🎁 गिफ्ट दिया only where the list has a gift
+//   (गिफ्ट column > 0); a name already ticked keeps the button so the tick can still be taken off
+function gOk(r){ return (parseInt(r[11])||0)>0||!!st(r[0]).g; }
 function bulkBar(){ if(!$('#out')) return; let b=document.getElementById('bulk'); if(!b){ b=document.createElement('div'); b.id='bulk'; document.body.appendChild(b); }
   const R=selRows(), t=T[L], en=L==='en'; document.body.classList.toggle('bulk-on',R.length>0); if(!R.length){ b.innerHTML=''; return; }
   b.innerHTML=`<div class="bk1"><b>✓ ${R.length} ${en?'chosen':'चुने'}</b><button data-bx="1">× ${en?'Clear':'चुनाव हटाएँ'}</button></div><div class="bk2">`
-    +BK.map(([k,l])=>{ const all=R.every(([r])=>st(r[0])[k]); return `<button data-bk="${k}" class="${all?'un':''}">${all?'↩ '+t[l]+(en?' – remove':' हटाएँ'):'✓ '+t[l]}</button>`; }).join('')
+    +BK.map(([k,l])=>{ const R1=k==='g'?R.filter(([r])=>gOk(r)):R; if(!R1.length) return ''; const all=R1.every(([r])=>st(r[0])[k]); return `<button data-bk="${k}" class="${all?'un':''}">${all?'↩ '+t[l]+(en?' – remove':' हटाएँ'):'✓ '+t[l]}</button>`; }).join('')
     +(ME.admin&&typeof prOpen==='function'?`<button data-bp="1">🖨 ${en?'Print':'प्रिंट'}</button>`:'')+(ME.dl?`<button data-bd="1">📦 ${en?'Delivery link':'डिलीवरी लिंक'}</button>`:'')+'</div>'; }
 // 10 Nov (my suggestion, his OK "dono sujhav"): 📦 delivery link – the delivery person gets ONLY his names (no list access, no approval),
 //   ticks "पहुँचा" on his own phone; an admin / team phone with the list open copies those ticks into the list (पहुँचा · by name (डिलीवरी))
@@ -824,7 +827,7 @@ function dlvSync(){ if(DLVSUB) return; DLVSUB=true;
   onSnapshot(collection(db,'dl'), async s=>{ DLV=s.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>(b.at||0)-(a.at||0)); if(D.length) chips();
     const docs={}; let n=0; DLV.forEach(x=>Object.entries(x.done||{}).forEach(([rid,v])=>{ if(!v||st(rid).d) return; const sk=sKey(rid), u=docs[sk]=docs[sk]||{}; u[rid+'.d']=true; u[rid+'.dBy']=(v.by||x.who||'')+' (डिलीवरी)'; u[rid+'.dAt']=v.at||Date.now(); n++; }));
     if(n){ try{ await Promise.all(Object.entries(docs).map(([sk,u])=>updateDoc(doc(db,'status',sk),u))); }catch(e){ console.warn('dl sync',e); } } }, e=>console.warn('dl',e)); }
-async function bulkTick(key){ const R=selRows(); if(!R.length) return; const on=!R.every(([r])=>st(r[0])[key]), T2=R.filter(([r])=>!!st(r[0])[key]!==on), t=T[L], lab=t[BK.find(x=>x[0]===key)[1]];
+async function bulkTick(key){ const R=selRows().filter(([r])=>key!=='g'||gOk(r)); if(!R.length) return; const on=!R.every(([r])=>st(r[0])[key]), T2=R.filter(([r])=>!!st(r[0])[key]!==on), t=T[L], lab=t[BK.find(x=>x[0]===key)[1]];
   if(!T2.length) return; if((T2.length>25||!on)&&!confirm(`${T2.length} ${L==='en'?'names':'नाम'}: "${lab}" ${on?(L==='en'?'– tick all?':'– सब पर ✓ लगाएँ?'):(L==='en'?'– remove the tick?':'– ✓ हटाएँ?')}`)) return;
   const at=Date.now(), by=ME.name, docs={}, old=new Map();
   T2.forEach(([r])=>{ const rid=r[0], sk=sKey(rid), u=docs[sk]=docs[sk]||{}; old.set(rid,st(rid)); u[rid+'.'+key]=on; u[rid+'.'+key+'By']=by; u[rid+'.'+key+'At']=at; ST[rid]=Object.assign({},st(rid),{[key]:on,[key+'By']:by,[key+'At']:at}); });

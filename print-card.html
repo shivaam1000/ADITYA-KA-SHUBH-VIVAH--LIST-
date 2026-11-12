@@ -432,6 +432,13 @@
   .bqb svg.bq, .bqt svg.bq, .bqf svg.bq { width: 13mm; height: 13mm; display: block; }
   .bql.bql2 span { font-family: "Martel", serif; font-weight: 700; font-size: 8.8pt; line-height: 1.32; color: #4E5B2E; }   /* 2 Nov: heading removed, line bigger + bold */
 
+  /* 12 Nov (his words): "prog card me upar hath se naam likhne ki jagah chodho" -> under सादर आमंत्रित: one line to write the name (2 lines made the logo too small) */
+  .card.blk .to .nmw { align-items: flex-end; gap: 0; margin-top: 0; }
+  .card.blk .to .nmw .fl { flex: 0 0 13mm; margin-bottom: -0.03mm; }
+  .card.blk .to .nm { flex: 0 0 80mm; width: 80mm; height: 8mm; border-bottom: 0.45mm solid var(--g); margin: 0; }
+  .wbox { width: 11mm; height: 8.6mm; border: 0.4mm solid var(--p); border-radius: 1.2mm; background: transparent; }
+  .card.port.c4 .fn .f .r .wbox { width: 10.5mm; height: 8.2mm; }
+
   @page { size: 13in 19in; margin: 0; }
   html, body { background: #E9E4D6 !important; }
   #out { position: absolute; left: -20000px; top: 0; }   /* rendered (so the templates can fit names), just off screen */
@@ -471,6 +478,7 @@ function total(v) {                     // plain number (4 or '4') -> number ; '
 function cnt(v) {
   if (/^\s*WF/i.test(String(v)) || total(v) > 2) return '<div class="sap">सपरिवार</div>';   // WF / WFx2, or more than 2 members
   if (v === 'TICK') return TICK;
+  if (v === 'BOX') return '<div class="wbox"></div>';
   return `<div class="num">${v}</div>`;
 }
 
@@ -547,6 +555,7 @@ let PRT = null; try { PRT = JSON.parse(localStorage.getItem('prt') || 'null'); }
 if (!PRT || !PRT.rows || !PRT.rows.length || PRT.kind !== 'card') { document.body.innerHTML = '<p style="font:18px Arial;padding:30px">कुछ नहीं चुना – सूची वाले पेज पर नाम चुनकर 🖨 दबाएँ।</p>'; throw new Error('no data'); }
 const DATA = PRT.rows;
 document.getElementById('out').innerHTML = DATA.map(card).join('');
+document.querySelectorAll('#out .card').forEach((c, i) => { if (DATA[i] && DATA[i].blank) c.classList.add('blk'); });
 document.fonts.ready.then(() => Promise.all([...document.images].map(i => i.decode().catch(() => {})))).then(() => {
   document.querySelectorAll('.card.sv.port').forEach(c => {
     const lg = c.querySelector('.logo'), mid = c.querySelector('.mid'), fn = c.querySelector('.fn');
@@ -584,7 +593,7 @@ function layout() {                     // 13 x 19 in, 4 cards (6.25 x 8.25 in, 
       const c = cards[ci]; c.style.transformOrigin = '0 0'; c.style.transform = `scale(${SC})`; c.style.pageBreakAfter = 'auto'; hold.appendChild(c);
       const yc = k < 2 ? (Y0 - B - 2 * PT) / 2 : SH - (Y0 - B - 2 * PT) / 2;
       const lb = el(sh, `left:${x + CW / 2 - (CW - 50 * PT) / 2}px;top:${yc}px;width:${CW - 50 * PT}px;transform:translateY(-50%);font-size:15pt;line-height:1.4`,
-        `<div>No. ${String(d.sr || '–')} &nbsp;·&nbsp; शीट ${i + 1}/${S} &nbsp;·&nbsp; गड्डी ${'ABCD'[k]}</div><div style="font-size:13.5pt">${d.area || ''}</div>` + (k < 2 ? `<div style="font-size:11pt;color:#444">प्रिंट : ${tag} · ${dt}</div>` : ''));
+        `<div>${d.blank ? 'खाली प्रोग्राम कार्ड' : 'No. ' + String(d.sr || '–')} &nbsp;·&nbsp; शीट ${i + 1}/${S}${d.blank ? '' : ` &nbsp;·&nbsp; गड्डी ${'ABCD'[k]}`}</div><div style="font-size:13.5pt">${d.area || ''}</div>` + (k < 2 ? `<div style="font-size:11pt;color:#444">प्रिंट : ${tag} · ${dt}</div>` : ''));
       lb.className = 'lb'; }
     const L = 20 * PT, w = 0.5 * PT;
     for (const x of [X0, X0 + CW, X0 + 2 * CW]) { el(sh, `left:${x - w / 2}px;top:${Y0 - B - 2 * PT - L}px;width:${w}px;height:${L}px`).className = 'mk'; el(sh, `left:${x - w / 2}px;top:${SH - Y0 + B + 2 * PT}px;width:${w}px;height:${L}px`).className = 'mk'; }

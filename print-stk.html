@@ -103,6 +103,9 @@
   .st.m11 .sa, .st.m11 .ar, .st.m11 .gm, .st.m11 .am b, .st.m11 .mo, .st.m11 .nm, .st.m11 .am { color: #5A2321 !important; }
   .st.m12 .sa, .st.m12 .ar, .st.m12 .gm, .st.m12 .am b, .st.m12 .mo, .st.m12 .nm, .st.m12 .am { color: #4B1114 !important; }
 
+  .st.blk .wl { flex: none; height: 7.2mm; border-bottom: 0.3mm solid #9B1B1F; position: relative; }
+  .st.blk .wl.wm span { position: absolute; left: 0; bottom: 0.7mm; font-size: 11pt; line-height: 1; color: #9B1B1F; }
+
   @page { size: 13in 19in; margin: 0; }
   html, body { background: #E9E4D6 !important; }
   #out { position: absolute; left: -20000px; top: 0; }   /* rendered (so the templates can fit names), just off screen */
@@ -137,7 +140,15 @@ function frame(w, h) {
     <path d="M${w / 2 - 6} ${o} h12" stroke="var(--g)" stroke-width="1.1"/><path d="M${w / 2 - 6} ${h - o} h12" stroke="var(--g)" stroke-width="1.1"/>
   </svg>`;
 }
+function stB(d) {   // plain sticker: no name – lines to write on (name 2, address 2, mobile 1)
+  return `<div class="st blk ${d.v || ''}">${frame(95, 70)}
+    <div class="lg"><img src="prt-logo-stk.png"></div>
+    <div class="tx"><div class="sa">सादर आमंत्रण</div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl"></div><div class="wl wm"><span>मो.</span></div><div class="ar" style="display:none"></div></div>
+    <div class="bt"><div class="hl"></div><div class="am"><b>आमंत्रक :</b> गोरधनदास, संजय, कपिल बिड़ला</div><div class="mo">मो. 9829026404, 9958544775</div></div>
+    <div class="sr"></div></div>`;
+}
 function st(d) {
+  if (d.blank) return stB(d);
   const L = d.hi.replace(/\n/g, '').length, cls = L > 34 ? 'xlong' : (L > 22 ? 'long' : '');
   return `<div class="st ${d.clear ? 'clear' : ''} ${d.v || ''}">${frame(95, 70)}<div class="tcode">${d.code || ''}</div>
     <div class="lg"><img src="prt-logo-stk.png"></div>

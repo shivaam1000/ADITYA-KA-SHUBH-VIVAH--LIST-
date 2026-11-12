@@ -203,7 +203,12 @@ details.card>summary{font-family:"Martel";color:var(--ol);cursor:pointer;text-al
 
 <div class="card" id="q-card" style="display:none;border:2px solid #C9A6E8"><h2><span data-en="🖨 Print queue">🖨 छपाई की कतार</span></h2><div id="q-body"></div>
 <details id="q-old" style="margin-top:12px;text-align:left"><summary style="cursor:pointer;font-weight:700;color:#6B4E8A"><span data-en="🕘 Names changed / added earlier">🕘 पहले बदले / जोड़े गए नाम</span> <span class="pill" id="q-old-n">0</span></summary><div id="q-old-b"></div></details>
-<div id="q-past" style="margin-top:10px"></div></div>
+<div id="q-past" style="margin-top:10px"></div>
+<details id="q-blank" style="margin-top:12px;text-align:left"><summary style="cursor:pointer;font-weight:700;color:#6B4E8A"><span data-en="✍ Plain sticker / programme card (to write by hand)">✍ खाली स्टिकर / प्रोग्राम कार्ड (हाथ से लिखने वाले)</span></summary>
+<p class="muted" style="font-size:13.5px;margin:8px 0"><span data-en="Sticker: lines for name, address and mobile. Card: no name – a line to write it, and a small box in front of every programme for the members or a ✓.">स्टिकर : नाम, पता और मो. लिखने की लाइनें। कार्ड : बिना नाम – नाम लिखने की लाइन, और हर प्रोग्राम के आगे छोटा डिब्बा (सदस्य या ✓ लिखने के लिए)।</span></p>
+<label style="font-size:14px"><span data-en="How many sheets? (1 sheet = 18 stickers / 4 cards)">कितनी शीट? (1 शीट = 18 स्टिकर / 4 कार्ड)</span></label>
+<input class="in" id="qb-n" type="number" min="1" max="30" value="1" inputmode="numeric" style="max-width:110px;margin:4px 0 8px">
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ok" data-qblank="stk" style="flex:1">🏷 <span data-en="Plain sticker PDF">खाली स्टिकर PDF</span></button><button class="ok" data-qblank="card" style="flex:1;background:#7A1E2C">📜 <span data-en="Plain card PDF">खाली कार्ड PDF</span></button></div></details></div>
 </div><div class="toast" id="toast"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -1544,6 +1549,15 @@ function qPrint(kind){ const Q=qList(), L2=kind==='stk'?Q.S:Q.C; if(!L2.length) 
   const rids=L2.map(x=>x.rid), mob=window.PK?PK.MOB:(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||navigator.standalone===true);
   if(mob){ let gone=false; const go=()=>{ if(gone) return; gone=true; location.href='print-'+kind+'.html'; }; qPrinted(kind,rids).finally(go); setTimeout(go,4000); return; }
   const w=window.open('print-'+kind+'.html','_blank'); if(!w) location.href='print-'+kind+'.html'; qPrinted(kind,rids).then(()=>qDraw()); }
+// 12 Nov (his words): "ek file banao jisme plain sticker ho line bane hue / aur plain prog card jisme sab prog ke aage sirf ek chota sa box bana aaye
+//   jisme member ya tick laga sake / prog card bina naam ka hoga" + "prog card me upar hath se naam likhne ki jagah chodho" -> same locked designs, blank rows
+function qBlank(kind){ const n=Math.max(1,Math.min(30,parseInt(($('#qb-n')||{}).value)||1)), d=new Date(), stk=kind==='stk';
+  const rows=Array.from({length:n*(stk?18:4)},()=>stk?{blank:1,v:'wb2 m2',hi:'',area:'',gm:'',sr:'',code:'',grp:'खाली स्टिकर'}
+    :{card:1,pal:'boxivory',orient:'port',motif:'peacock',logo:1,sv:1,sr:'–',hi:'',en:'',label:'',area:'',blank:1,f18:'BOX',f20e:'BOX',f21m:'BOX',f21e:'BOX'});
+  try{ localStorage.setItem('prt',JSON.stringify({kind,tag:'खाली',tagEn:stk?'PLAIN STICKER':'PLAIN CARD',date:d.getDate()+' '+QHM[d.getMonth()]+' '+d.getFullYear(),dateEn:d.getDate()+' '+QEM[d.getMonth()]+' '+d.getFullYear(),rows})); }
+  catch(e){ toast(L==='en'?'Could not open – phone storage full?':'नहीं खुला – फ़ोन की जगह भरी है?'); return; }
+  const mob=window.PK?PK.MOB:(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||navigator.standalone===true);
+  if(mob){ location.href='print-'+kind+'.html'; return; } const w=window.open('print-'+kind+'.html','_blank'); if(!w) location.href='print-'+kind+'.html'; }
 function qExcel(){ const Q=qList(), en=L==='en', all=[...new Set([...Q.S,...Q.C].map(x=>x.i))], cs=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
   const H=en?['Sticker no.','Name (Hindi)','Name (English)','Area','Mobile','Sticker','Programme card','Put in by','When']:['स्टिकर नं.','नाम','Name (English)','क्षेत्र','मोबाइल','स्टिकर','प्रोग्राम कार्ड','किसने डाला','कब'];
   const R=all.map(i=>{ const r=D[i], s=st(r[0]); return [r[2],r[3],r[4],G[r[1]]?gLab(G[r[1]]):'',String(r[9]||'').split('\n').join(', '),Q.S.some(x=>x.i===i)?'✓':'',Q.C.some(x=>x.i===i)?'✓':'',s.qBy||'',s.qAt?tm(s.qAt):'']; });
@@ -1551,7 +1565,7 @@ function qExcel(){ const Q=qList(), en=L==='en', all=[...new Set([...Q.S,...Q.C]
 document.addEventListener('click', e=>{ if(e.target.closest&&e.target.closest('[data-al]')) setTimeout(()=>{ qDraw(); elDraw(); dupDraw(); },0); });
 document.addEventListener('input', e=>{ if(e.target&&e.target.id==='q-q'){ QQ=e.target.value; const b=$('#q-res'); if(b) b.innerHTML=qRes(); } });
 document.addEventListener('click', async e=>{ const b=e.target.closest&&e.target.closest('button'); if(!b||!b.closest('#q-card')) return;
-  if(b.dataset.qpr){ qPrint(b.dataset.qpr); return; } if(b.dataset.qxl){ qExcel(); return; }
+  if(b.dataset.qpr){ qPrint(b.dataset.qpr); return; } if(b.dataset.qxl){ qExcel(); return; } if(b.dataset.qblank){ qBlank(b.dataset.qblank); return; }
   if(b.dataset.qd){ QDAYS=+b.dataset.qd; qOldDraw(); return; }
   if(b.dataset.qa){ const r=D.find(x=>x[0]===b.dataset.qa); if(!r) return; b.disabled=true; await qSet(r[0],true,cardOk(r)?true:null); QQ=''; qDraw(); return; }
   if(b.dataset.qt){ const r=D.find(x=>x[0]===b.dataset.qt); if(!r) return; const s=st(r[0]); b.disabled=true; if(b.dataset.k==='s') await qSet(r[0],!s.qs,null); else await qSet(r[0],null,!s.qc); qDraw(); return; }

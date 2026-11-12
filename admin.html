@@ -1444,7 +1444,7 @@ async function open(){ show('s-admin'); ME.mgr=ME.admin||ME.team; $('#who').text
     `${can?`<button class="nob" data-rm="${m.id}" data-ids="${ids.join(',')}" data-nm="${esc(m.name)}">हटाएँ</button>`:''}</div>`;
   onSnapshot(collection(db,'members'), s => { MBA=s.docs.map(d=>({id:d.id,...d.data()})); window._mb=Object.fromEntries(MBA.map(m=>[m.id,m])); mbDraw(); });
   onSnapshot(query(collection(db,'log'), orderBy('at','desc'), limit(100)), s => { LOGA=s.docs.map(d=>d.data()); logDraw(); });
-  onSnapshot(doc(db,'config','public'), p => { LOGFROM=(p.exists()&&p.data().logFrom)||0; QOFROM=(p.exists()&&p.data().qOldFrom)||0; logDraw(); qOldDraw(); }, ()=>{});
+  onSnapshot(doc(db,'config','public'), p => { LOGFROM=(p.exists()&&p.data().logFrom)||0; QOFROM=(p.exists()&&p.data().qOldFrom)||0; const so=!!(p.exists()&&p.data().qSugOff); if(so!==QSUGOFF){ QSUGOFF=so; const b=$('#q-res'); if(b) b.innerHTML=qRes(); } logDraw(); qOldDraw(); }, ()=>{});
   if(ME.admin){ $('#el-card').style.display=''; onSnapshot(query(collection(db,'log'), where('kind','==','ed')), s => { ELA=s.docs.map(d=>d.data()); elDraw(); }, e=>console.warn('elog',e));
     onSnapshot(query(collection(db,'log'), orderBy('at','desc'), limit(600)), s => { QOLD=s.docs.map(d=>d.data()); qDraw(); }, e=>console.warn('qold',e)); } }
 // 11 Nov (his words): "yaha pe clear content button aana chahiye na" (People with access) + "yaha bhi" (Change log)
@@ -1478,7 +1478,7 @@ function prtRows(idx){ const S=[],C=[],X=[]; idx.forEach(i=>{ const r=D[i]; if(!
 //   -> 🖨 छपाई की कतार: sheets + empty places (sticker 18 / sheet, card 4 / sheet), "और नाम जोड़ें?" (search + suggestions), one tap PDF / Excel,
 //      🕘 earlier changed / added names (from the log) can be put in with one tap, "↩ फिर से कतार में" for the last prints
 const QSO={jo:0,ba:1}, QHM=['जनवरी','फ़रवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'], QEM=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let QOLD=[], QDAYS=3, QQ='', QOFROM=0;
+let QOLD=[], QDAYS=3, QQ='', QOFROM=0, QSUGOFF=false;   // 12 Nov (his words): "tum clear ka button laga do, mujhe zaroorat nahi hogi to main clear kar dunga" – suggestions under empty places can be cleared (shared: config/public.qSugOff)
 const qPhys=r=>!!r&&gIsP(r[1])&&r[12]!=='भगवान'&&r[12]!=='E-card';
 // 12 Nov (his words): "jo card de chuke hain wo bhi print ki queue me aa rahe hain, ya jis pe likh diya hai card delivered, gift given, card ready,
 //   usme bhi wo edited me aa raha hai, jabki wo nahi aana chahiye" -> (1) a ✓ delivered / ✓ card-ready name never shows in the queue or the earlier list;
@@ -1509,9 +1509,10 @@ function qDraw(){ const card=$('#q-card'), top=$('#q-top'); if(!card||!ME.admin|
 function qRes(){ const en=L==='en', q=QQ.trim().toLowerCase(), dq=q.replace(/\D/g,'');
   let L2=D.map((r,i)=>[r,i]).filter(([r])=>qPhys(r)&&!(st(r[0]).qs));
   if(q) L2=L2.filter(([r])=>[r[2],r[3],r[4],r[7],r[8]].join(' ').toLowerCase().includes(q)||(dq.length>=4&&String(r[9]||'').replace(/\D/g,'').includes(dq)));
-  else L2=L2.filter(([r])=>!st(r[0]).r).sort((a,b)=>(parseInt(String(b[0][2]).replace(/\D/g,''))||0)-(parseInt(String(a[0][2]).replace(/\D/g,''))||0));
+  else { if(QSUGOFF) return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><small class="muted">${en?'Suggestions cleared – search a name above to add it':'सुझाव हटा दिए – जोड़ना हो तो ऊपर नाम खोजें'}</small><button class="nob" data-qsug="1" style="font-size:12.5px;padding:5px 9px">↩ ${en?'Show suggestions':'सुझाव दिखाएँ'}</button></div>`;
+    L2=L2.filter(([r])=>!st(r[0]).r).sort((a,b)=>(parseInt(String(b[0][2]).replace(/\D/g,''))||0)-(parseInt(String(a[0][2]).replace(/\D/g,''))||0)); }
   const T2=L2.slice(0,q?8:6); if(!T2.length) return `<p class="muted" style="margin:4px 0">${en?'No name found':'कोई नाम नहीं मिला'}</p>`;
-  return (q?'':`<small class="muted">${en?'Suggestions – card not ready yet:':'सुझाव – जिनका ✓ कार्ड तैयार अभी नहीं:'}</small>`)+T2.map(([r])=>`<div class="req" style="padding:5px 0"><div class="w"><b>${esc(qName(r))}</b><small>${esc(G[r[1]]?gLab(G[r[1]]):'')}</small></div><button class="ok" data-qa="${esc(r[0])}" style="font-size:12.5px;padding:6px 9px">+ ${en?'Add':'जोड़ें'}</button></div>`).join(''); }
+  return (q?'':`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><small class="muted">${en?'Suggestions – card not ready yet:':'सुझाव – जिनका ✓ कार्ड तैयार अभी नहीं:'}</small><button class="nob" data-qsug="0" style="font-size:12.5px;padding:5px 9px">🧹 ${en?'Clear suggestions':'सुझाव हटाएँ'}</button></div>`)+T2.map(([r])=>`<div class="req" style="padding:5px 0"><div class="w"><b>${esc(qName(r))}</b><small>${esc(G[r[1]]?gLab(G[r[1]]):'')}</small></div><button class="ok" data-qa="${esc(r[0])}" style="font-size:12.5px;padding:6px 9px">+ ${en?'Add':'जोड़ें'}</button></div>`).join(''); }
 // 🕘 names changed / added earlier (from the change log – also the ones from before the 🖨 ticks existed)
 function qOldList(){ const since=Math.max(Date.now()-QDAYS*864e5,QOFROM||0), M=new Map();
   QOLD.forEach(l=>{ const at=l.at&&l.at.toMillis?l.at.toMillis():0; if(at<since) return; const a=String(l.act||''); let rows=[], why='';
@@ -1555,6 +1556,8 @@ document.addEventListener('click', async e=>{ const b=e.target.closest&&e.target
   if(b.dataset.qa){ const r=D.find(x=>x[0]===b.dataset.qa); if(!r) return; b.disabled=true; await qSet(r[0],true,cardOk(r)?true:null); QQ=''; qDraw(); return; }
   if(b.dataset.qt){ const r=D.find(x=>x[0]===b.dataset.qt); if(!r) return; const s=st(r[0]); b.disabled=true; if(b.dataset.k==='s') await qSet(r[0],!s.qs,null); else await qSet(r[0],null,!s.qc); qDraw(); return; }
   if(b.dataset.qx){ b.disabled=true; await qSet(b.dataset.qx,false,false); qDraw(); return; }
+  if(b.dataset.qsug!=null){ const off=b.dataset.qsug==='0'; b.disabled=true; QSUGOFF=off; const r=$('#q-res'); if(r) r.innerHTML=qRes();
+    try{ await setDoc(doc(db,'config','public'), {qSugOff:off}, {merge:true}); }catch(err){ toast(L==='en'?'Not saved – check the net':'सेव नहीं हुआ – नेट देखें'); } return; }
   if(b.dataset.qosel!=null){ const on=b.dataset.qosel==='1'; document.querySelectorAll('.qoc:not(:disabled)').forEach(x=>x.checked=on); return; }
   if(b.dataset.qoclr){ if(!confirm(L==='en'?'Clear the list of earlier changed / added names? (Names already in the print queue stay there; new changes will show again.)':'पहले बदले / जोड़े गए नामों की सूची साफ़ करें? (जो नाम छपाई की कतार में हैं वे वहीं रहेंगे; आगे के बदलाव फिर से दिखेंगे।)')) return;
     b.disabled=true; try{ await setDoc(doc(db,'config','public'), {qOldFrom:Date.now()}, {merge:true}); QOFROM=Date.now(); qOldDraw(); toast(L==='en'?'✓ List cleared':'✓ सूची साफ़ हो गई'); }catch(err){ toast(L==='en'?'Not done – check the net':'नहीं हुआ – नेट देखें'); } b.disabled=false; return; }

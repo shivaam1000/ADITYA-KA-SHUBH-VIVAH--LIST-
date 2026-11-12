@@ -329,7 +329,7 @@ const TXP=[["↔ खिसकाएँ", "↔ Move"], ["↔ नाम खिस�
 const XLG=(()=>{ const DV=/[ऀ-ॿ]/, LA=/[A-Za-z]/;
   let S={w:{},s:{},e:{}}; try{ const o=JSON.parse(localStorage.getItem('xcv1')||'null'); if(o&&typeof o==='object') S=o; }catch(_){}
   ['w','s','e'].forEach(k=>{ if(!S[k]||typeof S[k]!=='object') S[k]={}; });
-  const NH=new Map(), NE=new Map(), WH=new Map(), WE=new Map(), KEEP=new Set(["aadhaar", "am", "android", "api", "apr", "atm", "aug", "chrome", "claude", "csv", "ctrl", "dec", "dj", "e-card", "e-invite", "english", "excel", "feb", "firebase", "github", "gmail", "google", "gst", "html", "html2canvas", "id", "ios", "iphone", "ist", "jan", "jpeg", "jpg", "json", "jul", "jun", "led", "mac", "management", "maps", "mar", "may", "mp4", "nov", "ntfy", "oct", "ok", "otp", "pdf", "pm", "png", "pnr", "pwa", "qr", "rsvp", "safari", "sep", "sept", "sms", "subscribe", "teb", "tick", "upi", "url", "utr", "vip", "web", "wf", "whatsapp", "wi-fi", "wifi", "windows", "xlsx"]), KP=new Set(["Area / Address (English)", "Ctrl + V", "Downloads", "E-card", "EN", "Enter", "Heading (English)", "Name (English)", "Note (English)", "Recent chats", "Save as PDF", "Search", "Share", "Subscribe", "TICK", "WF", "WhatsApp", "WhatsApp Web", "ntfy", "⬇ Excel", "⬇ PDF", "⬇ RSVP Excel", "📋 Paste", "📞 RSVP:", "📱 E-card", "🖨 PDF / Print", "🗓 Save the Date …", "🗓 TEB Management"]);
+  const NH=new Map(), NE=new Map(), WH=new Map(), WE=new Map(), KEEP=new Set(["aadhaar", "am", "android", "api", "apr", "atm", "aug", "chrome", "claude", "csv", "ctrl", "dec", "dj", "e-card", "e-invite", "english", "excel", "feb", "firebase", "github", "gmail", "google", "gst", "html", "html2canvas", "id", "ios", "iphone", "ist", "jan", "jpeg", "jpg", "json", "jul", "jun", "led", "mac", "management", "maps", "mar", "may", "mp4", "nov", "ntfy", "oct", "ok", "otp", "pdf", "pm", "png", "pnr", "pwa", "qr", "rsvp", "safari", "sep", "sept", "sms", "subscribe", "teb", "tick", "upi", "url", "utr", "vip", "web", "wf", "whatsapp", "wi-fi", "wifi", "windows", "xlsx"]), KP=new Set(["Area / Address (English)", "Ctrl + V", "Downloads", "E-card", "EN", "Enter", "Heading (English)", "Name (English)", "Note (English)", "PDF", "Recent chats", "Save as PDF", "Search", "Share", "Subscribe", "TICK", "WF", "WhatsApp", "WhatsApp Web", "ntfy", "⬇ Excel", "⬇ PDF", "⬇ RSVP Excel", "📋 Paste", "📞 RSVP:", "📱 E-card", "🖨 PDF / Print", "🗓 Save the Date …", "🗓 TEB Management"]);
   const Q={w:new Set(),s:new Set(),e:new Set()}, ASK=new Set(), CB=[]; let tm=0, dIT=0, dGT=0, svT=0, busy=false;
   const TRC=[['chh','छ'],['ksh','क्ष'],['shn','ष्ण'],['shth','ष्ठ'],['sht','ष्ट'],['shp','ष्प'],['shk','ष्क'],['kh','ख'],['gh','घ'],['ch','च'],['jh','झ'],['th','थ'],['dh','ध'],['ph','फ'],['bh','भ'],['sh','श'],['gy','ज्ञ'],
   ['k','क'],['g','ग'],['c','क'],['j','ज'],['t','त'],['d','द'],['n','न'],['p','प'],['b','ब'],['m','म'],['y','य'],['r','र'],['l','ल'],['v','व'],['w','व'],['s','स'],['h','ह'],['z','ज़'],['f','फ़'],['q','क'],['x','क्स']];
@@ -1012,4 +1012,39 @@ async function wstartPage(){ if(wstarted) return; wstarted=true; await wcfg(); w
       if(!d.wa&&!d.admin&&!d.team){ noAccess('WhatsApp भेजने का अधिकार नहीं','सूची देखने की अनुमति है, पर WhatsApp भेजने का अधिकार शिवम जी ने अभी नहीं दिया। उनसे कहें – अधिकार मिलते ही यह पेज अपने-आप खुल जाएगा।'); return }
       if(wstarted&&!$('#s-wa').classList.contains('on')&&!$('#s-wr').classList.contains('on')) wopen(); else if(wstarted) wrr(); wstartPage(); });
   }catch(e){ noAccess('खुल नहीं पाया','नेट चालू करके पेज दोबारा खोलें।'); } })();
+</script><style>
+#a2hs{position:fixed;left:10px;right:10px;bottom:12px;z-index:99999;background:#FBF8EF;border:1.5px solid #B8892E;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:12px 14px;font-family:inherit;color:#3E4A1F;max-width:520px;margin:0 auto}
+#a2hs .ah{display:flex;align-items:center;gap:10px}#a2hs img{width:44px;height:44px;border-radius:10px;flex:none}
+#a2hs b{font-size:15.5px;display:block}#a2hs small{font-size:12.5px;color:#5E6450;display:block;line-height:1.35}
+#a2hs ol{margin:8px 0 2px 0;padding-left:20px;font-size:14px;line-height:1.55}#a2hs ol li b{display:inline;font-size:14px}
+#a2hs .ab{display:flex;gap:8px;margin-top:10px}#a2hs button{font:inherit;border-radius:10px;padding:9px 12px;border:0;cursor:pointer}
+#a2hs .go{flex:1;background:#4E5B2E;color:#fff;font-weight:600}#a2hs .no{background:#EFE6CC;color:#3E4A1F}
+#a2hs svg{vertical-align:-4px}
+</style>
+<script>
+(()=>{ try{ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(_){}
+  const ua=navigator.userAgent||'', ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1), and=/Android/.test(ua), mob=ios||and||/Mobile/.test(ua);
+  const alone=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  const get=k=>{ try{ return localStorage.getItem(k); }catch(_){ return null; } }, put=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(_){} };
+  if(!mob||alone()||get('a2hsDone')) return; const sn=+get('a2hsSnooze')||0; if(Date.now()-sn<3*864e5) return;
+  let BIP=null; addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); BIP=e; });
+  addEventListener('appinstalled',()=>{ put('a2hsDone','1'); const b=document.getElementById('a2hs'); if(b) b.remove(); });
+  const SH='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6FE5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+  const DOTS='<b style="font-size:17px">⋮</b>', name=(document.querySelector('meta[name="apple-mobile-web-app-title"]')||{}).content||'';
+  function show(){ if(document.getElementById('a2hs')||alone()) return; const en=get('lang')==='en', d=document.createElement('div'); d.id='a2hs'; d.setAttribute('data-keep',''); d.setAttribute('data-notx','');
+    const T=en?{t:'📲 Add as an app on your phone',s:`An icon “${name}” comes on your home screen – next time it opens in one tap`,go:'📲 Add the icon',no:'Later',ok:'✓ Got it',
+        i1:`Tap the ${SH} <b>Share</b> button at the bottom <small>(top on iPad)</small>`,i2:'Choose <b>Add to Home Screen</b>',i3:'Tap <b>Add</b> at the top right',
+        a1:`Tap the ${DOTS} menu at the top right`,a2:'Choose <b>Add to Home screen</b> or <b>Install app</b>'}
+      :{t:'📲 फ़ोन में ऐप की तरह जोड़ें',s:`होम स्क्रीन पर “${name}” का आइकन बन जाएगा – अगली बार एक टैप में खुलेगा`,go:'📲 आइकन बनाएँ',no:'बाद में',ok:'✓ समझ गया',
+        i1:`नीचे ${SH} <b>Share</b> बटन दबाएँ <small>(iPad पर ऊपर)</small>`,i2:'<b>Add to Home Screen</b> (होम स्क्रीन में जोड़ें) चुनें',i3:'ऊपर दाईं ओर <b>Add</b> दबाएँ',
+        a1:`ऊपर दाईं ओर ${DOTS} मेनू दबाएँ`,a2:'<b>Add to Home screen</b> या <b>Install app</b> चुनें'};
+    const head=`<div class="ah"><img src="apple-touch-icon.png" alt=""><div><b>${T.t}</b><small>${T.s}</small></div></div>`;
+    if(BIP) d.innerHTML=head+`<div class="ab"><button class="go" data-x="go">${T.go}</button><button class="no" data-x="no">${T.no}</button></div>`;
+    else if(ios) d.innerHTML=head+`<ol><li>${T.i1}</li><li>${T.i2}</li><li>${T.i3}</li></ol><div class="ab"><button class="go" data-x="ok">${T.ok}</button><button class="no" data-x="no">${T.no}</button></div>`;
+    else d.innerHTML=head+`<ol><li>${T.a1}</li><li>${T.a2}</li></ol><div class="ab"><button class="go" data-x="ok">${T.ok}</button><button class="no" data-x="no">${T.no}</button></div>`;
+    d.addEventListener('click',async e=>{ const x=e.target.closest('[data-x]'); if(!x) return; const k=x.dataset.x;
+      if(k==='go'&&BIP){ BIP.prompt(); try{ const r=await BIP.userChoice; if(r&&r.outcome==='accepted') put('a2hsDone','1'); else put('a2hsSnooze',String(Date.now())); }catch(_){} BIP=null; d.remove(); return; }
+      put('a2hsSnooze',String(Date.now())); d.remove(); });
+    document.body.appendChild(d); }
+  setTimeout(show, and?9000:6000); })();
 </script></body></html>

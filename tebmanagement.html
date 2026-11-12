@@ -44,7 +44,7 @@ label{display:block;font-size:14px;color:var(--mu);margin:10px 0 4px}
 .wal{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:12.5px}.wal span,.wal a{border-radius:8px;padding:1px 8px;text-decoration:none}.wal .ok{background:#E3F1E6;color:#1E6B3A}.wal .no{background:#FBE3DF;color:#8E1B0E;font-weight:600}
 .dlb{display:flex;flex-direction:column;gap:6px;margin:8px 0 2px}.dlr.p .dlh{color:#7A2E8E}.prhb{max-height:44vh;overflow-y:auto;border:1.4px solid #D9CFAE;border-radius:10px;background:#fff;padding:4px 8px;margin-top:4px}.prh{display:flex;gap:8px;align-items:center;padding:7px 2px;border-bottom:1px solid #EFE8D4;font-size:15px;text-align:left}.prh:last-child{border-bottom:0}.prh input{width:20px;height:20px;flex:0 0 auto}.prh small{margin-left:auto;color:#5E6450;white-space:nowrap}.prhb{max-height:30vh}.prres .prr{display:flex;gap:8px;align-items:center;padding:6px 2px;border-bottom:1px solid #EFE8D4;text-align:left}.prres .prr>div{flex:1;min-width:0}.prres small{display:block;color:#5E6450;font-size:12.5px}.prres button{border:1.4px solid #7A2E8E;background:#fff;color:#7A2E8E;border-radius:9px;padding:6px 10px;font-size:14px;white-space:nowrap}.prres button.on{background:#7A2E8E;color:#fff}.prsel{max-height:26vh;overflow-y:auto;border:1.4px dashed #C9B98A;border-radius:10px;padding:6px;display:flex;flex-wrap:wrap;gap:5px;text-align:left;margin-top:4px}.prc{display:inline-flex;align-items:center;gap:4px;background:#F3EAF6;color:#4A1D57;border-radius:14px;padding:3px 4px 3px 9px;font-size:13.5px}.prc button{border:0;background:#7A2E8E;color:#fff;border-radius:50%;width:20px;height:20px;line-height:18px;padding:0;font-size:14px}.prrd{flex-basis:100%;color:#1F5C8B;font-size:13.5px;margin-top:4px}.prclr{float:right;border:1px solid #A33A2C;color:#A33A2C;background:#fff;border-radius:8px;font-size:12.5px;padding:2px 8px}.dlx.p{border-color:#7A2E8E;color:#7A2E8E}#pr-sheet .btn:disabled{opacity:.45}.dlb:empty{display:none}.dlr{display:flex;gap:6px;align-items:center}.dlh{flex:1;font-size:14.5px;color:#1E6B3A}.dlr.y .dlh{color:#7A5A10}.dlx{flex:0 0 auto;min-width:84px;border:1.4px solid #1E6B3A;background:#fff;color:#1E6B3A;border-radius:10px;padding:9px 10px;font-size:15px;font-family:inherit;cursor:pointer}.dlx.y{border-color:#7A5A10;color:#7A5A10}.dlx:disabled{opacity:.55}
 .act{display:flex;gap:7px;margin-top:8px}.tk{flex:1;border:1.4px solid var(--ol);background:#fff;color:var(--ol);border-radius:10px;padding:7px;font-size:14px}
-.tk.on{background:var(--ol);color:#fff}.tk small{display:block;font-size:11px;opacity:.88}.tk:disabled{opacity:.6}
+.tk.on{background:var(--ol);color:#fff}.tk.gw{background:#FBF4E2;border-color:#B8892E;color:#7A4E00;font-weight:700}.tk small{display:block;font-size:11px;opacity:.88}.tk:disabled{opacity:.6}
 mark{background:#FFE58A;color:inherit;border-radius:3px;padding:0 1px}
 .empty{text-align:center;color:var(--mu);padding:30px 0}.more{display:block;margin:10px auto;border:1px solid var(--gd);background:#fff;border-radius:18px;padding:7px 16px;color:var(--ol)}
 .log div{border-bottom:1px dashed #E7DDC2;padding:6px 0;font-size:13px}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ol2);color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;display:none;z-index:40}
@@ -303,7 +303,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-lang]'); 
 let ME={uid:'',name:'',admin:false,team:false,mgr:false};
 const COL={ev:'cr_ev',rs:'cr_rs',vd:'cr_vd',tk:'cr_tk',ls:'cr_ls',li:'cr_li',up:'cr_up',pay:'cr_pay',kh:'cr_kh',ct:'cr_ct',ag:'cr_ag',meta:'cr_meta',gf:'cr_gf',gq:'gq',vi:'cr_vi',vf:'cr_vf',du:'cr_du',gd:'cr_gd',tr:'cr_tr',ds:'cr_ds',ht:'cr_ht',hb:'cr_hb'};
 const C={ev:[],rs:[],vd:[],tk:[],ls:[],li:[],up:[],pay:[],kh:[],ct:[],ag:[],meta:[],gf:[],gq:[],vi:[],vf:[],du:[],gd:[],tr:[],ds:[],ht:[],hb:[]}, LOADED={};
-let GLQ='', GLS='all', GLN=150, GS='', VDO='', TAB='gl', DAY='', VQ='', VCAT='', TKF='b', TKW='', LSO='', KHW='', AGM='arr', AGK='all', AGC='', AGQ='', CTQ='', GFM='gf', RVF='all', RVQ='', RVN=150;
+let GLQ='', GLS='all', GLN=150, GS='', VDO='', TAB='gl', DAY='', VQ='', VCAT='', TKF='b', TKW='', LSO='', KHW='', AGM='arr', AGK='all', AGC='', AGQ='', CTQ='', GFM='gw', RVF='all', RVQ='', RVN=150;
 const ADMF={k:'adm',l:'🔔 एडमिन को सूचना?',t:'sel',o:[['','नहीं'],['1','हाँ – एडमिन का काम / एडमिन की मंज़ूरी चाहिए']]};
 const admPing=(what,title,o)=>ping('👑 '+what,title+(o&&o.note?' – '+o.note:'')+' (– '+ME.name+')',{admin:1,prio:4,tag:'crown'});
 let PUB={}; const SITE='https://adityakhhushboo.in/';
@@ -327,7 +327,7 @@ const EVI=id=>C.ev.find(e=>e.id===id), VDI=id=>C.vd.find(v=>v.id===id);
 const linkify=u=>/^https?:\/\//.test(u||'')?u:'';
 const CATS=['आर्टिस्ट / एंटरटेनमेंट','टेंट / शामियाना','हलवाई / केटरिंग','डेकोरेशन','लाइट / साउंड','LED वॉल / स्क्रीन','बैंड / ढोल','DJ','फ़ोटो / वीडियो','फूल','मेहंदी','पंडित जी','घोड़ी / बग्गी','गाड़ियाँ / ट्रांसपोर्ट','होटल / वेन्यू','प्रिंटिंग','मिठाई','SFX / आतिशबाज़ी','सुरक्षा','स्टेज / फ़र्नीचर','अन्य'];   // 12 Nov: + SFX, सुरक्षा, स्टेज / फ़र्नीचर (his rider vendor split)
 // ---------- data
-function sub(k){ onSnapshot(collection(db,COL[k]), s=>{ C[k]=s.docs.map(d=>({id:d.id,...d.data()})); LOADED[k]=true; XLG.warm(C[k],EN?'en':'hi'); if(k==='ev') seed(s); if(k==='gq'||k==='ag'||k==='meta') gqAuto(); sched(); }, e=>{ console.warn(k,e); LOADED[k]=true; sched(); }); }
+function sub(k){ onSnapshot(collection(db,COL[k]), s=>{ C[k]=s.docs.map(d=>({id:d.id,...d.data()})); LOADED[k]=true; XLG.warm(C[k],EN?'en':'hi'); if(k==='ev') seed(s); if(k==='gq'||k==='ag'||k==='meta') gqAuto(); if(k==='ag'||k==='meta') gwSched(); sched(); }, e=>{ console.warn(k,e); LOADED[k]=true; sched(); }); }
 let rq=0; function sched(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; render(); }); }
 async function put(k,id,data){ data.by=ME.name; data.at=Date.now();
   try{ if(id) await updateDoc(doc(db,COL[k],id),data); else await addDoc(collection(db,COL[k]),data); toast('सेव हो गया ✓'); return true; }
@@ -1443,7 +1443,7 @@ function tkFill(p){ const set=(k,v)=>{ const el=$('#fm-'+k); if(el&&v){ el.value
 
 // ---------- views
 const TABS=()=>[['gl','📋 मेहमान सूची'],['ag','🚉 मेहमान व होटल'],['rv','📞 RSVP कॉलिंग'],['aaj','🏠 आज'],['kar','📅 कार्यक्रम'],['du','👥 ड्यूटी'],['gd','🚗 गाड़ियाँ'],['vd','🧑‍🍳 वेंडर'],['ct','📞 संपर्क'],['tk','✅ काम'],['gf','🎁 गिफ्ट / हैम्पर'],['ls','📋 सूचियाँ'],...(ME.admin?[['hb','💰 हिसाब']]:ME.team?[['kh','💰 खर्च']]:[])];
-function render(){ if(!$('#s-cr').classList.contains('on')) return;
+function render(){ GWC=null; if(!$('#s-cr').classList.contains('on')) return;
   if(!TABS().some(t=>t[0]===TAB)) TAB='aaj';
   $('#tabs').innerHTML=TABS().map(([k,l])=>`<button class="chip${TAB===k?' on':''}" data-a="tab" data-v="${k}">${l}</button>`).join('');
   const gs=!!GS.trim(); document.querySelectorAll('.vw').forEach(v=>v.classList.toggle('on',gs?v.id==='v-gs':v.id==='v-'+TAB)); if(gs){ $('#tabs').querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on')); }
@@ -1892,6 +1892,8 @@ function vAaj(){ const t=TODAY(), evs=C.ev.filter(e=>e.d===t).sort(byT); let h=`
   const trT=C.tr.filter(x=>x.d===t).sort((a,b)=>(a.t||'99').localeCompare(b.t||'99')); if(trT.length) h+=`<div class="dh">🚗 आज की ट्रिप<span>${trT.length}</span></div>`+trT.map(trRow).join('');
   { const ids2=new Set(evs.map(e=>e.id)), gT=C.gf.filter(g=>g.st!=='d'&&(ids2.has(g.ev)||((g.ev==='@in'||g.ev==='@out')&&gfDay(g)===t)));   // 12 Nov: gifts to give today
     if(gT.length) h+=`<div class="dh">🎁 ${EN?'Gifts to give today':'आज देने वाले गिफ्ट'}<span>${gT.length}</span></div>`+gT.map(gfRow).join(''); }
+  if(ME.mgr){ const P=[...gwW().values()].filter(x=>!(GWS[x.g.rid]||{}).g&&x.a&&(x.a.ad===t||x.a.st==='p'||(x.a.ad&&x.a.ad<t))).sort((p,q)=>(p.a.ati||'99').localeCompare(q.a.ati||'99'));   // 12 Nov: card gift at check-in
+    if(P.length) h+=`<div class="dh">🎁 ${EN?'Card gift pending – arriving today / already here':'कार्ड वाला गिफ्ट बाकी – आज आने वाले / पहुँच चुके'}<span>${P.length}</span></div>`+P.map(gwRow).join(''); }
   const duT=C.du.filter(x=>duD(x)===t).sort((a,b)=>(a.t1||'99').localeCompare(b.t1||'99')); if(duT.length) h+=`<div class="dh">👥 आज की ड्यूटी<span>${duT.length}</span></div><div class="ev">${duT.map(duRow).join('')}</div>`;
   if(ME.admin){ const kt=C.kh.filter(k=>k.d===t); if(kt.length) h+=`<div class="dh">💰 टीम का आज का खर्च<span>${rup(sumA(kt))}</span></div>`+kt.map(khRow).join(''); }
   const gqp=ME.mgr?C.ag.filter(g=>gqNew(g)||(g.gqAt&&Date.now()-g.gqAt<48*3600e3)):[]; if(gqp.length) h+=`<div class="dh">📩 मेहमानों ने यात्रा जानकारी भेजी<span>${gqp.length}</span></div>`+gqp.map(agRow).join('');
@@ -1949,6 +1951,39 @@ function vLs(){ if(LSO&&!C.ls.some(l=>l.id===LSO)) LSO='';
      <div class="rw">${esc(x.text)}${x.qty?` <b style="font-family:Martel;color:var(--ol)">· ${esc(x.qty)}</b>`:''}<small>${[x.who?'👤 '+esc(x.who):'',x.note?esc(x.note):'',x.done&&x.doneBy?'✓ '+esc(x.doneBy):''].filter(Boolean).join(' · ')}</small></div>
      ${ME.mgr?`<button class="eb" data-a="lied" data-id="${x.id}">✏️</button>`:''}</div>`).join('')||'<div class="rs"><div class="rw sm">सूची खाली है</div></div>'}</div>`; }
 const AGS={a:'आना है',p:'पहुँच गए',g:'वापस गए'};
+// ---------- 🎁 कार्ड वाला गिफ्ट – बाहर से आने वाले (12 Nov 2026, his words: "jo guest bahar se confirm aane wale hai unko ye card wala gift toh 100% jana hi hai")
+//   his choices: confirmed = outside guest (बाहर / E-card बाहर) with RSVP "✅ आ रहे हैं" OR travel / hotel filled in 🚉 मेहमान व होटल (not when RSVP says ❌ नहीं आ पाएंगे);
+//   shown on the list (🎁 गिफ्ट दिया button + "ज़रूरी"), in the 🎁 गिफ्ट tab and as a check-in reminder (🏠 आज + every travel / hotel row).
+//   The TEB page (admin / team) marks them on the list's status as gw (list members can't read RSVP / travel); the tick is the list's own 🎁 गिफ्ट दिया (status g).
+const GWS={}; let GWL=false, GWT=0, GWC=null;
+const gwK=rid=>'s'+([...String(rid)].reduce((a,c)=>a+c.charCodeAt(0),0)%10);   // same status doc as the list page
+function gwSet(){ if(!GU) return null; const rv=rvMap(), out=new Map();
+  GU.forEach(g=>{ if(g.sec!=='ba'&&g.sec!=='eb') return; const s=(rv.get(g.rid)||{}).st; if(s==='n') return; const a=rvAg(g); if(s==='y'||a) out.set(g.rid,{g,a,s}); }); return out; }
+const gwW=()=>GWC||(GWC=gwSet()||new Map());
+function gwSub(){ onSnapshot(collection(db,'status'), q=>{ for(const k in GWS) delete GWS[k]; q.docs.forEach(d=>Object.assign(GWS,d.data())); GWL=true; gwSched(); sched(); }, e=>console.warn('status',e)); }
+function gwSched(){ clearTimeout(GWT); GWT=setTimeout(gwSync,1500); }
+async function gwSync(){ if(!ME.mgr||!GWL||!GU||!LOADED.meta||!LOADED.ag) return; const W=gwSet(); if(!W) return; const docs={}, put1=(rid,v)=>{ (docs[gwK(rid)]=docs[gwK(rid)]||{})[rid+'.gw']=v; };
+  W.forEach((x,rid)=>{ if(!(GWS[rid]||{}).gw) put1(rid,true); }); Object.entries(GWS).forEach(([rid,x])=>{ if(x&&x.gw&&!W.has(rid)) put1(rid,false); });
+  for(const [k,u] of Object.entries(docs)){ try{ await updateDoc(doc(db,'status',k),u); }catch(e){ console.warn('gw',e); } } }
+async function gwGive(rid,on){ const g=rvG(rid); if(!g||!ME.mgr) return; const at=Date.now();
+  GWS[rid]=Object.assign({},GWS[rid],{g:on,gBy:ME.name,gAt:at}); sched();
+  try{ await updateDoc(doc(db,'status',gwK(rid)),{[rid+'.g']:on,[rid+'.gBy']:ME.name,[rid+'.gAt']:at}); toast(on?(EN?'🎁 Gift given ✓':'🎁 गिफ्ट दिया ✓'):(EN?'Gift tick removed':'गिफ्ट का ✓ हटाया'));
+    addDoc(collection(db,'log'),{at:serverTimestamp(),uid:ME.uid,name:ME.name,act:'g',on,rid,no:g.no||'',nm:g.name}).catch(()=>{}); }
+  catch(e){ console.error(e); toast(EN?'Not saved – check the net':'सेव नहीं हुआ – नेट या अनुमति देखें'); } }
+function gwRow(x){ const s=GWS[x.g.rid]||{}, a=x.a, on=!!s.g;
+  return `<div class="row${on?' done':''}"><div class="rh"><div class="w"><b>${esc(nmE(x.g.name,x.g.rid))}</b><small>${[x.g.no?(EN?'No. ':'नं. ')+esc(x.g.no):'',x.g.city?'📍 '+esc(EN&&x.g.ce?x.g.ce:ctE(x.g.city)):'',
+      a&&a.ad?'⬇ '+dSh(a.ad)+(a.ati?' · '+tHi(a.ati):''):'',a&&a.hotel?'🏨 '+esc(a.hotel)+(a.room?(EN?' · room ':' · कमरा ')+esc(a.room):''):''].filter(Boolean).join(' · ')}</small>
+    <small>${[x.s==='y'?(EN?'✅ RSVP – coming':'✅ RSVP – आ रहे हैं'):'',a?(EN?'🚉 travel / hotel filled':'🚉 यात्रा / होटल भरी'):''].filter(Boolean).join(' · ')}</small>${on?`<small style="color:#1E7D45">✓ ${EN?'Gift given':'गिफ्ट दिया'} · ${esc(s.gBy||'')}${s.gAt?' · '+tm(s.gAt):''}</small>`:''}</div></div>
+    ${ME.mgr?`<div class="btns"><button data-a="gwg" data-id="${esc(x.g.rid)}" data-v="${on?'0':'1'}">${on?(EN?'↩ Remove tick':'↩ ✓ हटाएँ'):(EN?'✓ Gift given':'✓ गिफ्ट दे दिया')}</button></div>`:''}</div>`; }
+function gwAgLine(a){ if(a.kind||!ME.mgr) return ''; const rid=a.rid||(GUM.get(a.name)||{}).rid; if(!rid||!gwW().has(rid)) return ''; const s=GWS[rid]||{};
+  return s.g?`<small style="color:#1E7D45;display:block;margin-top:4px">🎁 ${EN?'Card gift ✓ given':'कार्ड वाला गिफ्ट ✓ दिया'} · ${esc(s.gBy||'')}${s.gAt?' · '+tm(s.gAt):''}</small>`
+    :`<div class="btns"><button data-a="gwg" data-id="${esc(rid)}" data-v="1" style="background:#FBF4E2;border-color:#B8892E;color:#5A3E00">🎁 ${EN?'Card gift pending – ✓ given':'कार्ड वाला गिफ्ट बाकी – ✓ दे दिया'}</button></div>`; }
+function gwBlock(){ if(!ME.mgr) return ''; const L=[...gwW().values()]; if(!GU) return `<p class="muted">${EN?'Loading the guest list…':'मेहमान सूची खुल रही है…'}</p>`;
+  const dn=L.filter(x=>(GWS[x.g.rid]||{}).g), pd=L.filter(x=>!(GWS[x.g.rid]||{}).g).sort((p,q)=>((p.a&&p.a.ad)||'9').localeCompare((q.a&&q.a.ad)||'9')||String(p.g.name).localeCompare(String(q.g.name),'hi'));
+  return `<div class="sum">🎁 ${EN?'Card gift – guests coming from outside':'कार्ड वाला गिफ्ट – बाहर से आने वाले'}<b>${L.length}</b><div class="money"><div>${EN?'Given':'दे दिए'}<b>${dn.length}</b></div><div class="bk">${EN?'Pending':'बाकी'}<b>${pd.length}</b></div></div>
+    <small class="sm">${EN?'RSVP ✅ coming or travel / hotel filled – this gift must reach every one of them':'RSVP ✅ आ रहे हैं या यात्रा / होटल भरी – इन सबको यह गिफ्ट ज़रूर देना है'}</small></div>`
+    +(pd.length?`<div class="dh">⏳ ${EN?'Still to give':'अभी देना बाकी'}<span>${pd.length}</span></div>`+pd.map(gwRow).join(''):'')
+    +(dn.length?`<details><summary class="sm">✓ ${EN?'Given':'दे दिए'} (${dn.length})</summary>${dn.map(gwRow).join('')}</details>`:''); }
 function agRow(g){ const arr=[g.ad?dSh(g.ad):'',g.ati?tHi(g.ati):''].filter(Boolean).join(' · '), dep=[g.dd?dSh(g.dd):'',g.dt?tHi(g.dt):''].filter(Boolean).join(' · ');
   return `<div class="row ag"><div class="rh"><button class="st ${g.st||'a'}" data-a="agst" data-id="${g.id}" ${ME.mgr?'':'disabled'}>${AGS[g.st||'a']}</button>
   <div class="w"><b>${esc(nmE(g.name,g.rid))}${g.ppl?` · ${g.ppl} लोग`:''}</b>${g.kind?`<small class="kd">${esc(AGKL(g.kind,g.cat))}${(v=>v?` · <a href="#" data-a="vdo" data-id="${v.id}">${esc(v.name)}</a>`:'')(g.vd&&VDI(g.vd))}${(g.evs||[]).map(EVI).filter(Boolean).map(e=>` · <a href="#" data-a="evo" data-id="${e.id}">${esc(e.title)}</a>`).join('')}</small>`:''}${g.cm?`<small class="cmx">👤 आ रहे हैं: <b>${esc(nmE(g.cm))}</b></small>`:''}${memNorm(g.mem).length?`<small class="cmx">👥 साथ में: <b>${esc(memTxtL(g.mem))}</b></small>`:''}${idWarn(g)}<small>${[g.city?'📍 '+esc(EN&&g.ce?g.ce:ctE(g.city)):'',g.ph?`<a href="tel:${ph10(g.ph)}">${ph10(g.ph)}</a>`:''].filter(Boolean).join(' · ')}</small>
@@ -1956,7 +1991,7 @@ function agRow(g){ const arr=[g.ad?dSh(g.ad):'',g.ati?tHi(g.ati):''].filter(Bool
   ${g.pick||g.car?`<small>🚗 लेने: ${[g.pick?esc(g.pick):'',g.pph?`<a href="tel:${ph10(g.pph)}">${ph10(g.pph)}</a>`:'',g.car?esc(g.car):''].filter(Boolean).join(' · ')}</small>`:''}
   ${g.hotel||g.room?`<small>🏨 ${esc(g.hotel||'')}${g.room?' · कमरा '+esc(g.room):''}</small>`:''}${g.rmq==='हाँ'&&!g.hotel?'<small class="late">🛏 कमरा चाहिए – अभी होटल तय नहीं</small>':''}${g.pkq==='हाँ'&&!g.pick?'<small class="late">🚗 पिकअप चाहिए – अभी कोई तय नहीं</small>':''}
   ${dep||g.dno||g.drop?`<small>⬆ वापसी: ${[dep,g.dno?esc(g.dno)+tfLive(g.dno):'',g.drop?'छोड़ने: '+esc(g.drop)+(g.dph?` <a href="tel:${ph10(g.dph)}">${ph10(g.dph)}</a>`:''):''].filter(Boolean).join(' · ')}</small>`:''}${g.note&&noteShow(g.note)?`<small>📝 ${esc(noteShow(g.note))}</small>`:''}${g.gqAt?`<small style="color:#1E7D45">📩 यह जानकारी मेहमान ने खुद भेजी · ${tm(g.gqAt)}</small>`:''}</div>
-  ${ME.mgr?`<button class="eb" data-a="aged" data-id="${g.id}">✏️</button>`:''}</div>
+  ${ME.mgr?`<button class="eb" data-a="aged" data-id="${g.id}">✏️</button>`:''}</div>${gwAgLine(g)}
   ${(()=>{ const q=ME.mgr&&gqNew(g); return q?`<div class="next" style="text-align:left;margin:8px 0 0;padding:8px 10px">📩 <b style="display:inline;font-size:14px">मेहमान ने खुद भेजा:</b> ${gqTxt(q)}<div class="btns"><button data-a="gqok" data-id="${g.id}">✓ यह जानकारी लगा दें</button>${(q.tk||[]).map((m,i)=>`<button data-a="gqtk" data-id="${g.id}" data-v="${i}">🎫 ${EN?'View ticket':'टिकट देखें'}${q.tk.length>1?' '+(i+1):''}</button>`).join('')}</div></div>`:''; })()}
   ${(()=>{ const fs=C.vf.filter(f=>f.ag===g.id); return fs.length?`<div class="btns">${fs.map(f=>`<button data-a="vfopen" data-id="${f.id}">${KL(f.kind)}${fs.filter(x=>x.kind===f.kind).length>1?' · '+esc(f.name).slice(0,14):''}</button>`).join('')}</div>`:''; })()}
   ${ME.mgr?`<div class="btns"><button data-a="agtr" data-id="${g.id}" data-v="p">🚗 पिकअप ट्रिप${C.tr.some(t=>t.ag===g.id&&t.kind==='p')?' ✓':''}</button><button data-a="agtr" data-id="${g.id}" data-v="d">🚗 छोड़ने की ट्रिप${C.tr.some(t=>t.ag===g.id&&t.kind==='d')?' ✓':''}</button><button data-a="agtk" data-id="${g.id}">🎫 टिकट डालें</button><button data-a="vfadd" data-id="${g.id}" data-v="agid">🪪 ID डालें</button>${true?`<button data-a="gplink" data-id="${g.id}">🔗 मेहमान का पेज${g.tok?' ✓':''}</button>`:''}</div>`:''}</div>`; }
@@ -2002,7 +2037,8 @@ const HPS={'':'हैम्पर बाकी',t:'तैयार',r:'कमर
 function gfRow(g){ const e=EVI(g.ev); return `<div class="row${g.st==='d'?' done':''}"><div class="rh"><button class="st ${g.st==='d'?'h':g.st==='t'?'c':'b'}" data-a="gfst" data-id="${g.id}" ${ME.mgr?'':'disabled'}>${GFS[g.st||'k']}</button>
   <div class="w"><b>${esc(g.to)}</b>${g.adm?`<span class="tag" style="background:#7A5A10">👑 एडमिन${g.admOk?' ✓':''}</span>`:''}<small>🎁 ${esc(g.what)}${g.qty?' · '+esc(g.qty):''}${gfWhen(g)?' · '+esc(gfWhen(g)):''}${g.who?' · 👤 '+esc(g.who):''}</small>${g.note?`<small>${esc(g.note)}</small>`:''}</div>
   ${ME.mgr?`<button class="eb" data-a="gfed" data-id="${g.id}">✏️</button>`:''}</div></div>`; }
-function vGf(){ let h=`<div class="chips">${[['gf','🎁 गिफ्ट'],['hp','🧺 रूम हैम्पर']].map(([k,l])=>`<button class="chip${GFM===k?' on':''}" data-a="gfm" data-v="${k}">${l}</button>`).join('')}</div>`;
+function vGf(){ let h=`<div class="chips">${[['gw',EN?'🎁 Card gift – outside':'🎁 कार्ड वाला गिफ्ट – बाहर वाले'],['gf','🎁 गिफ्ट'],['hp','🧺 रूम हैम्पर']].map(([k,l])=>`<button class="chip${GFM===k?' on':''}" data-a="gfm" data-v="${k}">${l}</button>`).join('')}</div>`;
+  if(GFM==='gw'){ h+=gwBlock(); $('#v-gf').innerHTML=h; return; }
   if(GFM==='gf'){ const n=k=>C.gf.filter(g=>(g.st||'k')===k).length;
     h+=`<div class="sum">गिफ्ट<b>${C.gf.length}</b><div class="money"><div>खरीदना है<b>${n('k')}</b></div><div>तैयार<b>${n('t')}</b></div><div>दे दिए<b>${n('d')}</b></div></div></div>`;
     if(ME.mgr) h+='<button class="add" data-a="gfadd">+ नया गिफ्ट</button>';
@@ -2086,6 +2122,7 @@ document.addEventListener('click',async e=>{ const b=e.target.closest('[data-a]'
     case 'gplink': gpLink(R('ag')); break; case 'gpall': gpAll(); break; case 'gpxl': gpXl(); break; case 'gpwa': { const g=R('ag'); if(g) gpWa(g); break; } case 'gpcp': { const g=R('ag'); if(g) gpCopy(g); break; }
     case 'gpsent': { const g=R('ag'); if(g) updateDoc(doc(db,'cr_ag',g.id),{gpAt:Date.now(),gpBy:ME.name}).catch(()=>{}); return; } case 'lgset': fLg(); break; case 'imx': $('#im-f').click(); break; case 'imtpl': imTpl(); break;
     case 'rvf': RVF=v; RVN=150; render(); break; case 'rvmore': RVN+=150; render(); break; case 'rvxl': rvXl(); break; case 'xp': { const [k,f]=String(v).split(':'); await xpRun(k,f==='pdf'); break; } case 'rvlkall': if(ME.mgr) await rvLinkAll(); break; case 'rvlkxl': if(ME.mgr) rvLinkXl(); break; case 'rvwa': { if(!ME.mgr) break; const g=rvG(id); if(g) await rvWa(g); break; } case 'rvimp': { const f=$('#rv-file'); if(f) f.click(); break; } case 'rvgo': if(ME.mgr) await rvApply(); break; case 'rvpx': RVP=null; render(); break;
+    case 'gwg': { if(!ME.mgr) break; const on=v==='1'; if(!on&&!confirm(EN?'Remove the gift tick?':'गिफ्ट का ✓ हटाएँ?')) break; await gwGive(id,on); break; }
     case 'rvst': { if(!ME.mgr) break; const g=rvG(id); if(g&&await rvSave(g,{st:v},true)){ const a=v==='n'&&rvAg(g); if(a) toast('ध्यान दें: इनकी यात्रा 🚉 मेहमान व होटल में है – ज़रूरत न हो तो वहाँ से हटाएँ'); } break; }
     case 'rvy': { if(!ME.mgr) break; const g=rvG(id); if(g) fRvY(g); break; } case 'rvnote': { if(!ME.mgr) break; const g=rvG(id); if(g) fRvNote(g); break; }
     case 'gls': GLS=v; GLN=150; render(); break; case 'glmore': GLN+=150; render(); break;
@@ -2171,7 +2208,7 @@ function tjInit(d){ const b=$('#tj-go'); if(!b) return; const n=$('#tj-n'); if(n
     if(adm){ ME.admin=true; ME.name=(d&&d.name)||'शिवम (एडमिन)'; } else if(d&&d.team){ ME.name=d.name||''; ME.team=true; } else { if(d){ $('#no-h').textContent='यह पेज सिर्फ़ इवेंट टीम के लिए है'; $('#no-p').innerHTML='TEB Management सिर्फ़ एडमिन और इवेंट टीम खोल सकते हैं। <a href="./">सूची खोलें</a>'; } show('s-no'); tjInit(d); return; }   // 10 Nov: family = list only · 11 Nov: or TEB team password
     ME.mgr=ME.admin||ME.team; $('#who').textContent='आप: '+ME.name+(ME.admin?' · एडमिन':ME.team?' · ⭐ टीम':' · सिर्फ़ देखने के लिए');
     $('#crme').textContent=ME.mgr?'बदलाव सबको तुरंत दिखेंगे':'आप सिर्फ़ देख सकते हैं';
-    ['ev','rs','vd','tk','ls','li','up','ct','ag','meta','gf','vi','vf','du','gd','tr','ds','ht'].forEach(sub); if(ME.admin){ sub('pay'); sub('hb'); } if(ME.mgr){ sub('kh'); sub('gq'); }
+    ['ev','rs','vd','tk','ls','li','up','ct','ag','meta','gf','vi','vf','du','gd','tr','ds','ht'].forEach(sub); if(ME.admin){ sub('pay'); sub('hb'); } if(ME.mgr){ sub('kh'); sub('gq'); gwSub(); loadGuests().then(()=>{ gwSched(); sched(); }); }
     onSnapshot(doc(db,'config','public'), p=>{ PUB=p.exists()?p.data():{}; if(ME.admin&&!PUB.crNtfy){ const tp='shaadi-cr-'+Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);
       setDoc(doc(db,'config','public'),{crNtfy:tp},{merge:true}).catch(()=>{}); } sched(); }, ()=>{});
     if(ME.mgr) setTimeout(lateDaily, 6000);

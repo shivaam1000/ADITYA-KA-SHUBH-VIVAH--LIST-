@@ -552,11 +552,24 @@ function printCss(){ let t=''; for(const ss of Array.from(document.styleSheets))
   return t; }
 let BUSY=false;
 async function run(fn){ const E=en(); if(BUSY) return; BUSY=true; try{ await fn(E); }catch(e){ console.error(e); busy(null); say(E?'Could not make the PDF – press again':'PDF नहीं बना – दोबारा दबाएँ'); } finally{ BUSY=false; } }
+// 13 Nov 2026 (his words): "saara content hi bold karde na font size 11 pt ke sath / kuch bhi downloadable file ho chahe admin chahe teb chahe family /
+//   sab ke liye ek hi jaisa format / 11 pt size / bold" -> every list PDF: all text bold, 11 pt (title a little bigger);
+//   print views (programme sheet, WhatsApp report …): all text bold and nothing smaller than 11 pt (bigger headings stay bigger).
+//   Not for the 13 x 19 sticker / programme-card print sheets (fixed designs).
+function b11(root,px){ const win=root.ownerDocument.defaultView, keep=[];
+  [root,...root.querySelectorAll('*')].forEach(e=>{ if(!e.style||(e.closest&&e.closest('svg')&&e.tagName.toLowerCase()!=='svg')) return; const f=parseFloat(win.getComputedStyle(e).fontSize)||0;
+    keep.push([e,e.style.getPropertyValue('font-size'),e.style.getPropertyPriority('font-size'),e.style.getPropertyValue('font-weight'),e.style.getPropertyPriority('font-weight')]);
+    e.style.setProperty('font-weight','700','important'); if(f&&f<px-.05) e.style.setProperty('font-size',px+'px','important'); });
+  return ()=>keep.forEach(([e,fs,fp,fw,wp])=>{ if(fs) e.style.setProperty('font-size',fs,fp); else e.style.removeProperty('font-size'); if(fw) e.style.setProperty('font-weight',fw,wp); else e.style.removeProperty('font-weight'); }); }
+// laptops: the browser's print box, with the same bold 11 pt look while printing
+function prt(el){ const u=el?b11(el,11*96/72):()=>{}; let d=false; const done=()=>{ if(d) return; d=true; removeEventListener('afterprint',done); u(); }; addEventListener('afterprint',done); window.print(); }
 // ---- lists / sheets (A4 landscape), drawn straight on canvas
 function table(fname,title,sub,head,rows,o){ o=o||{}; return run(async E=>{ busy(E?'Making the PDF…':'PDF बन रहा है…'); await fonts();
-    const PW=1123, PH=794, M=30, S=2, fs=o.fs||10.5, lh=Math.round(fs*1.32*10)/10, pad=3, n=head.length, TW=PW-2*M;
-    const FF='PdfTiro,"Tiro Devanagari Hindi","Noto Sans Devanagari","Kohinoor Devanagari",serif', FB='PdfMartel,"Martel",'+FF, fN=fs+'px '+FF, fH='700 '+fs+'px '+FB, fG='700 '+(fs+1)+'px '+FB;
+    const PW=1123, PH=794, M=30, S=2, fs=11*96/72, lh=Math.round(fs*1.3*10)/10, pad=3, n=head.length, TW=PW-2*M;   // 1123 px = 842 pt -> 14.67 px = 11 pt
+    const FF='PdfTiro,"Tiro Devanagari Hindi","Noto Sans Devanagari","Kohinoor Devanagari",serif', FB='PdfMartel,"Martel",'+FF, fN='700 '+fs+'px '+FB, fH='700 '+fs+'px '+FB, fG='700 '+fs+'px '+FB;
     const cv=document.createElement('canvas'); cv.width=PW*S; cv.height=PH*S; const x=cv.getContext('2d');
+    // 13 Nov (his words): "pdf download hone ke baad naam ke fonts aur size thik nahi hai aur bold bhi nahi hai" -> o.bc = name columns: bold Martel, a little bigger
+    const BC=o.bc||[], bfs=o.bfs||fs, isB=i=>BC.includes(i), fC=i=>isB(i)?'700 '+bfs+'px '+FB:fN, lhC=i=>isB(i)?Math.round(bfs*1.3*10)/10:lh;
     const seg=w=>{ try{ if(window.Intl&&Intl.Segmenter) return Array.from(new Intl.Segmenter().segment(w),s=>s.segment); }catch(_){} return Array.from(w); };
     const wrap=(t,w,font)=>{ x.font=font; const out=[]; String(t??'').split('\n').forEach(par=>{ let line=''; par.split(/\s+/).forEach(wd=>{ if(!wd) return; const tl=line?line+' '+wd:wd;
         if(x.measureText(tl).width<=w){ line=tl; return; } if(line) out.push(line); if(x.measureText(wd).width<=w){ line=wd; return; }
@@ -564,21 +577,26 @@ function table(fname,title,sub,head,rows,o){ o=o||{}; return run(async E=>{ busy
     let W; if(o.w&&o.w.length===n){ const t=o.w.reduce((a,b)=>a+b,0); W=o.w.map(v=>v/t*TW); }
     else { const mx=head.map((h,i)=>{ x.font=fH; let m=Math.min(160,x.measureText(String(h)).width); x.font=fN; rows.forEach(r=>{ if(Array.isArray(r)) m=Math.max(m,Math.min(300,x.measureText(String(r[i]??'')).width)); }); return m+2*pad+4; });
       const t=mx.reduce((a,b)=>a+b,0); W=mx.map(v=>v/t*TW); }
-    const hl=head.map((h,i)=>wrap(h,W[i]-2*pad,fH)), hh=Math.max(...hl.map(l=>l.length))*lh+2*pad, top0=M+48, maxL=Math.max(1,Math.floor((PH-M-24-top0-hh-2*pad)/lh));
+    { // 11 pt bold is wider: a column is never narrower than its longest word (no "E-car / d"), the extra comes from the wide columns
+      const mw=(t,m)=>{ String(t??'').split(/\s+/).forEach(wd=>{ if(wd){ const v=x.measureText(wd).width; if(v>m.v) m.v=v; } }); };
+      const mn=head.map((h,i)=>{ const m={v:0}; x.font=fH; mw(h,m); x.font=fC(i); rows.forEach(r=>{ if(Array.isArray(r)) mw(r[i],m); }); return Math.min(m.v+2*pad+2,TW*.3); }), tm=mn.reduce((a,b)=>a+b,0);
+      if(tm>=TW) W=mn.map(v=>v/tm*TW);
+      else { W=W.map((v,i)=>Math.max(v,mn[i])); for(let it=0;it<30;it++){ const over=W.reduce((a,b)=>a+b,0)-TW; if(over<=.5) break; const sl=W.map((v,i)=>Math.max(0,v-mn[i])), st=sl.reduce((a,b)=>a+b,0); if(st<=0) break; W=W.map((v,i)=>v-over*sl[i]/st); } } }
+    const hl=head.map((h,i)=>wrap(h,W[i]-2*pad,fH)), hh=Math.max(...hl.map(l=>l.length))*lh+2*pad, top0=M+58, maxL=Math.max(1,Math.floor((PH-M-24-top0-hh-2*pad)/lh));
     const R=rows.map(r=>{ if(!Array.isArray(r)){ const l=wrap(r&&r.grp!=null?r.grp:'',TW-2*pad,fG).slice(0,maxL); return {g:1,l,h:l.length*(lh+1)+2*pad+2}; }
-      const c=head.map((_,i)=>wrap(r[i],W[i]-2*pad,fN).slice(0,maxL)); return {c,h:Math.max(...c.map(l=>l.length))*lh+2*pad}; });
+      const c=head.map((_,i)=>wrap(r[i],W[i]-2*pad,fC(i)).slice(0,maxL)); return {c,h:Math.max(...c.map((l,i)=>l.length*lhC(i)))+2*pad}; });
     const pages=[]; let cur=[], y=top0+hh; R.forEach(r=>{ if(y+r.h>PH-M-24&&cur.length){ pages.push(cur); cur=[]; y=M+hh; } cur.push(r); y+=r.h; }); if(cur.length||!pages.length) pages.push(cur);
     for(let k=0;k<pages.length-1;k++){ const P=pages[k]; if(P.length>1&&P[P.length-1].g) pages[k+1].unshift(P.pop()); }   // a group title never stays alone at a page end
     const imgs=[], N=pages.length;
     for(let k=0;k<N;k++){ if(N>2) busy((E?'Making the PDF… ':'PDF बन रहा है… ')+(k+1)+' / '+N);
       x.setTransform(S,0,0,S,0,0); x.fillStyle='#fff'; x.fillRect(0,0,PW,PH); x.textBaseline='top'; let yy=M;
-      if(k===0){ x.fillStyle='#4E5B2E'; x.font='700 17px '+FB; x.fillText(String(title||''),M,M,TW); x.fillStyle='#7A5A10'; x.font='12px '+FF; x.fillText(String(sub||''),M,M+26,TW); yy=top0; }
+      if(k===0){ x.fillStyle='#4E5B2E'; x.font='700 21px '+FB; x.fillText(String(title||''),M,M,TW); x.fillStyle='#7A5A10'; x.font=fN; x.fillText(String(sub||''),M,M+31,TW); yy=top0; }
       x.fillStyle='#4E5B2E'; x.fillRect(M,yy,TW,hh); let xx=M; x.font=fH; x.fillStyle='#fff'; hl.forEach((l,i)=>{ l.forEach((t,j)=>x.fillText(t,xx+pad,yy+pad+j*lh)); xx+=W[i]; }); yy+=hh;
       x.lineWidth=.7; x.strokeStyle='#D8CDAE';
       pages[k].forEach(r=>{ if(r.g){ x.fillStyle='#EFE6CF'; x.fillRect(M,yy,TW,r.h); x.strokeRect(M,yy,TW,r.h); x.fillStyle='#8E1B0E'; x.font=fG; r.l.forEach((t,j)=>x.fillText(t,M+pad,yy+pad+1+j*(lh+1))); }
-        else { let cx=M; x.font=fN; x.fillStyle='#2F3A12'; r.c.forEach((l,i)=>{ x.strokeRect(cx,yy,W[i],r.h); const cc=(o.cc||[]).includes(i); l.forEach((t,j)=>{ if(cc){ x.textAlign='center'; x.fillText(t,cx+W[i]/2,yy+pad+j*lh); x.textAlign='left'; } else x.fillText(t,cx+pad,yy+pad+j*lh); }); cx+=W[i]; }); }
+        else { let cx=M; r.c.forEach((l,i)=>{ x.strokeRect(cx,yy,W[i],r.h); x.font=fC(i); x.fillStyle=isB(i)?'#1F2A08':'#2F3A12'; const cc=(o.cc||[]).includes(i), h1=lhC(i); l.forEach((t,j)=>{ if(cc){ x.textAlign='center'; x.fillText(t,cx+W[i]/2,yy+pad+j*h1); x.textAlign='left'; } else x.fillText(t,cx+pad,yy+pad+j*h1); }); cx+=W[i]; }); }
         yy+=r.h; });
-      x.fillStyle='#7A7A6A'; x.font='10px '+FF; x.textAlign='right'; x.fillText((E?'Page ':'पेज ')+(k+1)+' / '+N+'  ·  '+String(fname||''),PW-M,PH-M-10,TW); x.textAlign='left';
+      x.fillStyle='#5E6450'; x.font=fN; x.textAlign='right'; x.fillText((E?'Page ':'पेज ')+(k+1)+' / '+N+'  ·  '+String(fname||''),PW-M,PH-M-14,TW); x.textAlign='left';
       imgs.push({...jpg(cv,.85),pw:842,ph:595}); await wait(0); }
     busy(null); give(blob(imgs),fname); }); }
 // ---- any print view -> A4 portrait pages (laid out at A4 width, page breaks only between lines / rows / blocks)
@@ -588,6 +606,7 @@ function html(el,o){ o=o||{}; return run(async E=>{ if(!el) throw new Error('no 
     let BP=[], EH=0, EW=0;
     const prep=(d,meas)=>{ const st=d.createElement('style'); st.textContent=pc+'\n*{animation:none!important;transition:none!important}'; d.head.appendChild(st); if(o.cls) o.cls.split(' ').forEach(c=>c&&d.body.classList.add(c));
       const t=d.getElementById(id); if(!t) return; t.style.setProperty('display','block','important'); if(o.clean) t.querySelectorAll(o.clean).forEach(z=>z.remove()); t.querySelectorAll('details').forEach(z=>z.open=true);
+      if(o.b11!==false) b11(t,11*W/(595-60));   // 13 Nov: bold, nothing under 11 pt on the A4 page
       if(meas){ const r0=t.getBoundingClientRect(); EH=Math.ceil(Math.max(t.scrollHeight,r0.height)); EW=Math.ceil(r0.width); const s=new Set();
         t.querySelectorAll('tr,h1,h2,h3,h4,h5,p,li,summary,table,img,div,section,details').forEach(z=>{ const r=z.getBoundingClientRect(); if(r.height>0) s.add(Math.round(r.bottom-r0.top)); });
         BP=[...s].filter(v=>v>0).sort((a,b)=>a-b); } };
@@ -619,7 +638,7 @@ function sheets(sel,wIn,hIn,fname,o){ o=o||{}; return run(async E=>{ const L2=[.
           g.setTransform(1,0,0,1,0,0); g.drawImage(c2,parseFloat(hold.style.left)*k,parseFloat(hold.style.top)*k,parseFloat(hold.style.width)*k,parseFloat(hold.style.height)*k); c2.width=c2.height=1; } }
       imgs.push({...jpg(cv,.92),pw:wIn*72,ph:hIn*72}); cv.width=cv.height=1; await wait(0); }
     busy(null); give(blob(imgs),fname||document.title||'print'); }); }
-return {MOB,en,busy,say,fonts,blob,give,table,html,sheets,h2c};
+return {MOB,en,busy,say,fonts,blob,give,table,html,sheets,h2c,b11,prt};
 })();
 
 
@@ -867,7 +886,7 @@ function wcsv(){ wreport(); const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
   a.download='WhatsApp रिपोर्ट - '+CAMP.title.replace(/[\\/:*?"<>|]+/g,' ')+' - '+new Date().toLocaleDateString('en-CA')+'.csv'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},600); }
 function wpdf(){ wreport(); document.querySelectorAll('#wrep details').forEach(d=>d.open=true);
   if(PK.MOB){ PK.html(document.getElementById('s-wr'),{fname:'WhatsApp report - '+(CAMP&&CAMP.id||'abhiyaan')+' - '+new Date().toLocaleDateString('en-CA'),clean:'.bar'}); return; }   // 11 Nov: phones – real PDF
-  setTimeout(()=>window.print(),150); }
+  setTimeout(()=>PK.prt(document.getElementById('s-wr')),150); }   // 13 Nov: bold 11 pt while printing
 function wloadAll(){ wgroups(CAMP).reduce((p,g)=>p.then(()=>wload(CAMP,g)), Promise.resolve()); }
 function wpick(id){ const c=CAMPS.find(x=>x.id===id); if(!c) return; if(CAMP.id!==id) WLAST=''; CAMP=c; WVER=wgroups(c)[0]; WST='left'; WLIM=60; WQ=''; $('#wq').value='';
   $('#wm').value=c.msg||''; $('#wm2').value=c.msgOut||''; wsteps(); wrender(); wloadAll(); if(WRP) wapiPlan(); }

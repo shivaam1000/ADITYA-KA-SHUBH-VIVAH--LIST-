@@ -26,7 +26,7 @@ label{display:block;font-size:14px;color:var(--mu);margin:10px 0 4px}
 .sbox svg{position:absolute;left:12px;top:50%;transform:translateY(-50%)}.sbox .x{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:#EFE6CC;border-radius:50%;width:24px;height:24px;line-height:22px;display:none}
 .lang{display:flex;border:1.8px solid var(--ol);border-radius:22px;overflow:hidden}.lang button{border:0;background:#fff;padding:0 12px;font-weight:700}.lang button.on{background:var(--ol);color:#fff}
 .chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
-.chip{flex:none;border:1.3px solid #D8CDAE;background:#fff;border-radius:16px;padding:5px 11px;font-size:13.5px;white-space:nowrap}.chip.on{background:var(--ol);border-color:var(--ol);color:#fff}
+.chip{flex:none;border:1.3px solid #D8CDAE;background:#fff;border-radius:16px;padding:5px 11px;font-size:13.5px;white-space:nowrap}.chip.on{background:var(--ol);border-color:var(--ol);color:#fff}.hxs{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:80;display:none;align-items:flex-end;justify-content:center}.hxs.on{display:flex}.hxb{background:#fff;width:100%;max-width:560px;max-height:86vh;border-radius:16px 16px 0 0;padding:14px 14px 16px;display:flex;flex-direction:column}.hxl{overflow:auto;flex:1;margin:8px 0;min-height:120px}.hxr{display:flex;gap:10px;align-items:center;padding:9px 2px;border-bottom:1px solid #F0E8D2;font-size:15px;cursor:pointer}.hxr input{width:21px;height:21px;flex:none;accent-color:#B3261E}.hxr small{margin-left:auto;color:var(--mu);font-size:13px}
 .sel{flex:none;border:1.3px solid #D8CDAE;background:#fff;border-radius:16px;padding:5px 8px;font-size:13.5px;max-width:200px}
 .stats{display:flex;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--mu);padding-top:6px}.stats b{color:var(--ol)}
 .sec{margin-top:14px;background:var(--ol2);color:#fff;font-family:"Martel";text-align:center;border-radius:10px;padding:8px 6px;font-size:15.5px}
@@ -212,7 +212,7 @@ function teWord(w){ const N={'क़':'q','ख़':'kh','ग़':'g','ज़':'z
 function toEn(s){ return trTok(s).map(w=>{ if(/[A-Za-z]/.test(w)) return w; return TRE[w]||TRE0[w]||teWord(w); }).join(' ').replace(/ & /g,' & '); }
 function toHi(s){ return trTok(s).map(w=>{ if(w==='&') return 'एवं'; if(!/[A-Za-z]/.test(w)) return w; const k=w.toLowerCase().replace(/\./g,''); return TRD[k]||TRW[k]||trWord(k.replace(/[^a-z]/g,'').replace(/^(.{3,}[bcdfghjklmnpqstvz])er$/,'$1ar')); }).join(' '); }
 let G=[],D=[],IX=[],ZSUB={},ZF={},ZONES=[],HEADS=[], ST={}, ME={uid:'',name:'',admin:false,team:false,mgr:false,wr:false};
-let L='hi', Q='', SEC='all', FN=null, STF='all', PC=false, GF=false, ZN='', HD='', LIMIT=400, OPEN=new Set();
+let L='hi', Q='', SECS=new Set(), HX=new Set(), HXQ='', FN=null, STF='all', PC=false, GF=false, ZN='', HD='', LIMIT=400, OPEN=new Set();
 const T={hi:{sec:{all:'सब',jo:'जोधपुर',ba:'बाहर',ej:'E-card जोधपुर',eb:'E-card बाहर'},fn:['विनायक','तिलक-स्वागत','गीत-भोज','शुभ विवाह'],fs:['18 विनायक','20 तिलक','21 गीत-भोज','21 विवाह'],
   st:{all:'सब',done:'पहुँचा ✓',left:'बाकी'},pc:'प्रोग्राम कार्ड',gift:'गिफ्ट',zone:'सारे ज़ोन / शहर',head:'सारी हेडिंग',tot:'कुल',vis:'दिख रहे',dn:'पहुँचा',lf:'बाकी',gf:'गिफ्ट दिया',
   dlL:'📋 यही सूची',dlY:'🚉 बाहर वालों की यात्रा',rtick:'कार्ड तैयार',tick:'पहुँचा',gtick:'गिफ्ट दिया',gwn:'ज़रूरी – बाहर से आ रहे',none:'कोई नाम नहीं मिला – स्पेलिंग थोड़ी बदल कर देखें',more:'और दिखाएँ',ph:'नाम, मोबाइल, स्टिकर नं., क्षेत्र… (हिंदी / English)',env:'लिफ़ाफ़ा',sfam:'सपरिवार'},
@@ -237,7 +237,8 @@ function match(i,q){const x=IX[i];if(!q)return true;const qd=q.replace(/\s/g,'')
 function hl(text){if(!Q)return esc(text);const ts=Q.trim().split(/\s+/).filter(t=>t.length>1&&!STOP.has(t.toLowerCase()));let h=esc(text);
   for(const t of ts){const re=new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');h=h.replace(re,'<mark>$1</mark>');}return h;}
 function chips(){const t=T[L];
-  $('#c1').innerHTML=Object.keys(t.sec).map(k=>`<button class="chip ${SEC===k?'on':''}" data-sec="${k}">${t.sec[k]}</button>`).join('')+t.fs.map((f,i)=>`<button class="chip ${FN===i?'on':''}" data-fn="${i}">${f}</button>`).join('');
+  $('#c1').innerHTML=Object.keys(t.sec).map(k=>`<button class="chip ${(k==='all'?!SECS.size:SECS.has(k))?'on':''}" data-sec="${k}">${t.sec[k]}</button>`).join('')
+    +`<button class="chip ${HX.size?'on':''}" data-hx="1">🚫 ${HX.size?(L==='en'?HX.size+' headings left out':HX.size+' हेडिंग हटाईं'):(L==='en'?'Leave out headings':'हेडिंग हटाएँ')}</button>`+(HX.size?`<button class="chip" data-hxc="1" aria-label="${L==='en'?'Bring all headings back':'सब हेडिंग वापस'}">×</button>`:'')+t.fs.map((f,i)=>`<button class="chip ${FN===i?'on':''}" data-fn="${i}">${f}</button>`).join('');
   $('#c2').innerHTML=Object.keys(t.st).map(k=>`<button class="chip ${STF===k?'on':''}" data-st="${k}">${t.st[k]}</button>`).join('')+
    `<button class="chip ${PC?'on':''}" data-pc="1">${t.pc} ✓</button><button class="chip ${GF?'on':''}" data-gf="1">${t.gift}</button>`+
    `<button class="chip ${NUMF?'on':''}" data-numf="1">📵 ${L==='en'?'Wrong / no number':'नंबर गलत / बाकी'} ${D.filter(mobBad).length}</button>`+
@@ -263,9 +264,29 @@ function wline(r){ if(!ME.wr||!wmy(r)) return ''; const en=L==='en', a=Object.en
     ? `<span class="ok"><i class="wai"></i>${esc(WCT[c])}: ✓ ${x.api?(en?'sent by API':'API से गया'):''}${x.api&&x.me?' + ':''}${x.me?esc(x.me.by||'')+(x.me.via==='team'?(en?' (event team)':' (इवेंट टीम)'):''):''}</span>`
     : `<a class="no" href="tebteam.html#c=${c}&q=${encodeURIComponent(r[2])}"><i class="wai"></i>${esc(WCT[c])}: ✗ ${en?'not sent – send now ›':'नहीं गया – अभी भेजें ›'}</a>`);
   return a.length?`<div class="wal">${a.join('')}</div>`:''; }
+// 13 Nov (his words): "ek hi time pe ek list chahiye / e card and outside e card but heading me kuch nahi lena ho toh / kisi particular heading wale naam nahi lene ho toh"
+//   -> section chips combine (tap E-card जोधपुर + E-card बाहर = one list; सब = all again) + 🚫 हेडिंग हटाएँ: tick the headings to leave out.
+//   The list, ⬇ Excel / PDF, 🖨 print and 📦 delivery link all follow what is on the screen.
+const hxKey=r=>(r[5]||'')+'|'+(r[6]||'');
+function hxOpen(){ let s=document.getElementById('hx-s'); if(!s){ s=document.createElement('div'); s.id='hx-s'; s.className='hxs'; document.body.appendChild(s);
+    s.addEventListener('click',e=>{ if(e.target===s){ hxClose(); return; } const b=e.target.closest('button'); if(!b) return; if(b.dataset.hxdone) hxClose(); else if(b.dataset.hxall){ HX.clear(); hxDraw(true); chips(); render(); } });
+    s.addEventListener('change',e=>{ const c=e.target; if(!c.dataset||c.dataset.hxk==null) return; c.checked?HX.add(c.dataset.hxk):HX.delete(c.dataset.hxk); hxDraw(true); chips(); render(); });
+    s.addEventListener('input',e=>{ if(e.target.id==='hx-q'){ HXQ=e.target.value; hxDraw(true); } }); }
+  HXQ=''; hxDraw(); s.classList.add('on'); document.body.style.overflow='hidden'; }
+function hxClose(){ const s=document.getElementById('hx-s'); if(s) s.classList.remove('on'); document.body.style.overflow=''; }
+function hxDraw(keep){ const s=document.getElementById('hx-s'); if(!s) return; const en=L==='en', cnt=new Map();
+  D.forEach(r=>{ const g=G[r[1]]; if(!g||(SECS.size&&!SECS.has(g[6]))) return; const k=hxKey(r); if(k!=='|') cnt.set(k,(cnt.get(k)||0)+1); });
+  const q=HXQ.trim().toLowerCase(), L2=HEADS.map(h=>[h,h[0]+'|'+h[1]]).filter(([h,k])=>cnt.has(k)||HX.has(k)).filter(([h])=>!q||(h[0]+' '+h[1]).toLowerCase().includes(q)).sort((a,b)=>(cnt.get(b[1])||0)-(cnt.get(a[1])||0));
+  const rows=L2.map(([h,k])=>`<label class="hxr"><input type="checkbox" data-hxk="${esc(k)}" ${HX.has(k)?'checked':''}><span>${esc(en&&h[1]?h[1]:(h[0]||h[1]))}</span><small>${cnt.get(k)||0}</small></label>`).join('')||`<p class="muted">${en?'No heading found':'कोई हेडिंग नहीं मिली'}</p>`;
+  const n=HX.size?(en?HX.size+' left out':HX.size+' हटाईं'):'', sec=SECS.size?' · '+[...SECS].map(k=>T[L].sec[k]).join(' + '):'';
+  if(keep&&s.querySelector('.hxl')){ s.querySelector('.hxl').innerHTML=rows; s.querySelector('.hxn').textContent=n; s.querySelector('.hxsec').textContent=sec; return; }
+  s.innerHTML=`<div class="hxb"><b style="font-size:17px">🚫 ${en?'Leave out headings':'हेडिंग हटाएँ'}<span class="hxsec" style="font-weight:400;font-size:13.5px;color:var(--mu)">${esc(sec)}</span></b>
+    <small class="muted" style="display:block;margin:3px 0 8px">${en?'Tick the headings whose names you do not want – they leave the list, Excel / PDF and print. The number = names in that heading.':'जिन हेडिंग के नाम नहीं चाहिए उन पर ✓ लगाएँ – वे सूची, Excel / PDF और प्रिंट से हट जाएँगे। संख्या = उस हेडिंग के नाम।'}</small>
+    <input class="in" id="hx-q" placeholder="${en?'Search heading…':'हेडिंग खोजें…'}" autocomplete="off" value="${esc(HXQ)}"><div class="hxl">${rows}</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="hxn" style="font-weight:700;color:#B3261E">${n}</span><button class="nob" data-hxall="1" style="margin-left:auto">↩ ${en?'Bring all back':'सब वापस'}</button><button class="ok" data-hxdone="1">✓ ${en?'Done':'हो गया'}</button></div></div>`; }
 function hitsNow(q){ const hits=[];
   for(let i=0;i<D.length;i++){const r=D[i],g=G[r[1]],s=st(r[0]);
-    if(SEC!=='all'&&g[6]!==SEC)continue; if(FN!==null&&!r[10][FN])continue; if(PC&&r[12]!=='✓')continue; if(GF&&!gOk(r))continue;
+    if(SECS.size&&!SECS.has(g[6]))continue; if(HX.size&&HX.has(hxKey(r)))continue; if(FN!==null&&!r[10][FN])continue; if(PC&&r[12]!=='✓')continue; if(GF&&!gOk(r))continue;
     if(ZN&&g[3]!==ZN)continue; if(HD&&r[6]!==HD)continue; if(STF==='done'&&!s.d)continue; if(STF==='left'&&s.d)continue; if(WAF&&!wfailR(r))continue; if(NUMF&&!mobBad(r))continue; if(!match(i,q))continue; hits.push(i);}
   const SO={jo:0,ba:1,ej:2,eb:3,ho:4}, key=i=>{ const g=G[D[i][1]]; if(!g) return [9,1e9,1e9,i]; return [SO[g[6]]??9, ZF[g[0]+g[2]]??D[i][1], D[i][1]]; };   // 10 Nov: a moved name shows inside its new area
   return hits.map(i=>[key(i),i]).sort((a,b)=>(a[0][0]-b[0][0])||(a[0][1]-b[0][1])||(a[0][2]-b[0][2])||(a[1]-b[1])).map(x=>x[1]); }
@@ -273,7 +294,7 @@ function render(){if(!D.length)return;const t=T[L], q=Q.trim(), hits=hitsNow(q);
   let done=0,gifts=0; for(const r of D){const s=st(r[0]); if(s.d)done++; if(s.g)gifts++;}
   $('#st').innerHTML=`<span>${t.tot} <b>${D.length}</b></span>·<span>${t.vis} <b>${hits.length}</b></span>·<span>${t.dn} <b>${done}</b></span>·<span>${t.lf} <b>${D.length-done}</b></span>·<span>${t.gf} <b>${gifts}</b></span>`;
   if(!hits.length){$('#out').innerHTML=`<div class="empty">${t.none}</div>`;return}
-  const auto=!!q||FN!==null||PC||GF||WAF||STF!=='all'||ZN||HD||SEC!=='all'; let h='',ls='',lz='',la=-1,shown=0,zop=true,aop=true;
+  const auto=!!q||FN!==null||PC||GF||WAF||STF!=='all'||ZN||HD||SECS.size>0||HX.size>0; let h='',ls='',lz='',la=-1,shown=0,zop=true,aop=true;
   const zc={},ac={}; for(const i of hits){const g=G[D[i][1]];zc[g[0]+g[2]]=(zc[g[0]+g[2]]||0)+1;ac[D[i][1]]=(ac[D[i][1]]||0)+1;}
   for(const i of hits){const r=D[i],g=G[r[1]],hi=L==='hi',s=st(r[0]);
     if(g[0]!==ls){if(la>=0)h+='</div>';if(lz)h+='</div>';la=-1;lz='';ls=g[0];h+=`<div class="sec">${esc(hi?g[0]:g[1])}</div>`;}

@@ -279,6 +279,13 @@ function give(bl,name,o){ o=o||{}; const E=en(), isPdf=/pdf/i.test(bl.type||'')|
   const close=()=>{ d.remove(); setTimeout(()=>URL.revokeObjectURL(url),120000); };
   d.querySelector('#pg-x').onclick=close;
   const sh=d.querySelector('#pg-sh'); if(sh) sh.onclick=async()=>{ try{ await navigator.share({files:[fl],title:file}); }catch(e){ if(e&&e.name!=='AbortError') say(E?'Press Download':'डाउनलोड दबाएँ'); } }; }
+// 13 Nov 2026 (his words): "Website se pdf aisa bana hai / Sab kuch bikhra hua / Dikhata sahi hai par pdf galat banata hai" (iPhone):
+//   html2canvas copies every computed style onto SVG parts; iPhone Safari gives cx / r / x / width … already scaled by the viewBox,
+//   so in the PDF the peacock feathers, frame lines and dots came out 3–4x too big and all over the card. Inside every SVG keep only
+//   the colours (that is what resolves var(--g) etc.); position and size come back from the SVG's own attributes.
+const SVGKEEP=/^(fill|fill-opacity|fill-rule|stroke|stroke-opacity|stroke-linecap|stroke-linejoin|stroke-dasharray|stroke-dashoffset|stroke-miterlimit|opacity|stop-color|stop-opacity|visibility|display|color|clip-rule|shape-rendering|font-family|font-weight|font-style|text-anchor|dominant-baseline|letter-spacing)$/;
+function svgClean(d){ d.querySelectorAll('svg *').forEach(e=>{ const s=e.style; if(!s) return;
+    for(let i=s.length-1;i>=0;i--){ const p=s[i]; if(SVGKEEP.test(p)) continue; if((p==='stroke-width'||p==='font-size')&&!e.hasAttribute(p)) continue; s.removeProperty(p); } }); }
 let HP=null;
 function h2c(){ if(window.html2canvas) return Promise.resolve(window.html2canvas); if(HP) return HP;
   HP=new Promise((res,rej)=>{ const tryS=(src,next)=>{ const s=document.createElement('script'); s.src=src; s.onload=()=>window.html2canvas?res(window.html2canvas):next(); s.onerror=next; document.head.appendChild(s); };
@@ -342,7 +349,7 @@ function html(el,o){ o=o||{}; return run(async E=>{ if(!el) throw new Error('no 
     const H=await h2c(); await fonts(); try{ await document.fonts.ready; }catch(_){}
     const W=o.W||760, S=o.S||2, id=el.id||(el.id='pk'+Date.now()), pc=printCss()+(o.css||'');
     let BP=[], EH=0, EW=0;
-    const prep=(d,meas)=>{ const st=d.createElement('style'); st.textContent=pc+'\n*{animation:none!important;transition:none!important}'; d.head.appendChild(st); if(o.cls) o.cls.split(' ').forEach(c=>c&&d.body.classList.add(c));
+    const prep=(d,meas)=>{ svgClean(d); const st=d.createElement('style'); st.textContent=pc+'\n*{animation:none!important;transition:none!important}'; d.head.appendChild(st); if(o.cls) o.cls.split(' ').forEach(c=>c&&d.body.classList.add(c));
       const t=d.getElementById(id); if(!t) return; t.style.setProperty('display','block','important'); if(o.clean) t.querySelectorAll(o.clean).forEach(z=>z.remove()); t.querySelectorAll('details').forEach(z=>z.open=true);
       if(o.b11!==false) b11(t,11*W/(595-60));   // 13 Nov: bold, nothing under 11 pt on the A4 page
       if(meas){ const r0=t.getBoundingClientRect(); EH=Math.ceil(Math.max(t.scrollHeight,r0.height)); EW=Math.ceil(r0.width); const s=new Set();
@@ -366,7 +373,7 @@ function sheets(sel,wIn,hIn,fname,o){ o=o||{}; return run(async E=>{ const L2=[.
     let svgFix=''; for(const ss of Array.from(document.styleSheets)){ let rs; try{ rs=ss.cssRules; }catch(_){ continue; } for(const r of Array.from(rs||[])){ const bi=r.style&&r.style.backgroundImage||'';
       const m=/url\(["']?data:image\/svg\+xml;utf8,([\s\S]*?)["']?\)$/.exec(bi); if(m&&r.selectorText){ try{ svgFix+=r.selectorText+'{background-image:url("data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(decodeURIComponent(m[1].replace(/\\"/g,'"')))))+'")!important}\n'; }catch(_){} } } }
     const S=o.S||2.2, imgs=[], css='.sheet{zoom:1!important;transform:none!important;margin:0!important;box-shadow:none!important}'+svgFix+(o.css||'');
-    const opt=(extra,fix)=>({scale:S,backgroundColor:'#ffffff',logging:false,useCORS:true,scrollX:0,scrollY:0,onclone:d=>{ const st=d.createElement('style'); st.textContent=css+(extra||''); d.head.appendChild(st); if(fix) fix(d); }});
+    const opt=(extra,fix)=>({scale:S,backgroundColor:'#ffffff',logging:false,useCORS:true,scrollX:0,scrollY:0,onclone:d=>{ svgClean(d); const st=d.createElement('style'); st.textContent=css+(extra||''); d.head.appendChild(st); if(fix) fix(d); }});
     for(let i=0;i<L2.length;i++){ busy((E?'Making the PDF… sheet ':'PDF बन रहा है… शीट ')+(i+1)+' / '+L2.length);
       // o.sub: scaled parts (programme cards) are drawn one by one at their own size, then put in place – keeps them exact
       const cv=await H(L2[i],opt(o.sub?o.sub+'{visibility:hidden!important}':''));

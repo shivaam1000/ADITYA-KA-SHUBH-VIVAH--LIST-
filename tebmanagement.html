@@ -1499,42 +1499,130 @@ function tkGuess(txt,fname){ if(!GU) return null; const up=' '+String(txt||'').t
     if(sc&&(g.sec==='ba'||g.sec==='eb')) sc+=0.5;
     if(sc>bs){ bs=sc; best=g; tie=false; } else if(sc&&sc===bs) tie=true; });
   return bs>=3&&!tie?best:null; }
+// ---------- 🎫 एक PDF में कई टिकट + यात्री / निमंत्रण के दो नाम (18 Nov 2026 – his words: "multiple tkts hai / main chahta hu pdf se website khud
+//   fetch kare details" + "kayi jagah ye bhi ho sakta hai ki invitation name kuch aur ho aur traveller ka name kuch aur ho / toh us case me kya karna raha ?")
+//   -> a PDF is split by itself: (a) several tickets merged in one PDF -> one ticket per page (pages of one PNR stay together; a booking with a flight to
+//      Jodhpur and one back gives an arrival and a return); (b) an arrival / departure LIST (one line per traveller) -> one ticket per line.
+//      Every ticket carries two names: यात्री (the name on the ticket, filled by itself) and निमंत्रण (the guest of the list – found by itself where the
+//      names match, picked once otherwise). Saved like the travel-sheet upload: name = invited guest, cm = traveller; several travellers on one
+//      invitation each get their own line. Merged tickets: only that ticket's page(s) are kept with the guest; a list is not attached to anybody.
+//   He did not send the PDF – the reader is built for the usual shapes (airline / IRCTC tickets, travel-desk tables) and every line stays editable.
+const TKFL='(6E|AI|UK|SG|IX|QP|I5|G8|9I|S5|2T)\\s?-?\\s?(\\d{2,4})(?!\\d)';
+const TKCITY=/^(DELHI|MUMBAI|BOMBAY|JODHPUR|JAIPUR|UDAIPUR|AHMEDABAD|SURAT|PUNE|BENGALURU|BANGALORE|HYDERABAD|CHENNAI|KOLKATA|INDORE|GOA|CHANDIGARH|LUCKNOW|GUWAHATI|DUBAI|NAGPUR|BHOPAL|VADODARA|RAJKOT|DEL|BOM|JDH|JDPR|JAI|UDR|AMD|STV|PNQ|BLR|HYD|MAA|CCU|IDR|GOI|GOX|IXC|LKO|GAU|DXB|NAG|BDQ|RAJ|BHO|VNS|PAT|IXR|BBI|COK|TRV|ATQ|SXR|IXJ|DED|AGR|JSA|BKB|KQH|HSR)$/;
+const TKSTOP=/^(ARRIVAL|ARRIVALS|ARR|ARRIVING|DEPARTURE|DEPARTURES|DEP|DEPARTING|RETURN|DATE|DATES|DAY|TIME|TIMING|FLIGHT|FLT|FLIGHTS|TRAIN|NO|NOS|NUMBER|SECTOR|ROUTE|FROM|TO|VIA|PAX|PERSONS|PERSON|NAME|NAMES|GUEST|GUESTS|PASSENGER|PASSENGERS|TRAVELLER|TRAVELLERS|TRAVELER|PNR|ROOM|ROOMS|HOTEL|PICKUP|PICK|UP|DROP|CAR|CAB|VEHICLE|DRIVER|REMARK|REMARKS|STATUS|CONFIRMED|CNF|AIRPORT|STATION|TERMINAL|HRS|HR|AM|PM|MON|TUE|WED|THU|FRI|SAT|SUN|MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY|JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|NOVEMBER|DECEMBER|OCTOBER|INDIGO|AIR|INDIA|VISTARA|SPICEJET|AKASA|EXPRESS|SR|SNO|TOTAL|ADULT|ADULTS|CHILD|INFANT|MOBILE|CONTACT|PHONE|ETA|ETD|CITY|TYPE|CATEGORY|GROUP|TEAM|CREW|ARTIST|LIST|SHEET|DETAILS|DETAIL|PLAN|SCHEDULE|NEW|ECONOMY|BUSINESS|CLASS|SEAT|MEAL|BAGGAGE|NON|STOP|DIRECT|ON|AT|BY|OF|THE|AND|WITH|FOR|IN|OUT|INBOUND|OUTBOUND|NA|NIL|TBA|TBC|YES|OK|BOOKING|REFERENCE|REF|TICKET|ETICKET|ITINERARY|JOURNEY|ONWARD|CHECK|CLOSES|MINUTES|BEFORE|TERMS|CONDITIONS|APPLY|PASS|BOARDING|GATE|AIRLINE|AIRLINES|AIRWAYS|OPERATED|NOTE|PLEASE|KINDLY|REGARDS|THANKS)$/;
+const tkTc=t=>String(t||'').toLowerCase().replace(/(^|[\s.'&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase()).trim();
+function tkLines(pages){ const out=[]; pages.forEach((pg,pi)=>{ const its=pg.items.filter(i=>String(i.s).trim()).sort((a,b)=>a.y-b.y||a.x-b.x); let cur=null;
+    its.forEach(it=>{ if(!cur||Math.abs(it.y-cur.y)>Math.max(2.2,it.fs*0.45)){ cur={y:it.y,its:[],pg:pi}; out.push(cur); } cur.its.push(it); }); });
+  out.forEach(l=>{ l.its.sort((a,b)=>a.x-b.x); let t='', px=null; l.map=[]; l.its.forEach(it=>{ const gap=px==null?0:it.x-px; t+=px==null?'':gap>it.fs*1.1?' ¦ ':gap>it.fs*0.18?' ':''; l.map.push([t.length,it.x,it.w||0,String(it.s).length||1]); t+=it.s; px=it.x+(it.w||0); });
+    l.raw=t; l.up=t.toUpperCase(); }); return out; }
+const tkX=(l,i)=>{ let m=l.map[0]||[0,0,0,1]; for(const z of l.map){ if(z[0]<=i) m=z; else break; } return m[1]+Math.min(1,Math.max(0,(i-m[0])/m[3]))*m[2]; };
+function tkTok(l){ const s=l.up, tk=[], Y=new Date().getFullYear(); let m;
+  const fr=new RegExp('(^|[^A-Z0-9])'+TKFL,'g'); while((m=fr.exec(s))) tk.push({k:'F',i:m.index+m[1].length,e:fr.lastIndex,v:m[2]+' '+m[3]});
+  const dr=/(^|[^0-9A-Z])(\d{1,2})(?:ST|ND|RD|TH)?[-\s\/.,]{0,2}(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*(?:[-\s\/.,']{0,3}(20\d{2}|\d{2})(?![\d:]))?|(^|[^0-9A-Z:.])(\d{1,2})[-\/](\d{1,2})(?:[-\/](20\d{2}|\d{2}))?(?![\d:\/-])|(^|[^0-9])(\d{1,2})\.(\d{1,2})\.(20\d{2})(?!\d)/g;
+  while((m=dr.exec(s))){ let d,mo,y,pre; if(m[3]){ pre=m[1]; d=+m[2]; mo=MON[m[3]]; y=m[4]; } else if(m[6]!=null){ pre=m[5]; d=+m[6]; mo=+m[7]; y=m[8]; } else { pre=m[9]; d=+m[10]; mo=+m[11]; y=m[12]; }
+    y=y?(y.length===2?2000+ +y:+y):Y; const i=m.index+pre.length; if(d<1||d>31||mo<1||mo>12||tk.some(x=>i<x.e&&dr.lastIndex>x.i)) continue; tk.push({k:'D',i,e:dr.lastIndex,v:y+'-'+pad(mo)+'-'+pad(d)}); }
+  const tr=/(^|[^0-9:])([01]?\d|2[0-3])\s?:\s?([0-5]\d)(?::[0-5]\d)?\s*(AM|PM)?(?![\d:])|(^|[^0-9:.])([01]?\d|2[0-3])\.([0-5]\d)\s*(AM|PM|HRS|HR)\b|(^|[^0-9A-Z])([01]\d|2[0-3])([0-5]\d)\s*(?:HRS|HR|H)\b/g;
+  while((m=tr.exec(s))){ let h,mi,ap,pre; if(m[2]!=null){ pre=m[1]; h=+m[2]; mi=m[3]; ap=m[4]; } else if(m[6]!=null){ pre=m[5]; h=+m[6]; mi=m[7]; ap=m[8]; } else { pre=m[9]; h=+m[10]; mi=m[11]; }
+    if(ap==='PM'&&h<12) h+=12; if(ap==='AM'&&h===12) h=0; const i=m.index+pre.length; if(tk.some(x=>i<x.e&&tr.lastIndex>x.i)) continue; tk.push({k:'T',i,e:tr.lastIndex,v:pad(h)+':'+mi}); }
+  if(!tk.some(x=>x.k==='F')&&tk.some(x=>x.k!=='F')){ const nr=/(^|[^0-9])([012]\d{4})(?![0-9])/g; while((m=nr.exec(s))){ const i=m.index+m[1].length; if(!tk.some(x=>i<x.e&&nr.lastIndex>x.i)){ tk.push({k:'F',i,e:nr.lastIndex,v:m[2],tr:1}); break; } } }
+  return tk.sort((a,b)=>a.i-b.i); }
+function tkName(l,tk){ const a=l.raw.split(''); tk.forEach(x=>{ for(let i=x.i;i<x.e&&i<a.length;i++) a[i]=' '; });
+  const cl=w=>w.toUpperCase().replace(/[.']/g,''), junk=w=>TKSTOP.test(cl(w))||TKCITY.test(cl(w));
+  for(const c of a.join('').split('¦')){ const w=c.replace(/[^A-Za-z .'&]/g,' ').replace(/\s+/g,' ').trim().split(' ').filter(Boolean).filter(x=>!junk(x)), core=w.filter(x=>cl(x).length>=2&&!TKHON.test(cl(x)));
+    if(core.length&&core.join('').replace(/[^A-Za-z]/g,'').length>=4) return tkTc(w.join(' ').replace(/^[&.' ]+|[&.' ]+$/g,'')); }
+  return ''; }
+function tkDirTxt(u){ const j=/\b(JDH|JODHPUR|JDPR)\b/.exec(u); if(!j) return ''; const cs=[...u.matchAll(/\b[A-Z]{3,}\b/g)].filter(m=>TKCITY.test(m[0])&&!/^(JDH|JODHPUR|JDPR)$/.test(m[0])); if(!cs.length) return '';
+  const b=cs.some(c=>c.index<j.index), f=cs.some(c=>c.index>j.index); return b&&!f?'arr':f&&!b?'dep':''; }
+function tkListRecs(lines){ const recs=[]; let sec='', hx=null, cdate='', lname='', lrow=-9, pend='', prow=-9, frow=-9;
+  lines.forEach((l,li)=>{ const u=l.up, tk=tkTok(l), F=tk.filter(x=>x.k==='F'), hasA=/\bARRIV|\bARR\b|\bINBOUND|\bINCOMING/.test(u), hasD=/\bDEPART|\bDEP\b|\bRETURN|\bOUTBOUND|\bOUTGOING/.test(u);
+    if(!F.length){ if(hasA&&hasD){ if(!/DATE|FLIGHT|FLT|TIME/.test(u)) return;   /* a title like "ARRIVAL & DEPARTURE DETAILS" is not a column heading */ const xa=tkX(l,u.search(/ARRIV|\bARR\b|INBOUND|INCOMING/)), xd=tkX(l,u.search(/DEPART|\bDEP\b|RETURN|OUTBOUND|OUTGOING/)); hx=xd>xa+20?(xa+xd)/2:null; sec=''; }
+      else if(hasA){ sec='arr'; hx=null; cdate=''; } else if(hasD){ sec='dep'; hx=null; cdate=''; }
+      const D=tk.filter(x=>x.k==='D'); if(D.length===1&&!tk.some(x=>x.k==='T')&&u.length<46) cdate=D[0].v;
+      if(!hasA&&!hasD&&!D.length){ const n0=tkName(l,tk); if(n0){ pend=n0; prow=li; if(li-frow<=1) recs.forEach(r=>{ if(r.li===frow&&r.ns!=='d'){ r.trav=n0; r.ns='p'; } }); } }   // a name written on its own line (merged cell) belongs to the flight line next to it
+      return; }
+    let nm=tkName(l,tk), ns=nm?'d':''; if(!nm&&pend&&li-prow<=1){ nm=pend; ns='p'; } if(!nm&&li-lrow<=2){ nm=lname; ns='l'; } if(nm&&ns!=='l'){ lname=nm; lrow=li; } frow=li;   // ns: d = on this line, p = from the line beside it, l = carried from the line above
+    let groups=[[tk,'']]; if(F.length>=2&&!F[0].tr){ const i1=tk.indexOf(F[0]), i2=tk.indexOf(F[1]), sg=a=>a.map(x=>x.k).sort().join(''); let c=-1; for(let k=i1+1;k<=i2;k++) if(sg(tk.slice(0,k))===sg(tk.slice(k))){ c=k; break; }
+      if(c<0){ c=i2; while(c-1>i1&&tk[c-1].k==='D') c--; } groups=[[tk.slice(0,c),'arr'],[tk.slice(c),'dep']]; }
+    groups.forEach(([g,gd])=>{ const f=g.find(x=>x.k==='F'); if(!f) return; const T=g.filter(x=>x.k==='T'), D=g.filter(x=>x.k==='D');
+      const dir=gd||(hasA&&!hasD?'arr':hasD&&!hasA?'dep':'')||tkDirTxt(u)||sec||(hx!=null?(tkX(l,f.i)>=hx?'dep':'arr'):'')||'arr';   // ARR / DEP written on the line itself comes first
+      recs.push({trav:nm,dir,d:D.length?(dir==='dep'?D[D.length-1].v:D[0].v):(gd?'':cdate),t:T.length?(dir==='dep'?T[0].v:T[T.length-1].v):'',no:f.v,am:f.tr?'ट्रेन':'फ़्लाइट',ap:f.tr?'जोधपुर स्टेशन':'जोधपुर एयरपोर्ट',src:(EN?'page ':'पेज ')+(l.pg+1),list:1,li,ns}); }); });
+  return recs; }
+function tkPageRecs(pages,lines){ const FR=new RegExp('(^|[^A-Z0-9])'+TKFL), grp=[];
+  pages.forEach((pg,i)=>{ const t=lines.filter(l=>l.pg===i).map(l=>l.raw.replace(/ ¦ /g,'  ')).join('\n'), u=t.toUpperCase(), pnr=(/PNR\s*(?:NO\.?|NUMBER)?[^A-Z0-9]{0,10}([A-Z0-9]{6,10})\b/.exec(u)||[])[1]||'', tick=FR.test(u)||(/\b\d{5}\b/.test(u)&&/TRAIN|IRCTC|COACH|BERTH/.test(u))||!!pnr, last=grp[grp.length-1];
+    if(last&&(!tick||(pnr&&pnr===last.pnr))){ last.pg.push(i); last.t+='\n'+t; } else grp.push({pg:[i],t,pnr}); });
+  const recs=[]; grp.forEach(g=>{ const p=parseTicket(g.t), u=g.t.toUpperCase(), ll=lines.filter(l=>g.pg.includes(l.pg)), sect=[];
+    if(/PNR (BOOKING|REFEREN|NUMBER|STATUS)/.test(p.no||'')){ const m=/(?:PNR|BOOKING REF(?:ERENCE)?)[^A-Z0-9]{0,4}(?:(?:PNR|BOOKING|REF(?:ERENCE)?|NO|NUMBER)[^A-Z0-9]{0,4}){0,3}((?=[A-Z0-9]*\d)[A-Z0-9]{6,10})\b/.exec(u); p.no=(p.no||'').replace(/( · )?PNR [A-Z]+$/,m?'$1PNR '+m[1]:''); }   // "PNR / Booking Reference: QWE4RT"
+    const names=[...u.matchAll(/\b(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)\.?[ \t]+([A-Z][A-Z .]{2,38}?)(?=[ \t]{2,}|[ \t]*(?:\d|\(|,|\/|\n|$|ADULT|CHILD|INFANT|SEAT|MR\b|MRS\b|MS\b))/g)].map(m=>m[1].replace(/\s+/g,' ').trim()).filter((x,i,a)=>x.length>=4&&a.indexOf(x)===i);
+    ll.forEach((l,k)=>{ const tk=tkTok(l), F=tk.filter(x=>x.k==='F'&&!x.tr); if(F.length!==1) return; const dir=tkDirTxt(l.up)||tkDirTxt(ll.slice(Math.max(0,k-1),k+3).map(x=>x.up).join(' ')); if(!dir||sect.some(z=>z.no===F[0].v)) return;
+      const T=tk.filter(x=>x.k==='T'), D=tk.filter(x=>x.k==='D'); sect.push({dir,no:F[0].v,d:D.length?D[0].v:'',t:T.length?(dir==='dep'?T[0].v:T[T.length-1].v):''}); });
+    const A=sect.filter(z=>z.dir==='arr'), B=sect.filter(z=>z.dir==='dep'), base={trav:names.length?tkTc(names[0]):'',ppl:names.length||p.ppl||0,part:{pg:g.pg},txt:g.t,p,src:(EN?'page ':'पेज ')+(g.pg.length>1?(g.pg[0]+1)+'–'+(g.pg[g.pg.length-1]+1):g.pg[0]+1)};
+    if(A.length&&B.length){ const a=A[A.length-1], d=B[0]; recs.push({...base,dir:'arr',no:a.no,d:a.d||p.ad||'',t:a.t||'',am:'फ़्लाइट',ap:'जोधपुर एयरपोर्ट'}); recs.push({...base,dir:'dep',no:d.no,d:d.d||'',t:d.t||'',am:'फ़्लाइट',ap:'जोधपुर एयरपोर्ट'}); }
+    else { const dir=p.dir==='dep'?'dep':'arr'; recs.push({...base,dir,no:p.no||'',d:dir==='dep'?(p.dd||''):(p.ad||''),t:dir==='dep'?(p.dt||''):(p.at||''),am:p.am||'',ap:p.ap||'',city:p.city||''}); } });
+  return recs; }
+// one PDF -> its tickets ([] = an ordinary single ticket, read the old way)
+async function tkSplit(file){ const pages=await pdfPages(file), lines=tkLines(pages), all=lines.map(l=>l.up).join('\n');
+  const LR=tkListRecs(lines), cnt=f=>new Set(LR.filter(f).map(r=>nnm(r.trav)).filter(Boolean)).size, direct=cnt(r=>r.ns==='d'), total=cnt(()=>true);
+  const mk=/BOOKING REF|E-?TICKET|ITINERARY|BOARDING PASS|RESERVATION SLIP|IRCTC/.test(all)||/PNR\s*(?:NO\.?|NUMBER)?[^A-Z0-9]{0,10}(?=[A-Z0-9]*\d)[A-Z0-9]{6,10}\b/.test(all);
+  // a list = different names on the flight lines themselves; tickets = ticket words / a PNR; a list with the names on their own lines comes after that
+  let recs=direct>=2?LR.filter(r=>r.trav||r.no):mk?tkPageRecs(pages,lines):total>=2?LR.filter(r=>r.trav||r.no):pages.length>1?tkPageRecs(pages,lines):[];
+  if(recs.length===1&&recs[0].part) return [];
+  const seen=new Set(); recs=recs.filter(r=>{ const k=[nnm(r.trav),r.dir,r.no,r.d].join('|'); if(seen.has(k)) return false; seen.add(k); return true; }).slice(0,80);
+  const np=pages.length; recs.forEach(r=>{ r.np=np; }); return recs.length>=2||(recs.length&&recs[0].list)?recs:[]; }
+const TKPC=new Map();   // one ticket's page(s) cut out of a merged PDF (pdf-lib) – if that fails the whole PDF is kept
+async function tkPart(file,pg){ const key=file.name+'|'+file.size+'|'+pg.join(','); if(TKPC.has(key)) return TKPC.get(key); let out=file;
+  try{ await loadJs('https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js'); const P=window.PDFLib, src=await P.PDFDocument.load(await file.arrayBuffer(),{ignoreEncryption:true}), d=await P.PDFDocument.create();
+    (await d.copyPages(src,pg)).forEach(x=>d.addPage(x)); out=new File([await d.save()],file.name.replace(/\.pdf$/i,'')+' - p'+(pg.length>1?(pg[0]+1)+'-'+(pg[pg.length-1]+1):pg[0]+1)+'.pdf',{type:'application/pdf'}); }
+  catch(err){ console.warn('tkPart',err); } TKPC.set(key,out); return out; }
 function tkBulkPick(){ const inp=document.createElement('input'); inp.type='file'; inp.multiple=true; inp.accept='application/pdf,image/*'; inp.style.display='none'; document.body.appendChild(inp);
   inp.onchange=()=>{ const fs=[...inp.files]; inp.remove(); if(fs.length) tkBulk(fs); }; inp.click(); }
 const tkbRowH=(x,i)=>{ const p=x.p||{}, d=x.dir, ok=p.found&&p.found.length;
-  return `<div class="tkb" data-tkb="${i}"><div class="tkh"><b data-notx>📎 ${esc(x.f.name)}</b><button type="button" class="tkx" data-tkbx="${i}" aria-label="हटाएँ">✕</button></div>
-    <small class="sm" style="color:${x.err?'var(--mr)':ok?'#1E7D45':'var(--mr)'}">${x.err?(EN?'Could not read this file – fill it by hand':'यह फ़ाइल पढ़ नहीं पाए – हाथ से भर दें'):ok?(EN?'✓ Read: ':'✓ पढ़ा: ')+esc(p.found.join(', ')):(EN?'Nothing could be read – fill it by hand (the file is still saved)':'कुछ पढ़ नहीं पाए – हाथ से भर दें (फ़ाइल फिर भी सेव होगी)')}</small>
-    <div class="gpw"><input class="in" type="text" data-gpk="1" data-tkbn="${i}" value="${esc(x.name)}" placeholder="${EN?'Guest – type name / number / mobile':'मेहमान – नाम / नंबर / मोबाइल लिखें'}" autocomplete="off"${x.auto&&x.name&&x.name===x.auto?' style="background:#E3F1E6"':''}><div class="gpl" hidden></div></div>
+  return `<div class="tkb" data-tkb="${i}"><div class="tkh"><b data-notx>📎 ${esc(x.f.name)}${x.src?' · '+esc(x.src):''}</b><button type="button" class="tkx" data-tkbx="${i}" aria-label="हटाएँ">✕</button></div>
+    <small class="sm" style="color:${x.err?'var(--mr)':ok?'#1E7D45':'var(--mr)'}">${x.err?(EN?'Could not read this file – fill it by hand':'यह फ़ाइल पढ़ नहीं पाए – हाथ से भर दें'):ok?(EN?'✓ Read: ':'✓ पढ़ा: ')+esc(p.found.join(', '))+(x.list?(EN?' · from a list – the file is not attached':' · सूची से – फ़ाइल साथ नहीं लगेगी'):''):(EN?'Nothing could be read – fill it by hand (the file is still saved)':'कुछ पढ़ नहीं पाए – हाथ से भर दें (फ़ाइल फिर भी सेव होगी)')}</small>
+    <label class="tkl">👤 ${EN?'Traveller (name on the ticket)':'यात्री (टिकट पर लिखा नाम)'}</label><input class="in" type="text" data-tkbtr="${i}" value="${esc(x.trav||'')}" placeholder="${EN?'Traveller\'s name':'यात्री का नाम'}" autocomplete="off" data-notx>
+    <label class="tkl">✉ ${EN?'On whose invitation (guest of the list)':'किसके निमंत्रण पर (सूची का मेहमान)'}</label><div class="gpw"><input class="in" type="text" data-gpk="1" data-tkbn="${i}" value="${esc(x.name)}" placeholder="${EN?'Pick from the list – name / number / mobile (empty = new entry in the traveller\'s name)':'सूची से चुनें – नाम / नंबर / मोबाइल (खाली = यात्री के नाम से नई एंट्री)'}" autocomplete="off"${x.auto&&x.name&&x.name===x.auto?' style="background:#E3F1E6"':''}><div class="gpl" hidden></div></div>
     <div class="tkg"><select class="in" data-tkbd="${i}"><option value="arr"${d==='dep'?'':' selected'}>⬇ ${EN?'Arrival ticket':'आने का टिकट'}</option><option value="dep"${d==='dep'?' selected':''}>⬆ ${EN?'Return ticket':'वापसी का टिकट'}</option></select>
       <input class="in" type="date" data-tkbdt="${i}" value="${esc(x.d||'')}"><input class="in" type="time" data-tkbt="${i}" value="${esc(x.t||'')}"></div>
     <input class="in" type="text" data-tkbno="${i}" value="${esc(x.no||'')}" placeholder="${EN?'Train / flight number':'ट्रेन / फ़्लाइट नंबर'}"></div>`; };
 function tkbDraw(){ const X=TKB; if(!X) return; const n=X.L.filter(x=>!x.del).length;
-  $('#fm-b').innerHTML=`<p class="sm">${EN?'Each ticket goes onto its guest. Where the guest was found by itself the box is green – check once. Pick the guest for the rest, ✕ removes a ticket.':'हर टिकट अपने मेहमान पर लगेगा। जहाँ मेहमान अपने-आप मिल गया, वहाँ खाना हरा है – एक बार देख लें। बाकी में मेहमान चुनें, ✕ से टिकट हटा दें।'}</p>`
+  $('#fm-b').innerHTML=`<style>.tkl{display:block;font-size:12.5px;color:var(--mu);margin:6px 0 2px;font-weight:600}</style><p class="sm">${EN?'Each ticket has two names: the traveller (as on the ticket) and the guest of the list on whose invitation they come. Where the guest was found by itself the box is green – check once. Pick the guest for the rest, ✕ removes a ticket.':'हर टिकट में दो नाम हैं: यात्री (टिकट पर लिखा) और सूची का वह मेहमान जिसके निमंत्रण पर वे आ रहे हैं। जहाँ मेहमान अपने-आप मिल गया, वहाँ खाना हरा है – एक बार देख लें। बाकी में मेहमान चुनें, ✕ से टिकट हटा दें।'}</p>`
     +X.L.map((x,i)=>x.del?'':tkbRowH(x,i)).join(''); $('#fm-s').textContent=(EN?'✓ Save all':'✓ सब सेव करें')+' ('+n+')'; $('#fm-s').style.display=n?'':'none'; }
 async function tkBulk(files){ const big=files.filter(f=>f.size>10e6), fs=files.filter(f=>f.size<=10e6).slice(0,30); if(!fs.length){ toast(EN?'The files are too big (up to 10 MB each)':'फ़ाइलें बहुत बड़ी हैं (हर फ़ाइल 10 MB तक)'); return; }
   TKB={L:[]}; form('🎫 '+(EN?'Many tickets at once':'कई टिकट एक साथ')+' · '+fs.length,[],{},tkBulkSave); $('#fm-s').style.display='none';
   const say=t=>{ $('#fm-b').innerHTML=`<p class="sm" style="font-size:16px;padding:14px 0">${t}</p>`; }; await loadGuests();
   for(let i=0;i<fs.length;i++){ const f=fs[i]; if(!TKB||!FM) return; say((EN?'Reading tickets… ':'टिकट पढ़ रहे हैं… ')+(i+1)+' / '+fs.length+`<br><small data-notx>${esc(f.name)}</small>`+(/pdf/i.test(f.type||f.name)?'':(EN?'<br><small>a photo takes 10–20 seconds</small>':'<br><small>फ़ोटो में 10–20 सेकंड लगते हैं</small>')));
-    let p={found:[],dir:'arr'}, txt='', err=false; try{ const isPdf=/pdf/.test(f.type)||/\.pdf$/i.test(f.name); txt=isPdf?await pdfText(f):await imgText(f); p=parseTicket(txt); }catch(e){ console.error(e); err=true; }
-    const g=tkGuess(txt,f.name); const dir=p.dir==='dep'?'dep':'arr'; TKB.L.push({f,p,err,dir,name:g?g.name:'',auto:g?g.name:'',d:dir==='dep'?(p.dd||''):(p.ad||''),t:dir==='dep'?(p.dt||''):(p.at||''),no:p.no||''}); }
+    const isPdf=/pdf/.test(f.type)||/\.pdf$/i.test(f.name); let recs=[]; if(isPdf){ try{ recs=await tkSplit(f); }catch(e){ console.warn('tkSplit',e); recs=[]; } }
+    if(recs.length){ recs.forEach(r=>{ const g=(r.trav&&tkGuess(r.trav,''))||(r.txt?tkGuess(r.txt,''):null), found=[]; if(r.no) found.push((r.am||(EN?'No.':'नं.'))+' '+r.no); if(r.d) found.push('तारीख'); if(r.t) found.push('समय');
+        TKB.L.push({f,p:{...(r.p||{}),am:r.am||'',ap:r.ap||'',city:r.city||'',ppl:r.ppl||0,found},err:false,dir:r.dir,name:g?g.name:'',auto:g?g.name:'',trav:r.trav||'',d:r.d||'',t:r.t||'',no:r.no||'',src:r.src||'',part:r.part||null,list:!!r.list,np:r.np||1,split:1}); }); continue; }
+    let p={found:[],dir:'arr'}, txt='', err=false; try{ txt=isPdf?await pdfText(f):await imgText(f); p=parseTicket(txt); }catch(e){ console.error(e); err=true; }
+    const g=tkGuess(txt,f.name); const dir=p.dir==='dep'?'dep':'arr', pn=(String(txt).toUpperCase().match(/\b(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)\.?[ \t]+([A-Z][A-Z .]{2,38}?)(?=[ \t]{2,}|[ \t]*(?:\d|\(|,|\/|\n|$|ADULT|CHILD|INFANT|SEAT))/)||[])[1]||'';
+    TKB.L.push({f,p,err,dir,name:g?g.name:'',auto:g?g.name:'',trav:pn?tkTc(pn.replace(/\s+/g,' ').trim()):'',d:dir==='dep'?(p.dd||''):(p.ad||''),t:dir==='dep'?(p.dt||''):(p.at||''),no:p.no||''}); }
   if(!TKB||!FM) return; tkbDraw(); if(big.length) $('#fm-e').textContent=big.length+(EN?' file(s) over 10 MB were left out':' फ़ाइल 10 MB से बड़ी थी – नहीं ली'); else if(files.length>fs.length) $('#fm-e').textContent=EN?'Only the first 30 files were taken':'सिर्फ़ पहली 30 फ़ाइलें ली हैं'; }
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-tkbx]'); if(!b||!TKB) return; tkbRead(); TKB.L[+b.dataset.tkbx].del=true; tkbDraw(); });
 document.addEventListener('change',e=>{ const t=e.target; if(!TKB||!t.dataset||t.dataset.tkbd==null) return; const i=+t.dataset.tkbd, x=TKB.L[i], p=x.p||{}, q=s=>document.querySelector(`[data-${s}="${i}"]`);
-  x.dir=t.value; x.d=t.value==='dep'?(p.dd||''):(p.ad||''); x.t=t.value==='dep'?(p.dt||''):(p.at||''); q('tkbdt').value=x.d; q('tkbt').value=x.t; });
+  x.dir=t.value; if(x.split) return; x.d=t.value==='dep'?(p.dd||''):(p.ad||''); x.t=t.value==='dep'?(p.dt||''):(p.at||''); q('tkbdt').value=x.d; q('tkbt').value=x.t; });
+function tkbSame(){ if(!TKB) return; const by={}; TKB.L.forEach(x=>{ if(!x.del&&x.name&&x.trav) by[nnm(x.trav)]=x.name; });
+  TKB.L.forEach((x,i)=>{ if(x.del||x.name||!x.trav||!by[nnm(x.trav)]) return; x.name=by[nnm(x.trav)]; const n=document.querySelector(`[data-tkbn="${i}"]`); if(n&&!n.value.trim()) n.value=x.name; }); }
+document.addEventListener('focusout',e=>{ if(TKB&&e.target&&e.target.dataset&&e.target.dataset.tkbn!=null) setTimeout(()=>{ if(TKB){ tkbRead(); } },350); });
 function tkbRead(){ if(!TKB) return; TKB.L.forEach((x,i)=>{ if(x.del) return; const q=s=>document.querySelector(`[data-${s}="${i}"]`), n=q('tkbn'); if(!n) return;
-    x.name=n.value.trim(); x.dir=q('tkbd').value; x.d=q('tkbdt').value; x.t=q('tkbt').value; x.no=q('tkbno').value.trim(); }); }
+    x.name=n.value.trim(); x.trav=(q('tkbtr')?q('tkbtr').value:'').replace(/\s+/g,' ').trim(); x.dir=q('tkbd').value; x.d=q('tkbdt').value; x.t=q('tkbt').value; x.no=q('tkbno').value.trim(); }); tkbSame(); }
 async function tkBulkSave(){ const X=TKB; if(!X) return true; tkbRead(); const L=X.L.filter(x=>!x.del), e=$('#fm-e');
-  const miss=L.filter(x=>!x.name).length; if(miss){ e.textContent=miss+(EN?' ticket(s) have no guest – pick the guest, or press ✕ to leave that ticket out':' टिकट में मेहमान नहीं चुना – मेहमान चुनें, या ✕ दबाकर वह टिकट हटा दें'); return false; }
-  const made=new Map(); let n=0, fail=0;
+  const miss=L.filter(x=>!x.name&&!x.trav).length; if(miss){ e.textContent=miss+(EN?' ticket(s) have neither a traveller nor a guest – write a name, or press ✕ to leave that ticket out':' टिकट में न यात्री का नाम है, न मेहमान – नाम लिखें, या ✕ दबाकर वह टिकट हटा दें'); return false; }
+  const made=new Map(), att=new Set(); let n=0, fail=0;
   for(let i=0;i<L.length;i++){ const x=L[i], p=x.p||{}; e.textContent=(EN?'Saving… ':'सेव हो रहा है… ')+(i+1)+' / '+L.length;
-    try{ const g=GUM.get(x.name), k=g?'r:'+g.rid:'n:'+x.name; let a=made.get(k)||(g?rvAg(g):null)||C.ag.find(z=>!z.kind&&z.name===x.name)||null;
+    try{ // 18 Nov: name = the invited guest, cm = the traveller when it is somebody else (same as the travel-sheet upload); one line per traveller
+      const g=GUM.get(x.name), tv=String(x.trav||'').trim(), inv=x.name||tv, T=nnm(tv), self=!tv||T===nnm(inv)||!!(g&&(T===nnm(g.name)||T===nnm(g.en)));
+      const k=(g?'r:'+g.rid:'n:'+nnm(inv))+'|'+(self?'SELF':T), mine=z=>!z.kind&&(g?(z.rid===g.rid||(!z.rid&&z.name===g.name)):(!z.rid&&nnm(z.name)===nnm(inv))), bare=z=>!z.cm&&!['ad','ati','ano','dd','dt','dno'].some(q=>z[q]);
+      let a=made.get(k)||C.ag.find(z=>mine(z)&&(self?!z.cm:nnm(z.cm||'')===T))||(!self&&C.ag.filter(mine).length===1&&bare(C.ag.find(mine))?C.ag.find(mine):null)||null;
       const o=x.dir==='dep'?{dd:x.d||'',dt:x.t||'',dno:x.no||''}:{ad:x.d||'',ati:x.t||'',am:p.am||'',ano:x.no||'',ap:p.ap||''}; Object.keys(o).forEach(q=>{ if(!o[q]) delete o[q]; });
-      o.by=ME.name; o.at=Date.now(); let id;
+      if(!self) o.cm=tv; o.by=ME.name; o.at=Date.now(); let id;
       if(a){ id=a.id; await updateDoc(doc(db,'cr_ag',id),o); a={...a,...o}; if(a.tok) syncGp(a); }
       else { id='ag'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
         const city=g?(g.city||''):(p.city?p.city.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()):'');
-        a={name:x.name,rid:g?g.rid:'',ph:g?(g.ph||''):'',city,ppl:p.ppl?String(p.ppl):'',kind:'',cat:'',evs:[],st:'a',...o}; await setDoc(doc(db,'cr_ag',id),a); a.id=id; }
-      made.set(k,a); await vfSave('ag',id,x.f,'tk',x.dir==='dep'?'वापसी का टिकट':'आने का टिकट',false); x.del=true; n++; }
+        a={name:g?g.name:inv,rid:g?g.rid:'',ph:g?(g.ph||''):'',city,ppl:p.ppl?String(p.ppl):'',kind:'',cat:'',evs:[],st:'a',...o}; await setDoc(doc(db,'cr_ag',id),a); a.id=id; }
+      made.set(k,a);
+      if(!x.list){ const whole=!x.part||x.part.pg.length>=(x.np||1), fk=id+'|'+x.f.name+'|'+(whole?'all':x.part.pg.join(','));   // a list is not attached; a merged PDF gives each guest only their own page(s), once
+        if(!att.has(fk)){ att.add(fk); await vfSave('ag',id,whole?x.f:await tkPart(x.f,x.part.pg),'tk',x.dir==='dep'?'वापसी का टिकट':'आने का टिकट',false); } }
+      x.del=true; n++; }
     catch(err){ console.error(err); fail++; } }
   if(fail){ tkbDraw(); e.textContent='✓ '+n+(EN?' saved · ':' सेव हुए · ')+fail+(EN?' not saved – check the net and press Save again':' सेव नहीं हुए – नेट देखकर फिर "सब सेव करें" दबाएँ'); return false; }
   toast('✓ '+n+(EN?' tickets saved onto their guests':' टिकट अपने-अपने मेहमान पर लग गए')); TKB=null; render(); return true; }

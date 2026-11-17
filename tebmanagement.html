@@ -822,7 +822,7 @@ function agMini(v){ const L=C.ag.filter(a=>a.vd===v.id); let h=L.map(agLine).joi
 const MODES=[['ट्रेन','🚆 ट्रेन'],['फ़्लाइट','✈️ फ़्लाइट'],['बस','🚌 बस'],['गाड़ी','🚗 अपनी गाड़ी'],['अन्य','अन्य']];
 let TKFILE=null;   // ticket chosen in the guest form – saved with the guest
 async function tkApply(f){ TKFILE=f; const st=$('#fm-tks'); if(st){ st.textContent='टिकट पढ़ रहे हैं… (फ़ोटो हो तो 10–20 सेकंड)'; st.style.color='#7A5A10'; }
-  try{ const p=await ticketRead(f); tkFill(p); if(st){ st.innerHTML=p.found.length?'✓ टिकट से भरा: '+esc(p.found.join(', '))+(p.dir==='dep'?' (वापसी का टिकट)':'')+' – हरे खाने एक बार देख लें':'टिकट से कुछ पढ़ नहीं पाए – हाथ से भर दें (टिकट फ़ाइल मेहमान के साथ सेव हो जाएगी)'; st.style.color=p.found.length?'#1E7D45':'var(--mr)'; } }
+  try{ const p=await ticketRead(f); tkFill(p); if(st){ st.innerHTML=p.found.length?'✓ टिकट से भरा: '+esc(p.found.join(', '))+(p.arr&&p.dep?' (आना + वापसी – दोनों भरे)':p.dir==='dep'?' (वापसी का टिकट)':p.arr?' (आने का टिकट)':'')+' – हरे खाने एक बार देख लें':'टिकट से कुछ पढ़ नहीं पाए – हाथ से भर दें (टिकट फ़ाइल मेहमान के साथ सेव हो जाएगी)'; st.style.color=p.found.length?'#1E7D45':'var(--mr)'; } }
   catch(e){ console.error(e); if(st){ st.textContent='टिकट नहीं पढ़ पाए (नेट देखें) – हाथ से भर दें, फ़ाइल फिर भी सेव होगी'; st.style.color='var(--mr)'; } } }
 function fAg(g,pre){ loadGuests(); const nk=!g&&pre&&pre.kind; form(g?(g.kind?'यात्रा बदलें':'मेहमान बदलें'):nk?'बाहर से आने वाले – काम से (मेहमान नहीं)':'बाहर से आने वाले मेहमान',[{k:'kind',l:'मेहमान हैं या काम से आ रहे हैं',t:'sel',o:AGKS},{k:'cat',l:'किस काम से – जो भी हो लिखें',dl:'dl-agc',ph:'जैसे: मेहंदी वाले, आर्टिस्ट, फ़ोटोग्राफ़र, DJ, मेकअप…'},{k:'vd',l:'किसके साथ (आर्टिस्ट / वेंडर) – न हो तो छोड़ दें',t:'sel',o:agVdOpts()},{k:'evs',l:'किस कार्यक्रम के लिए – उस कार्यक्रम की शीट में भी दिखेंगे',t:'multi',o:agEvOpts()},{k:'name',l:'नाम (मेहमान हैं तो सूची से चुनें · बाकी नाम लिखें)',req:1,dl:'dl-gu'},{k:'cm',l:'कौन आ रहा है (अगर निमंत्रण वाले की जगह परिवार से कोई और)',ph:'जैसे: राहुल जी (बेटा)'},{k:'ppl',l:'कितने लोग',t:'num'},{k:'mem',l:'👥 साथ में कौन-कौन आ रहे हैं (नाम · रिश्ता · बड़े / बच्चा)',t:'mem'},{k:'ph',l:'मोबाइल',t:'tel'},{k:'city',l:'कहाँ से'},
   {k:'ad',l:'आने की तारीख',t:'date',v:'2026-11-20'},{k:'ati',l:'आने का समय',t:'time'},{k:'am',l:'कैसे आ रहे हैं – चुनें या लिखें',dl:'dl-am',ph:'ट्रेन / फ़्लाइट / बस / अपनी गाड़ी / टैक्सी…'},{k:'ano',l:'ट्रेन / फ़्लाइट नंबर'},{k:'ap',l:'कहाँ उतरेंगे',ph:'जैसे: जोधपुर स्टेशन, एयरपोर्ट, भगत की कोठी'},
@@ -1408,12 +1408,111 @@ const PDFJS_V='3.11.174';
 async function pdfText(file,maxP){ await loadJs(`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.min.js`); const lib=window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc=`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.worker.min.js`;
   const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise; let t='';
   for(let i=1;i<=Math.min(pdf.numPages,maxP||4);i++){ const c=await (await pdf.getPage(i)).getTextContent(); t+=c.items.map(it=>it.str+(it.hasEOL?'\n':' ')).join('')+'\n'; } return t; }
+// 18 Nov: the text of a PDF as printed lines (what stands on one line stays on one line, " ¦ " between columns) – the ticket reader works on these
+async function pdfLinesY(file,maxP){ await loadJs(`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.min.js`); const lib=window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc=`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.worker.min.js`;
+  const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise, out=[];
+  for(let i=1;i<=Math.min(pdf.numPages,maxP||6);i++){ const pg=await pdf.getPage(i), vp=pg.getViewport({scale:1}), tc=await pg.getTextContent(), L=[]; let cur=null;
+    tc.items.filter(t=>String(t.str).trim()).map(t=>({s:t.str,x:t.transform[4],y:vp.height-t.transform[5],fs:Math.hypot(t.transform[2],t.transform[3])||10,w:t.width||0})).sort((a,b)=>a.y-b.y||a.x-b.x)
+      .forEach(it=>{ if(!cur||Math.abs(it.y-cur.y)>Math.max(2.2,it.fs*0.45)){ cur={y:it.y,its:[]}; L.push(cur); } cur.its.push(it); });
+    L.forEach(l=>{ l.its.sort((a,b)=>a.x-b.x); let t='', px=null; l.its.forEach(it=>{ const g=px==null?0:it.x-px; t+=px==null?'':g>it.fs*1.1?' ¦ ':g>it.fs*0.18?' ':''; t+=it.s; px=it.x+it.w; }); out.push(t); }); }
+  return out; }
 async function imgText(file){ await loadJs('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js'); const r=await window.Tesseract.recognize(file,'eng'); return r.data.text; }
 const MON={JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12};
 const DRE=/(\d{1,2})[-\s\/.]{1,2}(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*[-\s\/.,]{0,3}(\d{4})|(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})|(\d{4})-(\d{2})-(\d{2})/;
 function tDate(s){ const m=DRE.exec(s||''); if(!m) return ''; if(m[2]) return m[3]+'-'+pad(MON[m[2]])+'-'+pad(+m[1]); if(m[5]) return m[6]+'-'+pad(+m[5])+'-'+pad(+m[4]); return m[7]+'-'+m[8]+'-'+m[9]; }
 function tTime(s){ const m=/\b([01]?\d|2[0-3])[:.]([0-5]\d)\s*(AM|PM)?/.exec(s||''); if(!m) return ''; let h=+m[1]; if(m[3]==='PM'&&h<12) h+=12; if(m[3]==='AM'&&h===12) h=0; return pad(h)+':'+m[2]; }
 const JOD='(?:JU|JDH|JODHPUR(?: JN| JUNCTION)?|BGKT|BHAGAT KI KOTHI|RKB|RAIKA ?BAGH)';
+// ---------- ticket reader v2 (18 Nov 2026) – his words: "ye pdf's khud read nahi karta kya arrival ya dept. / isko please serious leke check karke sahi
+//   karo / ya phir pdf se from to se read karke autofill kare / phir is system banane ka fayda hi kya"
+// Built from the 14 real tickets the team had already saved on the site (IRCTC, Air India GDS itinerary, Air India web e-ticket, IndiGo web itinerary,
+// Goibibo / MakeMyTrip e-ticket, an agent's ticket, a mail print-out, a bus ticket): every flight / train of the ticket becomes a LEG with from, to, date
+// and both times; the leg that ENDS in Jodhpur is the arrival (its arrival time), the leg that STARTS in Jodhpur is the return (its departure time).
+// A round-trip ticket therefore fills arrival AND return from one file. No Jodhpur on the ticket (e.g. Hyderabad – Udaipur – Hyderabad): the city the
+// traveller comes to and leaves from again is taken as the arrival point. Works on lines of text (one string per printed line, "¦" between columns).
+const TKCM={DEL:'NEW DELHI|DELHI|DEL|DELMI',JDH:'JODHPUR|JDH|JDPR|JOOHPUR|JOH|IDH',BOM:'MUMBAI|BOMBAY|BOM',NMI:'NAVI MUMBAI|NMI',JAI:'JAIPUR|JAI',UDR:'UDAIPUR|UDR',AMD:'AHMEDABAD|AMD',BLR:'BENGALURU|BANGALORE|BLR',HYD:'HYDERABAD|HYD',CCU:'KOLKATA|CCU',MAA:'CHENNAI|MAA',PNQ:'PUNE|PNQ',IDR:'INDORE|IDR',STV:'SURAT|STV',GOI:'GOA|GOI|GOX',IXC:'CHANDIGARH|IXC',LKO:'LUCKNOW|LKO',GAU:'GUWAHATI|GAU',DXB:'DUBAI|DXB',NAG:'NAGPUR|NAG',BDQ:'VADODARA|BDQ',VNS:'VARANASI|VNS',COK:'KOCHI|COCHIN|COK',ATQ:'AMRITSAR|ATQ',SXR:'SRINAGAR|SXR',BBI:'BHUBANESWAR|BBI',DED:'DEHRADUN|DED',JSA:'JAISALMER|JSA',BKB:'BIKANER|BKB',KQH:'KISHANGARH|KQH',BHO:'BHOPAL|BHO',RPR:'RAIPUR|RPR',PAT:'PATNA',IXR:'RANCHI|IXR',AJM:'AJMER',KTU:'KOTA'};
+const TKCN={JDH:'जोधपुर',UDR:'उदयपुर',JAI:'जयपुर',DEL:'दिल्ली',AMD:'अहमदाबाद',BOM:'मुंबई',NMI:'नवी मुंबई',JSA:'जैसलमेर',BKB:'बीकानेर',KQH:'किशनगढ़',AJM:'अजमेर'};
+const TKCW={}; Object.keys(TKCM).forEach(c=>TKCM[c].split('|').forEach(w=>{ TKCW[w]=c; }));
+const TKCRE=new RegExp('(^|[^A-Z])('+Object.keys(TKCW).sort((a,b)=>b.length-a.length).join('|')+')(?![A-Z])','g');
+const TKMO={JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12}, tk2=n=>String(n).padStart(2,'0');
+// tokens of one (upper-case) line: F flight, R train, C city, D date, T time
+function tkToks(s){ const tk=[], Y=new Date().getFullYear(), free=(i,e)=>!tk.some(x=>i<x.e&&e>x.i); let m;
+  const fr=/(^|[^A-Z0-9])(6E|AI|UK|SG|IX|QP|I5|G8|9I|S5|2T)\s?-?\s?(\d{2,4})(?!\d)/g; while((m=fr.exec(s))) tk.push({k:'F',i:m.index+m[1].length,e:fr.lastIndex,v:m[2]+' '+m[3]});
+  const rr=/(^|[^0-9])(\d{5})\s*\/\s*([A-Z][A-Z .]{2,28})/g; const trn=x=>x.replace(/\s+/g,' ').trim().replace(/\s+(EXECUTIVE|THIRD AC|SECOND AC|FIRST AC|AC CHAIR|CHAIR CAR|SLEEPER CLASS|AC [123] ?TIER|AC THREE|AC TWO).*$/,'').replace(/[ .]+$/,'');   // a photo has no column lines – the class is read as part of the name
+  while((m=rr.exec(s))) tk.push({k:'R',i:m.index+m[1].length,e:rr.lastIndex,v:m[2]+' '+trn(m[3])});
+  const r2=/(^|[^A-Z])([A-Z][A-Z .]{3,28}?)\s*\((\d{5})\)/g; while((m=r2.exec(s))){ const i=m.index+m[1].length; if(free(i,r2.lastIndex)) tk.push({k:'R',i,e:r2.lastIndex,v:m[3]+' '+trn(m[2])}); }   // IRCTC app: MANDORE EXPRESS (22492)
+  const add=(i,e,d,mo,y)=>{ y=y?(String(y).length===2?2000+ +y:+y):Y; if(y<Y-1||y>Y+1) y=Y;   /* a photo may read 2026 as 2003 */ if(d>=1&&d<=31&&mo>=1&&mo<=12&&free(i,e)) tk.push({k:'D',i,e,v:y+'-'+tk2(mo)+'-'+tk2(d)}); };
+  const d1=/(^|[^0-9A-Z])(\d{1,2})(?:ST|ND|RD|TH)?[-\s\/.,]{0,2}(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*(?:[-\s\/.,']{0,3}(20\d{2}|\d{2})(?![\d:]))?/g; while((m=d1.exec(s))) add(m.index+m[1].length,d1.lastIndex,+m[2],TKMO[m[3]],m[4]);
+  const d2=/(^|[^A-Z])(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\.?\s+(\d{1,2})(?:ST|ND|RD|TH)?(?!\d)(?:,?\s+(20\d{2})(?!\d))?/g; while((m=d2.exec(s))) add(m.index+m[1].length,d2.lastIndex,+m[3],TKMO[m[2]],m[4]);
+  const d3=/(^|[^0-9A-Z:.\/-])(\d{1,2})[-\/.](\d{1,2})[-\/.](20\d{2}|\d{2})(?![\d:\/-])/g; while((m=d3.exec(s))) add(m.index+m[1].length,d3.lastIndex,+m[2],+m[3],m[4]);
+  const t1=/(^|[^0-9:])([01]?\d|2[0-3])\s?:\s?([0-5]\d)(?!\d)(?::[0-5]\d(?!\d))?(?:\s*(AM|PM))?/g;   // (the gap after a time is not swallowed – the next time may follow at once)
+  while((m=t1.exec(s))){ let h=+m[2]; if(m[4]==='PM'&&h<12) h+=12; if(m[4]==='AM'&&h===12) h=0; const i=m.index+m[1].length; if(free(i,t1.lastIndex)) tk.push({k:'T',i,e:t1.lastIndex,v:tk2(h)+':'+m[3]}); }
+  const t2=/(^|[^0-9A-Z])([01]\d|2[0-3])([0-5]\d)\s*(?:HRS|HR|H)\b/g; while((m=t2.exec(s))){ const i=m.index+m[1].length; if(free(i,t2.lastIndex)) tk.push({k:'T',i,e:t2.lastIndex,v:m[2]+':'+m[3]}); }
+  tk.filter(x=>x.k==='D').forEach(d=>{ const r=/^\s{1,2}([01]\d|2[0-3])([0-5]\d)(?!\d)/.exec(s.slice(d.e)); if(r&&free(d.e,d.e+r[0].length)) tk.push({k:'T',i:d.e,e:d.e+r[0].length,v:r[1]+':'+r[2]}); });   // "21NOV 1010"
+  TKCRE.lastIndex=0; while((m=TKCRE.exec(s))){ const i=m.index+m[1].length; if(free(i,TKCRE.lastIndex)) tk.push({k:'C',i,e:TKCRE.lastIndex,v:TKCW[m[2]]}); }
+  return tk.sort((a,b)=>a.i-b.i); }
+function tkNames(lines){ const out=[], put=n=>{ n=String(n).replace(/[^A-Za-z .]/g,' ').replace(/\s+/g,' ').trim().replace(/^[ .]+/,'');
+    if(/^[A-Z]{2}/.test(n)){ const w=n.split(' '); let j=0; while(j<w.length&&w[j]===w[j].toUpperCase()) j++; n=w.slice(0,j).join(' '); }   // MANJEET SINGH Nish -> MANJEET SINGH (a photo adds scraps after the name)
+    n=n.replace(/(\s+(ADULT|ADUTT|ADU.T|CHILD|INFANT|MALE|FEMALE|ADT|CHD|INF))+$/i,'').trim(); if(n.replace(/[^A-Za-z]/g,'').length<4||/^(AND|THE|FOR|ADULT|CHILD|INFANT|PASSENGER|NAME|DETAILS)$/i.test(n)) return; const k=n.toUpperCase().replace(/[^A-Z]/g,''); if(!out.some(x=>x.k===k)) out.push({k,n}); };
+  const dd=x=>{ x=String(x).trim(); const h=x.length/2; return x.length%2===0&&x.slice(0,h)===x.slice(h)?x.slice(0,h):x; };   // 'Ram KumarRam Kumar' -> 'Ram Kumar' (bold text comes twice in some PDFs)
+  lines.forEach((l,i)=>{ const s=String(l); let m;
+    if(/^\s*PASSENGER DETAILS\b/i.test(s)&&/SEAT/i.test(s)&&lines[i+1]){ const c=dd(String(lines[i+1]).split('¦')[0]); if(/^[A-Za-z][A-Za-z .]{3,38}$/.test(c)) put(c); }   // bus ticket: name under 'Passenger Details ¦ Seat no'
+    const a=/(^|[^A-Za-z])([A-Z]{2,20})\/([A-Z][A-Z ]{1,28}?)\s+(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)\b/g; while((m=a.exec(s))) put(m[3]+' '+m[2]);                       // BHATIA/RAJU MR
+    const b=/PASSENGER\s*:?\s+([A-Za-z][A-Za-z ]{3,38}?)\s+(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)\b/gi; while((m=b.exec(s))) put(m[1]);                                     // PASSENGER: SINGH TEJINDER PAL MR
+    const c=/(^|[^A-Za-z\/])(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)(?:\.[ \t]*|[ \t]+\.?[ \t]*)([A-Za-z][A-Za-z .]{2,38}?)(?=[ \t]{2,}|[ \t]*(?:¦|\d|\(|,|\/|\||$|ADULT|CHILD|INFANT))/gi; while((m=c.exec(s))) put(m[2]);   // Mr MANJEET SINGH
+    const d=/^\s*\d{1,2}\.?\s*¦?\s*([A-Z][A-Za-z .]{3,30}?)\s*¦?\s*\d{1,3}\s*¦?\s*(?:M|F|MALE|FEMALE|TRANSGENDER)\b/i.exec(s); if(d) put(d[1]);
+    const e2=/^\s*\d{1,2}\.?\s+([A-Z][A-Z .]{3,30})\s*$/.exec(s); if(e2&&/^\s*(MALE|FEMALE)\b/i.test(String(lines[i+1]||''))) put(e2[1]); });   // IRCTC app: '1 NAME' and 'Male | 42 yrs' under it                    // 1. ¦ NAME ¦ 45 ¦ Male (IRCTC)
+  if(!out.length) lines.forEach(l=>{ const e=/^\s*(?:HEY|HI|HELLO|DEAR)\s+([A-Za-z][A-Za-z .]{3,38}?)\s*[,!]/i.exec(String(l)); if(e&&!/CUSTOMER|SIR|MADAM|GUEST|PASSENGER|TRAVELL?ER|USER|MEMBER|TEAM|ALL\b/i.test(e[1])) put(e[1]); });   // last resort: 'Hey Ram Kumar,'
+  return out.map(x=>x.n.toLowerCase().replace(/(^|[\s.])([a-z])/g,(q,a,b)=>a+b.toUpperCase())); }
+function tkRead(lines){ lines=(lines||[]).map(l=>String(l)); const ig=/INDIGO|(^|[^A-Z0-9])6E([^A-Z0-9]|$)/i.test(lines.join('\n'));
+  const U=lines.map(l=>{ let u=l.toUpperCase().replace(/6€/g,'6E'); if(ig) u=u.replace(/(^|[^A-Z0-9])(?:BE|GE|6F)(\s?-?\s?\d{3,4})(?!\d)/g,'$16E$2'); return u; }), TK=U.map(tkToks), n=U.length;   // a photo may read 6E as BE / 6€
+  const bad=u=>/CHECK.?IN|CLOSES|REPORTING|BOOKED ON|GENERATED|ISSUED|\bUTC\b|DATE OF BOOKING|INVOICE|DURATION|TRAVEL TIME|TRANSACTION/.test(u)||/\d\d:\d\d:\d\d/.test(u)||(/\bDATE:/.test(u)&&!/ARRIV|DEPART|\d:\d\d/.test(u)), isF=t=>t.k==='F'||t.k==='R';   // bad = not travel lines ("DATE: 05 NOVEMBER" alone = the day the ticket was issued)
+  const cs=l=>TK[l].filter(t=>t.k==='C').map(t=>t.v), uq=a=>a.filter((c,i)=>i===0||c!==a[i-1]), jod=t=>/JODHPUR|\(JU\)|BGKT|BHAGAT KI KOTHI|\(RKB\)|RAIKA/.test(t);
+  const pnrRe=/(?:PNR|BOOKING REF(?:ERENCE)?\.?)[^A-Z0-9]{0,12}(?:(?:PNR|BOOKING|REF(?:ERENCE)?|NO|NUMBER)\.?[^A-Z0-9]{0,6}){0,3}(?:[A-Z0-9]{2}\/)?((?=[A-Z0-9]*\d)[A-Z0-9]{6,10})(?![A-Z0-9])/;
+  const legs=[];
+  for(let k=0;k<n;k++){ const fs=TK[k].filter(isF); if(!fs.length) continue;
+    fs.forEach(f=>{ let L=legs.find(x=>x.no===f.v); if(!L){ L={no:f.v,tr:f.k==='R',k}; legs.push(L); }
+      const other=l=>TK[l].some(t=>isF(t)&&t.v!==f.v), fwd=[k], back=[]; for(let l=k+1;l<n&&l<=k+9&&!other(l);l++) fwd.push(l); for(let l=k-1;l>=0&&l>=k-3&&!TK[l].some(isF);l--) back.push(l);
+      // ---- from -> to
+      if(!L.to){ if(L.tr){ const h=U.findIndex(u=>/BOOKED FROM|BOARDING AT|FROM STATION/.test(u)&&/\bTO\b/.test(u)), c=h>=0&&h+1<n?lines[h+1].split('¦').map(x=>x.trim().toUpperCase()).filter(Boolean):[];
+            if(c.length>=2){ L.from=jod(c[0])?'JDH':'X:'+c[0]; L.to=jod(c[c.length-1])?'JDH':'X:'+c[c.length-1]; L.st=c[c.length-1]; }
+            else { const ls=h>=0?[h+1,h+2]:[]; for(let l=k-4;l<=k+6;l++) ls.push(l);
+              for(const l of ls){ if(l<0||l>=n) continue; const S=[], re=/([A-Z][A-Z .]{2,26}?)\s*\(([A-Z]{2,5})\)/g; let m; while((m=re.exec(U[l]))) S.push(m[1].trim()+' ('+m[2]+')');
+                if(S.length>=2&&S[0]!==S[S.length-1]){ const a=S[0], b=S[S.length-1]; L.from=jod(a)?'JDH':'X:'+a; L.to=jod(b)?'JDH':'X:'+b; L.st=b; break; } } } }
+        else { let q=uq(cs(k)); if(new Set(q).size<2) q=uq([...back.slice(0,1).flatMap(cs),...fwd.flatMap(cs)]); if(new Set(q).size<2) q=uq([...back.slice().reverse().flatMap(cs),...fwd.flatMap(cs)]);
+          if(new Set(q).size>=2){ L.from=q[0]; L.to=q.find(c=>c!==q[0]); } } }
+      // ---- times and dates: (a) written beside "Departure" / "Arrival"
+      const W=(L.tr?[...Array(n).keys()].filter(l=>l>=k-5&&l<=k+4):fwd).filter(l=>!bad(U[l]));
+      W.forEach(l=>{ const u=U[l], T=TK[l].filter(t=>t.k==='T'), D=TK[l].filter(t=>t.k==='D'), ia=u.search(/ARRIV/), id=u.search(/DEPART/); if(!T.length||(ia<0&&id<0)) return;
+        const seg=(a,b)=>t=>t.i>a&&(b<a||t.i<b);
+        if(ia>=0&&id>=0){ const ta=T.find(seg(ia,id)), td=T.find(seg(id,ia)), da=D.find(seg(ia,id)), dd=D.find(seg(id,ia)); if(ta&&!L.arrT){ L.arrT=ta.v; if(da) L.arrD=da.v; } if(td&&!L.depT){ L.depT=td.v; if(dd) L.depD=dd.v; } }
+        else if(ia>=0){ if(!L.arrT){ L.arrT=T[T.length-1].v; if(D.length) L.arrD=D[D.length-1].v; } } else if(!L.depT){ L.depT=T[T.length-1].v; if(D.length) L.depD=D[D.length-1].v; } });
+      // (b) a time written beside a city on the same line
+      if(L.from&&L.to&&(!L.depT||!L.arrT)) W.forEach(l=>{ const X=TK[l].filter(t=>t.k==='C'||t.k==='T'), C=X.filter(t=>t.k==='C').filter((c,i,a)=>i===0||c.v!==a[i-1].v), T=X.filter(t=>t.k==='T'); if(!C.length||!T.length) return; const tm=new Map();
+        if(C.length===T.length) C.forEach((c,i)=>tm.set(c.v,T[i].v));
+        else { const used=new Set(); C.forEach((c,i)=>{ const nx=C[i+1], t=T.find(t=>t.i>c.i&&(!nx||t.i<nx.i)&&!used.has(t)); if(t){ used.add(t); tm.set(c.v,t.v); } });
+          C.forEach((c,i)=>{ if(tm.has(c.v)) return; const pv=C[i-1], t=T.filter(t=>t.i<c.i&&(!pv||t.i>pv.i)&&!used.has(t)).pop(); if(t){ used.add(t); tm.set(c.v,t.v); } }); }
+        if(!L.depT&&tm.has(L.from)) L.depT=tm.get(L.from); if(!L.arrT&&tm.has(L.to)) L.arrT=tm.get(L.to); });
+      // (c) two bare times on one line: the first is the departure, the second the arrival (a night train is printed 21:20  07:30)
+      if(!L.depT&&!L.arrT){ const l2=W.find(l=>!/ARRIV|DEPART/.test(U[l])&&new Set(TK[l].filter(t=>t.k==='T').map(t=>t.v)).size===2&&TK[l].filter(t=>t.k==='T').length===2); if(l2!==undefined){ const T=TK[l2].filter(t=>t.k==='T'); L.depT=T[0].v; L.arrT=T[1].v; } }
+      if(!L.depD&&!L.arrD){ const l3=W.find(l=>!/ARRIV|DEPART/.test(U[l])&&TK[l].filter(t=>t.k==='D').length===2); if(l3!==undefined){ const D=TK[l3].filter(t=>t.k==='D'), g=(new Date(D[1].v)-new Date(D[0].v))/864e5; if(g>=0&&g<=2){ L.depD=D[0].v; L.arrD=D[1].v; } } }
+      // (d) otherwise: the earlier is the departure, the later the arrival
+      if(!L.depT||!L.arrT){ const T=[...new Set(W.flatMap(l=>TK[l].filter(t=>t.k==='T').map(t=>t.v)))].slice(0,6).sort(); if(T.length>=2){ if(!L.depT) L.depT=T[0]; if(!L.arrT) L.arrT=T[T.length-1]; } else if(T.length===1&&!L.depT&&!L.arrT) L.depT=T[0]; }
+      if(!L.d){ const dk=l=>(TK[l].find(t=>t.k==='D')||{}).v, ok=l=>l===k||!bad(U[l]); L.d=[...fwd,...back].filter(ok).map(dk).find(Boolean)||''; }
+      if(!L.pnr){ const p=[...fwd,...back].map(l=>pnrRe.exec(U[l])).find(Boolean); if(p) L.pnr=p[1]; if(L.tr&&!L.pnr){ const q=/(^|[^0-9])(\d{10})(?!\d)/.exec(U[k]); if(q) L.pnr=q[2]; } } }); }
+  const gp=(U.map(u=>pnrRe.exec(u)).find(Boolean)||[])[1]||''; legs.forEach(L=>{ if(!L.pnr) L.pnr=gp; });
+  // ---- which leg is the arrival, which the return
+  let home=legs.some(L=>L.to==='JDH'||L.from==='JDH')?'JDH':''; if(!home) for(let i=0;i<legs.length&&!home;i++) if(legs[i].to&&legs.slice(i+1).some(M=>M.from===legs[i].to)) home=legs[i].to;
+  let arr=null, dep=null; if(home){ arr=legs.filter(L=>L.to===home).pop()||null; dep=legs.find(L=>L.from===home&&(!arr||legs.indexOf(L)>legs.indexOf(arr)))||legs.find(L=>L.from===home)||null; }
+  const all=U.join('\n'), ap=L=>L.tr?(/BGKT|BHAGAT KI KOTHI/.test(L.st||'')?'भगत की कोठी':/\(RKB\)|RAIKA/.test(L.st||'')?'राईका बाग':home==='JDH'?'जोधपुर स्टेशन':''):((TKCN[home]||home)+' एयरपोर्ट');
+  const rec=(L,dir)=>L?{dir,no:L.no,pnr:L.pnr||'',d:dir==='arr'?(L.arrD||L.d||''):(L.depD||L.d||''),t:dir==='arr'?(L.arrT||''):(L.depT||''),am:L.tr?'ट्रेन':'फ़्लाइट',ap:dir==='arr'?ap(L):'',from:L.from||'',to:L.to||''}:null;
+  let A=rec(arr,'arr'), B=rec(dep,'dep'), one=null;
+  if(!A&&!B&&legs.length){ const L=legs[0]; one={...rec(L,'arr'),dir:'',ap:'',dd:L.depD||L.d||'',dt:L.depT||'',ad:L.arrD||L.d||'',at:L.arrT||''}; }       // direction not known from the cities
+  if(!legs.length&&/\bBUS\b|TRAVELS|SLEEPER|VOLVO|REDBUS|BOARDING POINT/.test(all)){ const toJ=/[A-Z]{3,}\s*(?:-|TO)\s*JODHPUR/.test(all), frJ=/JODHPUR\s*(?:-|TO)\s*[A-Z]{3,}/.test(all), DT=[]; U.forEach((u,l)=>{ const D=TK[l].find(t=>t.k==='D'), T=TK[l].find(t=>t.k==='T'); if(D&&T&&!bad(u)&&!/BEFORE|UNTIL|CANCEL|REFUND/.test(u)) DT.push([D.v,T.v]); });
+    if(DT.length){ DT.sort((a,b)=>(a[0]+a[1]).localeCompare(b[0]+b[1])); const x=frJ&&!toJ?DT[0]:DT[DT.length-1], r={dir:frJ&&!toJ?'dep':'arr',no:'',pnr:'',d:x[0],t:x[1],am:'बस',ap:frJ&&!toJ?'':'बस स्टैंड',from:'',to:''}; if(r.dir==='arr') A=r; else B=r; } }
+  if(!legs.length&&!A&&!B){ const l=U.findIndex((u,i)=>!bad(u)&&!/BEFORE|UNTIL|CANCEL|REFUND/.test(u)&&TK[i].filter(t=>t.k==='T').length===2&&TK[i].some(t=>t.k==='D'));
+    if(l>=0){ const T=TK[l].filter(t=>t.k==='T'), D=TK[l].filter(t=>t.k==='D'); one={dir:'',no:'',pnr:gp,d:D[D.length-1].v,t:T[1].v,am:/FLIGHT|AIRLINE|AIRPORT/.test(all)?'फ़्लाइट':/\bTRAIN|IRCTC|RAILWAY/.test(all)?'ट्रेन':'',ap:'',from:'',to:'',dd:D[0].v,dt:T[0].v,ad:D[D.length-1].v,at:T[1].v}; } }
+  return {legs,home,arr:A,dep:B,one,names:tkNames(lines)}; }
+
 function parseTicket(raw){ const up=' '+String(raw||'').toUpperCase().replace(/[ \s]+/g,' ')+' ', o={}, found=[];
   const fl=/\b(6E|AI|UK|SG|IX|QP|I5|G8)\s?-?\s?(\d{2,4})\b/.exec(up), tr=/\b(\d{5})\s*[\/\-]\s*([A-Z][A-Z .]{3,28}?)(?=\s+(?:DATE|CLASS|QUOTA|FROM|BOOKED|START|BOARDING|\d)|\s*$)/.exec(up)||/TRAIN\s*(?:NO\.?|NUMBER|NAME)?[^0-9]{0,12}(\d{5})/.exec(up), pnr=/PNR\s*(?:NO\.?|NUMBER)?[^A-Z0-9]{0,10}([A-Z0-9]{6,10})\b/.exec(up);
   if(fl){ o.am='फ़्लाइट'; o.no=fl[1]+' '+fl[2]; found.push('फ़्लाइट '+o.no); } else if(tr){ o.am='ट्रेन'; o.no=tr[1]+(tr[2]?' '+tr[2].trim():''); found.push('ट्रेन '+o.no); }
@@ -1428,8 +1527,16 @@ function parseTicket(raw){ const up=' '+String(raw||'').toUpperCase().replace(/[
   const fromM=/\b(?:FROM|BOOKED FROM|BOARDING AT)\b[^A-Z]{0,4}([A-Z][A-Z .]{2,22}?)\s*(?:\(|\b[A-Z]{2,4}\b\s*\)|TO\b|\d)/.exec(up); o.city=fromM?fromM[1].trim().replace(/\b(JN|JUNCTION|CANTT|STATION)\b/g,'').trim():'';
   const ppl=(up.match(/\b(?:CNF|RAC|RLWL|GNWL|PQWL|WL)\b(?:\s*\/|\s+\d)/g)||[]).length||(up.match(/\b(?:MR|MRS|MS|MSTR|MISS)\b\.?\s+[A-Z]{2,}/g)||[]).length; if(ppl) o.ppl=ppl;
   if(/\bBGKT\b|BHAGAT KI KOTHI/.test(up)) o.ap='भगत की कोठी'; else if(/\bRKB\b|RAIKA ?BAGH/.test(up)) o.ap='राईका बाग'; else if(o.am==='फ़्लाइट'||/\bJDH\b/.test(up)) o.ap='जोधपुर एयरपोर्ट'; else if(/\bJU\b|JODHPUR/.test(up)) o.ap='जोधपुर स्टेशन';
+  // v2 (18 Nov): the legs of the ticket (from -> to) decide what is the arrival and what the return – tkRead; a round trip fills both
+  try{ const R=tkRead(String(raw||'').split('\n')), A=R.arr, B=R.dep, X=A||B||R.one, nn=x=>[x.no,x.pnr?'PNR '+x.pnr:''].filter(Boolean).join(' · '); o.names=R.names; if(R.names.length>1) o.ppl=R.names.length;
+    if(X){ found.length=0; if(X.am) o.am=X.am; const f0=(X.am+' '+X.no).trim(); if(f0) found.push(f0); if(X.pnr) found.push('PNR');
+      if(A||B){ o.arr=A; o.dep=B; o.dir=A?'arr':'dep'; o.no=nn(A||B); o.ano=A?nn(A):''; o.dno=B?nn(B):''; o.ad=A?A.d:''; o.at=A?A.t:''; o.dd=B?B.d:''; o.dt=B?B.t:''; if(A) o.ap=A.ap||o.ap||''; if(A&&B) found.push('आना + वापसी');
+        const fc=(A||B)[A?'from':'to']; if(fc&&TKCM[fc]) o.city=TKCM[fc].split('|').filter(w=>w.length>3)[0]||o.city||'';
+        else if(fc&&fc.indexOf('X:')===0) o.city=fc.slice(2).replace(/\(.*?\)/g,' ').replace(/\b(JN|JUNCTION|CANTT?|STATION|BG|TERMINUS)\b\.?/g,' ').replace(/[^A-Z ]/g,' ').replace(/\s+/g,' ').trim();   // train: the other station
+        if(/JODHPUR|^TO\b|^FROM\b/.test(o.city||'')) o.city=''; }
+      else { o.no=nn(X); o.ad=X.ad; o.at=X.at; o.dd=X.dd; o.dt=X.dt; } } }catch(e){ console.warn('tkRead',e); }
   if(o.ad||o.dd) found.push('तारीख'); if(o.at||o.dt) found.push('समय'); o.found=found; return o; }
-async function ticketRead(file){ const isPdf=/pdf/.test(file.type)||/\.pdf$/i.test(file.name); const txt=isPdf?await pdfText(file):await imgText(file); return parseTicket(txt); }
+async function ticketRead(file){ const isPdf=/pdf/.test(file.type)||/\.pdf$/i.test(file.name); const txt=isPdf?(await pdfLinesY(file)).join('\n'):await imgText(file); return parseTicket(txt); }
 
 // 10 Nov (his words): "uske saath uski wife, bhai, bachcha ya koi bhi aa raha hai to unke bhi naam … taaki TEB ko sheet banane, RSVP aur check-in check-out me problem na ho"
 // -> साथ आने वाले: नाम · रिश्ता · बड़े / बच्चा (guest page + TEB, both ways)
@@ -1480,7 +1587,8 @@ document.addEventListener('input',e=>{ const id=e.target&&e.target.id||'', m=/^(
 document.addEventListener('change',e=>{ const id=e.target&&e.target.id||'', m=/^(fm-|q-)(ano|dno)$/.exec(id); if(m) tfRun(m[1],m[2]); },true);
 
 function tkFill(p){ const set=(k,v)=>{ const el=$('#fm-'+k); if(el&&v){ el.value=v; el.style.background='#E3F1E6'; } };
-  if(p.dir==='dep'){ set('dd',p.dd); set('dt',p.dt); set('dno',p.no); } else { set('ad',p.ad); set('ati',p.at); set('am',p.am); set('ano',p.no); set('ap',p.ap); if(p.city&&!$('#fm-city').value) set('city',p.city.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())); }
+  if(p.arr||p.dep){ if(p.arr){ set('ad',p.ad); set('ati',p.at); set('am',p.am); set('ano',p.ano); set('ap',p.ap); } if(p.dep){ set('dd',p.dd); set('dt',p.dt); set('dno',p.dno); } if(p.city&&!$('#fm-city').value) set('city',p.city.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())); }   // 18 Nov: the ticket itself says which way
+  else if(p.dir==='dep'){ set('dd',p.dd); set('dt',p.dt); set('dno',p.no); } else { set('ad',p.ad); set('ati',p.at); set('am',p.am); set('ano',p.no); set('ap',p.ap); if(p.city&&!$('#fm-city').value) set('city',p.city.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())); }
   if(p.ppl&&!$('#fm-ppl').value) set('ppl',p.ppl); if(typeof tfRun==='function') setTimeout(()=>tfRun('fm-'),50); }
 
 // ---------- 🎫 कई टिकट एक साथ (15 Nov 2026 – his words: "tickets ka pdf kaha upload hoga ... mujhe multiple pdf upload karne hai")
@@ -1509,7 +1617,7 @@ function tkGuess(txt,fname){ if(!GU) return null; const up=' '+String(txt||'').t
 //   He did not send the PDF – the reader is built for the usual shapes (airline / IRCTC tickets, travel-desk tables) and every line stays editable.
 const TKFL='(6E|AI|UK|SG|IX|QP|I5|G8|9I|S5|2T)\\s?-?\\s?(\\d{2,4})(?!\\d)';
 const TKCITY=/^(DELHI|MUMBAI|BOMBAY|JODHPUR|JAIPUR|UDAIPUR|AHMEDABAD|SURAT|PUNE|BENGALURU|BANGALORE|HYDERABAD|CHENNAI|KOLKATA|INDORE|GOA|CHANDIGARH|LUCKNOW|GUWAHATI|DUBAI|NAGPUR|BHOPAL|VADODARA|RAJKOT|DEL|BOM|JDH|JDPR|JAI|UDR|AMD|STV|PNQ|BLR|HYD|MAA|CCU|IDR|GOI|GOX|IXC|LKO|GAU|DXB|NAG|BDQ|RAJ|BHO|VNS|PAT|IXR|BBI|COK|TRV|ATQ|SXR|IXJ|DED|AGR|JSA|BKB|KQH|HSR)$/;
-const TKSTOP=/^(ARRIVAL|ARRIVALS|ARR|ARRIVING|DEPARTURE|DEPARTURES|DEP|DEPARTING|RETURN|DATE|DATES|DAY|TIME|TIMING|FLIGHT|FLT|FLIGHTS|TRAIN|NO|NOS|NUMBER|SECTOR|ROUTE|FROM|TO|VIA|PAX|PERSONS|PERSON|NAME|NAMES|GUEST|GUESTS|PASSENGER|PASSENGERS|TRAVELLER|TRAVELLERS|TRAVELER|PNR|ROOM|ROOMS|HOTEL|PICKUP|PICK|UP|DROP|CAR|CAB|VEHICLE|DRIVER|REMARK|REMARKS|STATUS|CONFIRMED|CNF|AIRPORT|STATION|TERMINAL|HRS|HR|AM|PM|MON|TUE|WED|THU|FRI|SAT|SUN|MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY|JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|NOVEMBER|DECEMBER|OCTOBER|INDIGO|AIR|INDIA|VISTARA|SPICEJET|AKASA|EXPRESS|SR|SNO|TOTAL|ADULT|ADULTS|CHILD|INFANT|MOBILE|CONTACT|PHONE|ETA|ETD|CITY|TYPE|CATEGORY|GROUP|TEAM|CREW|ARTIST|LIST|SHEET|DETAILS|DETAIL|PLAN|SCHEDULE|NEW|ECONOMY|BUSINESS|CLASS|SEAT|MEAL|BAGGAGE|NON|STOP|DIRECT|ON|AT|BY|OF|THE|AND|WITH|FOR|IN|OUT|INBOUND|OUTBOUND|NA|NIL|TBA|TBC|YES|OK|BOOKING|REFERENCE|REF|TICKET|ETICKET|ITINERARY|JOURNEY|ONWARD|CHECK|CLOSES|MINUTES|BEFORE|TERMS|CONDITIONS|APPLY|PASS|BOARDING|GATE|AIRLINE|AIRLINES|AIRWAYS|OPERATED|NOTE|PLEASE|KINDLY|REGARDS|THANKS)$/;
+const TKSTOP=/^(ARRIVAL|ARRIVALS|ARR|ARRIVING|DEPARTURE|DEPARTURES|DEP|DEPARTING|RETURN|DATE|DATES|DAY|TIME|TIMING|FLIGHT|FLT|FLIGHTS|TRAIN|NO|NOS|NUMBER|SECTOR|ROUTE|FROM|TO|VIA|PAX|PERSONS|PERSON|NAME|NAMES|GUEST|GUESTS|PASSENGER|PASSENGERS|TRAVELLER|TRAVELLERS|TRAVELER|PNR|ROOM|ROOMS|HOTEL|PICKUP|PICK|UP|DROP|CAR|CAB|VEHICLE|DRIVER|REMARK|REMARKS|STATUS|CONFIRMED|CNF|AIRPORT|STATION|TERMINAL|HRS|HR|AM|PM|MON|TUE|WED|THU|FRI|SAT|SUN|MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY|JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|NOVEMBER|DECEMBER|OCTOBER|INDIGO|AIR|INDIA|VISTARA|SPICEJET|AKASA|EXPRESS|SR|SNO|TOTAL|ADULT|ADULTS|CHILD|INFANT|MOBILE|CONTACT|PHONE|ETA|ETD|CITY|TYPE|CATEGORY|GROUP|TEAM|CREW|ARTIST|LIST|SHEET|DETAILS|DETAIL|PLAN|SCHEDULE|NEW|ECONOMY|BUSINESS|CLASS|SEAT|MEAL|BAGGAGE|NON|STOP|DIRECT|ON|AT|BY|OF|THE|AND|WITH|FOR|IN|OUT|INBOUND|OUTBOUND|NA|NIL|TBA|TBC|YES|OK|BOOKING|REFERENCE|REF|TICKET|ETICKET|ITINERARY|JOURNEY|ONWARD|CHECK|CLOSES|MINUTES|BEFORE|TERMS|CONDITIONS|APPLY|PASS|BOARDING|GATE|AIRLINE|AIRLINES|AIRWAYS|OPERATED|NOTE|PLEASE|KINDLY|REGARDS|THANKS|INTL|INTERNATIONAL|ARPT|DOMESTIC|RJ|DL|MH|GJ)$/;
 const tkTc=t=>String(t||'').toLowerCase().replace(/(^|[\s.'&-])([a-z])/g,(m,a,b)=>a+b.toUpperCase()).trim();
 function tkLines(pages){ const out=[]; pages.forEach((pg,pi)=>{ const its=pg.items.filter(i=>String(i.s).trim()).sort((a,b)=>a.y-b.y||a.x-b.x); let cur=null;
     its.forEach(it=>{ if(!cur||Math.abs(it.y-cur.y)>Math.max(2.2,it.fs*0.45)){ cur={y:it.y,its:[],pg:pi}; out.push(cur); } cur.its.push(it); }); });
@@ -1548,24 +1656,20 @@ function tkListRecs(lines){ const recs=[]; let sec='', hx=null, cdate='', lname=
       recs.push({trav:nm,dir,d:D.length?(dir==='dep'?D[D.length-1].v:D[0].v):(gd?'':cdate),t:T.length?(dir==='dep'?T[0].v:T[T.length-1].v):'',no:f.v,am:f.tr?'ट्रेन':'फ़्लाइट',ap:f.tr?'जोधपुर स्टेशन':'जोधपुर एयरपोर्ट',src:(EN?'page ':'पेज ')+(l.pg+1),list:1,li,ns}); }); });
   return recs; }
 function tkPageRecs(pages,lines){ const FR=new RegExp('(^|[^A-Z0-9])'+TKFL), grp=[];
-  pages.forEach((pg,i)=>{ const t=lines.filter(l=>l.pg===i).map(l=>l.raw.replace(/ ¦ /g,'  ')).join('\n'), u=t.toUpperCase(), pnr=(/PNR\s*(?:NO\.?|NUMBER)?[^A-Z0-9]{0,10}([A-Z0-9]{6,10})\b/.exec(u)||[])[1]||'', tick=FR.test(u)||(/\b\d{5}\b/.test(u)&&/TRAIN|IRCTC|COACH|BERTH/.test(u))||!!pnr, last=grp[grp.length-1];
+  pages.forEach((pg,i)=>{ const t=lines.filter(l=>l.pg===i).map(l=>l.raw).join('\n'), u=t.toUpperCase(), pnr=(/PNR[^A-Z0-9]{0,12}(?:BOOKING REF\w*\.?[^A-Z0-9]{0,6})?((?=[A-Z0-9]*\d)[A-Z0-9]{6,10})(?![A-Z0-9])/.exec(u)||[])[1]||'', tick=FR.test(u)||(/\b\d{5}\s*\//.test(u)&&/TRAIN|IRCTC|COACH|BERTH/.test(u))||!!pnr, last=grp[grp.length-1];
     if(last&&(!tick||(pnr&&pnr===last.pnr))){ last.pg.push(i); last.t+='\n'+t; } else grp.push({pg:[i],t,pnr}); });
-  const recs=[]; grp.forEach(g=>{ const p=parseTicket(g.t), u=g.t.toUpperCase(), ll=lines.filter(l=>g.pg.includes(l.pg)), sect=[];
-    if(/PNR (BOOKING|REFEREN|NUMBER|STATUS)/.test(p.no||'')){ const m=/(?:PNR|BOOKING REF(?:ERENCE)?)[^A-Z0-9]{0,4}(?:(?:PNR|BOOKING|REF(?:ERENCE)?|NO|NUMBER)[^A-Z0-9]{0,4}){0,3}((?=[A-Z0-9]*\d)[A-Z0-9]{6,10})\b/.exec(u); p.no=(p.no||'').replace(/( · )?PNR [A-Z]+$/,m?'$1PNR '+m[1]:''); }   // "PNR / Booking Reference: QWE4RT"
-    const names=[...u.matchAll(/\b(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)\.?[ \t]+([A-Z][A-Z .]{2,38}?)(?=[ \t]{2,}|[ \t]*(?:\d|\(|,|\/|\n|$|ADULT|CHILD|INFANT|SEAT|MR\b|MRS\b|MS\b))/g)].map(m=>m[1].replace(/\s+/g,' ').trim()).filter((x,i,a)=>x.length>=4&&a.indexOf(x)===i);
-    ll.forEach((l,k)=>{ const tk=tkTok(l), F=tk.filter(x=>x.k==='F'&&!x.tr); if(F.length!==1) return; const dir=tkDirTxt(l.up)||tkDirTxt(ll.slice(Math.max(0,k-1),k+3).map(x=>x.up).join(' ')); if(!dir||sect.some(z=>z.no===F[0].v)) return;
-      const T=tk.filter(x=>x.k==='T'), D=tk.filter(x=>x.k==='D'); sect.push({dir,no:F[0].v,d:D.length?D[0].v:'',t:T.length?(dir==='dep'?T[0].v:T[T.length-1].v):''}); });
-    const A=sect.filter(z=>z.dir==='arr'), B=sect.filter(z=>z.dir==='dep'), base={trav:names.length?tkTc(names[0]):'',ppl:names.length||p.ppl||0,part:{pg:g.pg},txt:g.t,p,src:(EN?'page ':'पेज ')+(g.pg.length>1?(g.pg[0]+1)+'–'+(g.pg[g.pg.length-1]+1):g.pg[0]+1)};
-    if(A.length&&B.length){ const a=A[A.length-1], d=B[0]; recs.push({...base,dir:'arr',no:a.no,d:a.d||p.ad||'',t:a.t||'',am:'फ़्लाइट',ap:'जोधपुर एयरपोर्ट'}); recs.push({...base,dir:'dep',no:d.no,d:d.d||'',t:d.t||'',am:'फ़्लाइट',ap:'जोधपुर एयरपोर्ट'}); }
-    else { const dir=p.dir==='dep'?'dep':'arr'; recs.push({...base,dir,no:p.no||'',d:dir==='dep'?(p.dd||''):(p.ad||''),t:dir==='dep'?(p.dt||''):(p.at||''),am:p.am||'',ap:p.ap||'',city:p.city||''}); } });
+  const recs=[]; grp.forEach(g=>{ const p=parseTicket(g.t), base={trav:(p.names||[])[0]||'',ppl:p.ppl||0,part:{pg:g.pg},txt:g.t,p,am:p.am||'',ap:p.ap||'',city:p.city||'',src:(EN?'page ':'पेज ')+(g.pg.length>1?(g.pg[0]+1)+'–'+(g.pg[g.pg.length-1]+1):g.pg[0]+1)};
+    if(p.arr) recs.push({...base,dir:'arr',no:p.ano,d:p.ad,t:p.at}); if(p.dep) recs.push({...base,dir:'dep',no:p.dno,d:p.dd,t:p.dt,ap:''});
+    if(!p.arr&&!p.dep){ const dir=p.dir==='dep'?'dep':'arr'; recs.push({...base,dir,no:p.no||'',d:dir==='dep'?(p.dd||''):(p.ad||''),t:dir==='dep'?(p.dt||''):(p.at||'')}); } });
   return recs; }
 // one PDF -> its tickets ([] = an ordinary single ticket, read the old way)
 async function tkSplit(file){ const pages=await pdfPages(file), lines=tkLines(pages), all=lines.map(l=>l.up).join('\n');
   const LR=tkListRecs(lines), cnt=f=>new Set(LR.filter(f).map(r=>nnm(r.trav)).filter(Boolean)).size, direct=cnt(r=>r.ns==='d'), total=cnt(()=>true);
   const mk=/BOOKING REF|E-?TICKET|ITINERARY|BOARDING PASS|RESERVATION SLIP|IRCTC/.test(all)||/PNR\s*(?:NO\.?|NUMBER)?[^A-Z0-9]{0,10}(?=[A-Z0-9]*\d)[A-Z0-9]{6,10}\b/.test(all);
   // a list = different names on the flight lines themselves; tickets = ticket words / a PNR; a list with the names on their own lines comes after that
-  let recs=direct>=2?LR.filter(r=>r.trav||r.no):mk?tkPageRecs(pages,lines):total>=2?LR.filter(r=>r.trav||r.no):pages.length>1?tkPageRecs(pages,lines):[];
-  if(recs.length===1&&recs[0].part) return [];
+  // (a real ticket can have two "names" on its flight lines, e.g. "DELHI INDIRA GANDHI INTL … AI1768" – so with ticket words it takes three)
+  let recs=(direct>=3||(direct>=2&&!mk))?LR.filter(r=>r.trav||r.no):mk?tkPageRecs(pages,lines):total>=2?LR.filter(r=>r.trav||r.no):pages.length>1?tkPageRecs(pages,lines):[];
+  if(recs.length&&recs.every(r=>r.part&&r.part.pg.length>=pages.length)) return [];   // one ticket in the whole PDF -> read the ordinary way (also gives arrival + return)
   const seen=new Set(); recs=recs.filter(r=>{ const k=[nnm(r.trav),r.dir,r.no,r.d].join('|'); if(seen.has(k)) return false; seen.add(k); return true; }).slice(0,80);
   const np=pages.length; recs.forEach(r=>{ r.np=np; }); return recs.length>=2||(recs.length&&recs[0].list)?recs:[]; }
 const TKPC=new Map();   // one ticket's page(s) cut out of a merged PDF (pdf-lib) – if that fails the whole PDF is kept
@@ -1593,9 +1697,10 @@ async function tkBulk(files){ const big=files.filter(f=>f.size>10e6), fs=files.f
     const isPdf=/pdf/.test(f.type)||/\.pdf$/i.test(f.name); let recs=[]; if(isPdf){ try{ recs=await tkSplit(f); }catch(e){ console.warn('tkSplit',e); recs=[]; } }
     if(recs.length){ recs.forEach(r=>{ const g=(r.trav&&tkGuess(r.trav,''))||(r.txt?tkGuess(r.txt,''):null), found=[]; if(r.no) found.push((r.am||(EN?'No.':'नं.'))+' '+r.no); if(r.d) found.push('तारीख'); if(r.t) found.push('समय');
         TKB.L.push({f,p:{...(r.p||{}),am:r.am||'',ap:r.ap||'',city:r.city||'',ppl:r.ppl||0,found},err:false,dir:r.dir,name:g?g.name:'',auto:g?g.name:'',trav:r.trav||'',d:r.d||'',t:r.t||'',no:r.no||'',src:r.src||'',part:r.part||null,list:!!r.list,np:r.np||1,split:1}); }); continue; }
-    let p={found:[],dir:'arr'}, txt='', err=false; try{ txt=isPdf?await pdfText(f):await imgText(f); p=parseTicket(txt); }catch(e){ console.error(e); err=true; }
-    const g=tkGuess(txt,f.name); const dir=p.dir==='dep'?'dep':'arr', pn=(String(txt).toUpperCase().match(/\b(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)\.?[ \t]+([A-Z][A-Z .]{2,38}?)(?=[ \t]{2,}|[ \t]*(?:\d|\(|,|\/|\n|$|ADULT|CHILD|INFANT|SEAT))/)||[])[1]||'';
-    TKB.L.push({f,p,err,dir,name:g?g.name:'',auto:g?g.name:'',trav:pn?tkTc(pn.replace(/\s+/g,' ').trim()):'',d:dir==='dep'?(p.dd||''):(p.ad||''),t:dir==='dep'?(p.dt||''):(p.at||''),no:p.no||''}); }
+    let p={found:[],dir:'arr'}, txt='', err=false; try{ txt=isPdf?(await pdfLinesY(f)).join('\n'):await imgText(f); p=parseTicket(txt); }catch(e){ console.error(e); err=true; }
+    const g=tkGuess(txt,f.name), trav=(p.names||[])[0]||'', row=(dir,d,t,no)=>TKB.L.push({f,p,err,dir,name:g?g.name:'',auto:g?g.name:'',trav,d:d||'',t:t||'',no:no||'',split:(p.arr||p.dep)?1:0});
+    if(p.arr||p.dep){ if(p.arr) row('arr',p.ad,p.at,p.ano); if(p.dep) row('dep',p.dd,p.dt,p.dno); }   // 18 Nov: a round-trip ticket gives two lines – arrival and return – from the one file
+    else { const dir=p.dir==='dep'?'dep':'arr'; row(dir,dir==='dep'?p.dd:p.ad,dir==='dep'?p.dt:p.at,p.no); } }
   if(!TKB||!FM) return; tkbDraw(); if(big.length) $('#fm-e').textContent=big.length+(EN?' file(s) over 10 MB were left out':' फ़ाइल 10 MB से बड़ी थी – नहीं ली'); else if(files.length>fs.length) $('#fm-e').textContent=EN?'Only the first 30 files were taken':'सिर्फ़ पहली 30 फ़ाइलें ली हैं'; }
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-tkbx]'); if(!b||!TKB) return; tkbRead(); TKB.L[+b.dataset.tkbx].del=true; tkbDraw(); });
 document.addEventListener('change',e=>{ const t=e.target; if(!TKB||!t.dataset||t.dataset.tkbd==null) return; const i=+t.dataset.tkbd, x=TKB.L[i], p=x.p||{}, q=s=>document.querySelector(`[data-${s}="${i}"]`);

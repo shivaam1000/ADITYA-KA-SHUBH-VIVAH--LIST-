@@ -279,7 +279,7 @@ async function pdfText(file,maxP){ await loadJs(`https://cdnjs.cloudflare.com/aj
 // 18 Nov: the text of a PDF as printed lines (what stands on one line stays on one line, " ¦ " between columns) – the ticket reader works on these
 async function pdfLinesY(file,maxP){ await loadJs(`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.min.js`); const lib=window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc=`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.worker.min.js`;
   const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise, out=[];
-  for(let i=1;i<=Math.min(pdf.numPages,maxP||6);i++){ const pg=await pdf.getPage(i), vp=pg.getViewport({scale:1}), tc=await pg.getTextContent(), L=[]; let cur=null;
+  for(let i=1;i<=Math.min(pdf.numPages,maxP||24);i++){ const pg=await pdf.getPage(i), vp=pg.getViewport({scale:1}), tc=await pg.getTextContent(), L=[]; let cur=null;   // 24 pages: a family of 5 is 10 pages on an IndiGo print
     tc.items.filter(t=>String(t.str).trim()).map(t=>({s:t.str,x:t.transform[4],y:vp.height-t.transform[5],fs:Math.hypot(t.transform[2],t.transform[3])||10,w:t.width||0})).sort((a,b)=>a.y-b.y||a.x-b.x)
       .forEach(it=>{ if(!cur||Math.abs(it.y-cur.y)>Math.max(2.2,it.fs*0.45)){ cur={y:it.y,its:[]}; L.push(cur); } cur.its.push(it); });
     L.forEach(l=>{ l.its.sort((a,b)=>a.x-b.x); let t='', px=null; l.its.forEach(it=>{ const g=px==null?0:it.x-px; t+=px==null?'':g>it.fs*1.1?' ¦ ':g>it.fs*0.18?' ':''; t+=it.s; px=it.x+it.w; }); out.push(t); }); }
@@ -318,22 +318,27 @@ function tkToks(s){ const tk=[], Y=new Date().getFullYear(), free=(i,e)=>!tk.som
   tk.filter(x=>x.k==='D').forEach(d=>{ const r=/^\s{1,2}([01]\d|2[0-3])([0-5]\d)(?!\d)/.exec(s.slice(d.e)); if(r&&free(d.e,d.e+r[0].length)) tk.push({k:'T',i:d.e,e:d.e+r[0].length,v:r[1]+':'+r[2]}); });   // "21NOV 1010"
   TKCRE.lastIndex=0; while((m=TKCRE.exec(s))){ const i=m.index+m[1].length; if(free(i,TKCRE.lastIndex)) tk.push({k:'C',i,e:TKCRE.lastIndex,v:TKCW[m[2]]}); }
   return tk.sort((a,b)=>a.i-b.i); }
-function tkNames(lines){ const out=[], put=n=>{ n=String(n).replace(/[^A-Za-z .]/g,' ').replace(/\s+/g,' ').trim().replace(/^[ .]+/,'');
+// every passenger of the ticket: name + b (adult) / c (child 5–12) / s (under 5) – 18 Nov, his words: "agar member 4 ya 5 bhi ho toh bhi autofill hona chahiye"
+function tkPax(lines){ const out=[], AG=y=>y==null||isNaN(y)?'':(y<5?'s':y<=12?'c':'b'), TT=t=>/^(MSTR|MASTER|MISS)$/i.test(t||'')?'c':'';
+  const put=(n,a)=>{ n=String(n).replace(/[^A-Za-z .]/g,' ').replace(/\s+/g,' ').trim().replace(/^[ .]+/,'');
     if(/^[A-Z]{2}/.test(n)){ const w=n.split(' '); let j=0; while(j<w.length&&w[j]===w[j].toUpperCase()) j++; n=w.slice(0,j).join(' '); }   // MANJEET SINGH Nish -> MANJEET SINGH (a photo adds scraps after the name)
-    n=n.replace(/(\s+(ADULT|ADUTT|ADU.T|CHILD|INFANT|MALE|FEMALE|ADT|CHD|INF))+$/i,'').trim(); if(n.replace(/[^A-Za-z]/g,'').length<4||/^(AND|THE|FOR|ADULT|CHILD|INFANT|PASSENGER|NAME|DETAILS)$/i.test(n)) return; const k=n.toUpperCase().replace(/[^A-Z]/g,''); if(!out.some(x=>x.k===k)) out.push({k,n}); };
+    n=n.replace(/(\s+(ADULT|ADUTT|ADU.T|CHILD|INFANT|MALE|FEMALE|ADT|CHD|INF))+$/i,'').trim(); if(n.replace(/[^A-Za-z]/g,'').length<4||/^(AND|THE|FOR|ADULT|CHILD|INFANT|PASSENGER|NAME|DETAILS)$/i.test(n)) return;
+    const k=n.toUpperCase().replace(/[^A-Z]/g,''), o=out.find(x=>x.k===k); if(o){ if(a&&(!o.a||(o.a==='b'&&a!=='b'))) o.a=a; return; } out.push({k,n,a:a||''}); };
   const dd=x=>{ x=String(x).trim(); const h=x.length/2; return x.length%2===0&&x.slice(0,h)===x.slice(h)?x.slice(0,h):x; };   // 'Ram KumarRam Kumar' -> 'Ram Kumar' (bold text comes twice in some PDFs)
-  lines.forEach((l,i)=>{ const s=String(l); let m;
-    if(/^\s*PASSENGER DETAILS\b/i.test(s)&&/SEAT/i.test(s)&&lines[i+1]){ const c=dd(String(lines[i+1]).split('¦')[0]); if(/^[A-Za-z][A-Za-z .]{3,38}$/.test(c)) put(c); }   // bus ticket: name under 'Passenger Details ¦ Seat no'
-    const a=/(^|[^A-Za-z])([A-Z]{2,20})\/([A-Z][A-Z ]{1,28}?)\s+(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)\b/g; while((m=a.exec(s))) put(m[3]+' '+m[2]);                       // BHATIA/RAJU MR
-    const b=/PASSENGER\s*:?\s+([A-Za-z][A-Za-z ]{3,38}?)\s+(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)\b/gi; while((m=b.exec(s))) put(m[1]);                                     // PASSENGER: SINGH TEJINDER PAL MR
-    const c=/(^|[^A-Za-z\/])(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)(?:\.[ \t]*|[ \t]+\.?[ \t]*)([A-Za-z][A-Za-z .]{2,38}?)(?=[ \t]{2,}|[ \t]*(?:¦|\d|\(|,|\/|\||$|ADULT|CHILD|INFANT))/gi; while((m=c.exec(s))) put(m[2]);   // Mr MANJEET SINGH
-    const d=/^\s*\d{1,2}\.?\s*¦?\s*([A-Z][A-Za-z .]{3,30}?)\s*¦?\s*\d{1,3}\s*¦?\s*(?:M|F|MALE|FEMALE|TRANSGENDER)\b/i.exec(s); if(d) put(d[1]);
-    const e2=/^\s*\d{1,2}\.?\s+([A-Z][A-Z .]{3,30})\s*$/.exec(s); if(e2&&/^\s*(MALE|FEMALE)\b/i.test(String(lines[i+1]||''))) put(e2[1]); });   // IRCTC app: '1 NAME' and 'Male | 42 yrs' under it                    // 1. ¦ NAME ¦ 45 ¦ Male (IRCTC)
+  lines.forEach((l,i)=>{ const s=String(l), kid=/\(CHD\)|\bCHILD\b/i.test(s)?'c':/\(INF\)|\bINFANT\b/i.test(s)?'s':''; let m;
+    if(/^\s*PASSENGER DETAILS\b/i.test(s)&&/SEAT/i.test(s)&&lines[i+1]){ const c=dd(String(lines[i+1]).split('¦')[0]), y=/(\d{1,3})\s*YRS?/i.exec(String(lines[i+2]||'')); if(/^[A-Za-z][A-Za-z .]{3,38}$/.test(c)) put(c,AG(y?+y[1]:null)); }   // bus ticket: name under 'Passenger Details ¦ Seat no', '77Yrs, MALE' under it
+    const a=/(^|[^A-Za-z])([A-Z]{2,20})\/([A-Z][A-Z ]{1,28}?)\s+(MR|MRS|MS|MISS|MSTR|MASTER|DR)\b/g; while((m=a.exec(s))) put(m[3]+' '+m[2],TT(m[4])||kid);                       // BHATIA/RAJU MR
+    const b=/PASSENGER\s*:?\s+([A-Za-z][A-Za-z ]{3,38}?)\s+(MR|MRS|MS|MISS|MSTR|MASTER|DR)\b/gi; while((m=b.exec(s))) put(m[1],TT(m[2])||kid);                                     // PASSENGER: SINGH TEJINDER PAL MR
+    const c=/(^|[^A-Za-z\/])(MR|MRS|MS|MISS|MSTR|MASTER|DR)(?:\.[ \t]*|[ \t]+\.?[ \t]*)([A-Za-z][A-Za-z .]{2,38}?)(?=[ \t]{2,}|[ \t]*(?:¦|\d|\(|,|\/|\||$|ADULT|CHILD|INFANT))/gi; while((m=c.exec(s))) put(m[3],TT(m[2])||kid);   // Mr MANJEET SINGH
+    const d=/^\s*\d{1,2}\.?\s*¦?\s*([A-Z][A-Za-z .]{3,30}?)\s*¦?\s*(\d{1,3})\s*¦?\s*(?:M|F|MALE|FEMALE|TRANSGENDER)\b/i.exec(s); if(d) put(d[1],AG(+d[2]));                    // 1. ¦ NAME ¦ 45 ¦ Male (IRCTC)
+    const f2=/^\s*([A-Za-z][A-Za-z .¦]{2,44}?)\s*¦?\s*(ADULT|CHILD|INFANT)\s*[|¦]\s*(?:MALE|FEMALE)\b/i.exec(s); if(f2){ const y=/(\d{1,3})\s*YEARS?/i.exec(s); put(f2[1],y?AG(+y[1]):/CHILD/i.test(f2[2])?'c':/INFANT/i.test(f2[2])?'s':'b'); }   // Ravi Bihani Adult | Male | 35 Years
+    const e2=/^\s*\d{1,2}\.?\s+([A-Z][A-Z .]{3,30})\s*$/.exec(s), n2=String(lines[i+1]||''); if(e2&&/^\s*(MALE|FEMALE)\b/i.test(n2)){ const y=/(\d{1,3})\s*YRS?/i.exec(n2); put(e2[1],AG(y?+y[1]:null)); } });   // IRCTC app: '1 NAME' and 'Male | 42 yrs' under it
   if(!out.length) lines.forEach(l=>{ const e=/^\s*(?:HEY|HI|HELLO|DEAR)\s+([A-Za-z][A-Za-z .]{3,38}?)\s*[,!]/i.exec(String(l)); if(e&&!/CUSTOMER|SIR|MADAM|GUEST|PASSENGER|TRAVELL?ER|USER|MEMBER|TEAM|ALL\b/i.test(e[1])) put(e[1]); });   // last resort: 'Hey Ram Kumar,'
-  return out.map(x=>x.n.toLowerCase().replace(/(^|[\s.])([a-z])/g,(q,a,b)=>a+b.toUpperCase())); }
+  return out.map(x=>({n:x.n.toLowerCase().replace(/(^|[\s.])([a-z])/g,(q,a,b)=>a+b.toUpperCase()),a:x.a||'b'})); }
+function tkNames(lines){ return tkPax(lines).map(x=>x.n); }
 function tkRead(lines){ lines=(lines||[]).map(l=>String(l)); const ig=/INDIGO|(^|[^A-Z0-9])6E([^A-Z0-9]|$)/i.test(lines.join('\n'));
   const U=lines.map(l=>{ let u=l.toUpperCase().replace(/6€/g,'6E'); if(ig) u=u.replace(/(^|[^A-Z0-9])(?:BE|GE|6F)(\s?-?\s?\d{3,4})(?!\d)/g,'$16E$2'); return u; }), TK=U.map(tkToks), n=U.length;   // a photo may read 6E as BE / 6€
-  const bad=u=>/CHECK.?IN|CLOSES|REPORTING|BOOKED ON|GENERATED|ISSUED|\bUTC\b|DATE OF BOOKING|INVOICE|DURATION|TRAVEL TIME|TRANSACTION/.test(u)||/\d\d:\d\d:\d\d/.test(u)||(/\bDATE:/.test(u)&&!/ARRIV|DEPART|\d:\d\d/.test(u)), isF=t=>t.k==='F'||t.k==='R';   // bad = not travel lines ("DATE: 05 NOVEMBER" alone = the day the ticket was issued)
+  const bad=u=>/CHECK.?IN|CLOSES|REPORTING|BOOKED ON|GENERATED|ISSUED|\bUTC\b|DATE OF BOOKING|INVOICE|DURATION|TRAVEL TIME|TRANSACTION/.test(u)||/\d\d:\d\d:\d\d/.test(u)||/^\s*\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d\d(?:\s*[AP]M)?[\s¦]+[A-Z][^0-9]*$/.test(u)||(/\bDATE:/.test(u)&&!/ARRIV|DEPART|\d:\d\d/.test(u)), isF=t=>t.k==='F'||t.k==='R';   // bad = not travel lines ("DATE: 05 NOVEMBER" alone = the day the ticket was issued)
   const cs=l=>TK[l].filter(t=>t.k==='C').map(t=>t.v), uq=a=>a.filter((c,i)=>i===0||c!==a[i-1]), jod=t=>/JODHPUR|\(JU\)|BGKT|BHAGAT KI KOTHI|\(RKB\)|RAIKA/.test(t);
   const pnrRe=/(?:PNR|BOOKING REF(?:ERENCE)?\.?)[^A-Z0-9]{0,12}(?:(?:PNR|BOOKING|REF(?:ERENCE)?|NO|NUMBER)\.?[^A-Z0-9]{0,6}){0,3}(?:[A-Z0-9]{2}\/)?((?=[A-Z0-9]*\d)[A-Z0-9]{6,10})(?![A-Z0-9])/;
   const legs=[];
@@ -367,6 +372,7 @@ function tkRead(lines){ lines=(lines||[]).map(l=>String(l)); const ig=/INDIGO|(^
       if(!L.depT||!L.arrT){ const T=[...new Set(W.flatMap(l=>TK[l].filter(t=>t.k==='T').map(t=>t.v)))].slice(0,6).sort(); if(T.length>=2){ if(!L.depT) L.depT=T[0]; if(!L.arrT) L.arrT=T[T.length-1]; } else if(T.length===1&&!L.depT&&!L.arrT) L.depT=T[0]; }
       if(!L.d){ const dk=l=>(TK[l].find(t=>t.k==='D')||{}).v, ok=l=>l===k||!bad(U[l]); L.d=[...fwd,...back].filter(ok).map(dk).find(Boolean)||''; }
       if(!L.pnr){ const p=[...fwd,...back].map(l=>pnrRe.exec(U[l])).find(Boolean); if(p) L.pnr=p[1]; if(L.tr&&!L.pnr){ const q=/(^|[^0-9])(\d{10})(?!\d)/.exec(U[k]); if(q) L.pnr=q[2]; } } }); }
+  if(legs.some(L=>L.depT||L.arrT)) for(let i=legs.length-1;i>=0;i--) if(!legs[i].depT&&!legs[i].arrT) legs.splice(i,1);   // "e.g. 6E-333" in the small print has no time – not a leg of this ticket
   const gp=(U.map(u=>pnrRe.exec(u)).find(Boolean)||[])[1]||''; legs.forEach(L=>{ if(!L.pnr) L.pnr=gp; });
   // ---- which leg is the arrival, which the return
   let home=legs.some(L=>L.to==='JDH'||L.from==='JDH')?'JDH':''; if(!home) for(let i=0;i<legs.length&&!home;i++) if(legs[i].to&&legs.slice(i+1).some(M=>M.from===legs[i].to)) home=legs[i].to;
@@ -379,7 +385,7 @@ function tkRead(lines){ lines=(lines||[]).map(l=>String(l)); const ig=/INDIGO|(^
     if(DT.length){ DT.sort((a,b)=>(a[0]+a[1]).localeCompare(b[0]+b[1])); const x=frJ&&!toJ?DT[0]:DT[DT.length-1], r={dir:frJ&&!toJ?'dep':'arr',no:'',pnr:'',d:x[0],t:x[1],am:'बस',ap:frJ&&!toJ?'':'बस स्टैंड',from:'',to:''}; if(r.dir==='arr') A=r; else B=r; } }
   if(!legs.length&&!A&&!B){ const l=U.findIndex((u,i)=>!bad(u)&&!/BEFORE|UNTIL|CANCEL|REFUND/.test(u)&&TK[i].filter(t=>t.k==='T').length===2&&TK[i].some(t=>t.k==='D'));
     if(l>=0){ const T=TK[l].filter(t=>t.k==='T'), D=TK[l].filter(t=>t.k==='D'); one={dir:'',no:'',pnr:gp,d:D[D.length-1].v,t:T[1].v,am:/FLIGHT|AIRLINE|AIRPORT/.test(all)?'फ़्लाइट':/\bTRAIN|IRCTC|RAILWAY/.test(all)?'ट्रेन':'',ap:'',from:'',to:'',dd:D[0].v,dt:T[0].v,ad:D[D.length-1].v,at:T[1].v}; } }
-  return {legs,home,arr:A,dep:B,one,names:tkNames(lines)}; }
+  const pax=tkPax(lines); return {legs,home,arr:A,dep:B,one,names:pax.map(x=>x.n),pax}; }
 
 function parseTicket(raw){ const up=' '+String(raw||'').toUpperCase().replace(/[ \s]+/g,' ')+' ', o={}, found=[];
   const fl=/\b(6E|AI|UK|SG|IX|QP|I5|G8)\s?-?\s?(\d{2,4})\b/.exec(up), tr=/\b(\d{5})\s*[\/\-]\s*([A-Z][A-Z .]{3,28}?)(?=\s+(?:DATE|CLASS|QUOTA|FROM|BOOKED|START|BOARDING|\d)|\s*$)/.exec(up)||/TRAIN\s*(?:NO\.?|NUMBER|NAME)?[^0-9]{0,12}(\d{5})/.exec(up), pnr=/PNR\s*(?:NO\.?|NUMBER)?[^A-Z0-9]{0,10}([A-Z0-9]{6,10})\b/.exec(up);
@@ -396,7 +402,7 @@ function parseTicket(raw){ const up=' '+String(raw||'').toUpperCase().replace(/[
   const ppl=(up.match(/\b(?:CNF|RAC|RLWL|GNWL|PQWL|WL)\b(?:\s*\/|\s+\d)/g)||[]).length||(up.match(/\b(?:MR|MRS|MS|MSTR|MISS)\b\.?\s+[A-Z]{2,}/g)||[]).length; if(ppl) o.ppl=ppl;
   if(/\bBGKT\b|BHAGAT KI KOTHI/.test(up)) o.ap='भगत की कोठी'; else if(/\bRKB\b|RAIKA ?BAGH/.test(up)) o.ap='राईका बाग'; else if(o.am==='फ़्लाइट'||/\bJDH\b/.test(up)) o.ap='जोधपुर एयरपोर्ट'; else if(/\bJU\b|JODHPUR/.test(up)) o.ap='जोधपुर स्टेशन';
   // v2 (18 Nov): the legs of the ticket (from -> to) decide what is the arrival and what the return – tkRead; a round trip fills both
-  try{ const R=tkRead(String(raw||'').split('\n')), A=R.arr, B=R.dep, X=A||B||R.one, nn=x=>[x.no,x.pnr?'PNR '+x.pnr:''].filter(Boolean).join(' · '); o.names=R.names; if(R.names.length>1) o.ppl=R.names.length;
+  try{ const R=tkRead(String(raw||'').split('\n')), A=R.arr, B=R.dep, X=A||B||R.one, nn=x=>[x.no,x.pnr?'PNR '+x.pnr:''].filter(Boolean).join(' · '); o.names=R.names; o.pax=R.pax||[]; if(R.names.length>1) o.ppl=R.names.length;
     if(X){ found.length=0; if(X.am) o.am=X.am; const f0=(X.am+' '+X.no).trim(); if(f0) found.push(f0); if(X.pnr) found.push('PNR');
       if(A||B){ o.arr=A; o.dep=B; o.dir=A?'arr':'dep'; o.no=nn(A||B); o.ano=A?nn(A):''; o.dno=B?nn(B):''; o.ad=A?A.d:''; o.at=A?A.t:''; o.dd=B?B.d:''; o.dt=B?B.t:''; if(A) o.ap=A.ap||o.ap||''; if(A&&B) found.push('आना + वापसी');
         const fc=(A||B)[A?'from':'to']; if(fc&&TKCM[fc]) o.city=TKCM[fc].split('|').filter(w=>w.length>3)[0]||o.city||'';
@@ -411,6 +417,9 @@ async function ticketRead(file){ const isPdf=/pdf/.test(file.type)||/\.pdf$/i.te
 const MREL=['पत्नी','पति','बेटा','बेटी','भाई','बहन','माता','पिता','बहू','दामाद','पोता','पोती','अन्य'], MAGE=[['b','बड़े'],['c','बच्चा (5–12)'],['s','5 साल से छोटा']];
 function memNorm(m){ return (Array.isArray(m)?m:[]).map(x=>({n:String((x&&x.n)||'').trim().slice(0,60),r:String((x&&x.r)||'').trim().slice(0,20),a:['b','c','s'].includes(x&&x.a)?x.a:'b'})).filter(x=>x.n).slice(0,15); }
 function memTxt(m){ return memNorm(m).map(x=>x.n+(x.r?' ('+x.r+')':'')+(x.a==='c'?' · बच्चा':x.a==='s'?' · छोटा बच्चा':'')).join(', '); }
+// 18 Nov (his words): "ek room me 2 hi guest stay karenge / agar kisi ka koi chota baccha hai toh 3 saath me stay karenge warna alag room"
+//   -> rooms a family needs: 2 in a room; a child (marked बच्चा / 5 साल से छोटा among the members) stays as the third with the parents. No member details -> 2 in a room.
+function rmNeed(g){ const m=memNorm(g&&g.mem), kids=m.filter(x=>x.a==='s'||x.a==='c').length, P=Math.max(Number(g&&g.ppl)||0,m.length?m.length+1:0,1), big=Math.max(1,P-Math.min(kids,P-1)); return Math.max(Math.ceil(big/2),Math.ceil(P/3)); }
 function memParse(t){ const m=/साथ में: (.*?)(?= कमरा चाहिए:| पिकअप चाहिए:|$)/.exec(String(t||'')); if(!m) return [];
   return memNorm(m[1].split(', ').map(p=>{ const x=/^(.*?)(?: \(([^)]*)\))?(?: · (बच्चा|छोटा बच्चा))?$/.exec(p.trim())||[]; return {n:x[1]||p,r:x[2]||'',a:x[3]==='बच्चा'?'c':x[3]?'s':'b'}; })); }
 function memRow(x){ x=x||{}; return `<div class="mrow"><input class="in mn" value="${esc(x.n||'')}" placeholder="नाम" autocomplete="off"><select class="in mr">${['',...MREL].map(r=>`<option value="${r}"${r===(x.r||'')?' selected':''}>${r||'रिश्ता'}</option>`).join('')}</select><select class="in ma">${MAGE.map(([k,l])=>`<option value="${k}"${k===(x.a||'b')?' selected':''}>${l}</option>`).join('')}</select><button type="button" class="mdel" data-mdel="1" aria-label="हटाएँ">✕</button></div>`; }
@@ -496,7 +505,10 @@ function gFill(p,dir){ const set=(k,v)=>{ if(v){ FV[k]=String(v); FG.add(k); } }
   if(p.arr||p.dep){ if(p.arr){ set('ad',p.ad); set('ati',p.at); set('am',p.am); set('ano',p.ano); set('ap',p.ap); } if(p.dep){ set('dd',p.dd); set('dt',p.dt); set('dno',p.dno); } n=1; }   // 18 Nov: read from the ticket's own from -> to, whichever button was pressed
   else if(dir==='dep'){ set('dd',p.dd||p.ad); set('dt',p.dt); set('dno',p.no); n=+!!(p.dd||p.ad||p.no); }
   else { set('ad',p.ad||p.dd); set('ati',p.at); set('am',p.am); set('ano',p.no); set('ap',p.ap); n=+!!(p.ad||p.dd||p.no); } if(typeof tfRun==='function') setTimeout(()=>tfRun('q-'),50);
-  if(p.ppl&&!FV.ppl) set('ppl',p.ppl); return n; }
+  if(p.ppl&&!FV.ppl) set('ppl',p.ppl);
+  if(p.pax&&p.pax.length>1&&!memNorm(FV.mem).length){ const wd=x=>String(x||'').toUpperCase().replace(/[^A-Z ]/g,' ').split(/\s+/).filter(w=>w.length>2), me=wd((GP.cm||'')+' '+(GP.en||'')); let i=p.pax.findIndex(x=>{ const w=wd(x.n); return w.length&&w.every(y=>me.includes(y)); }); if(i<0) i=0;
+    FV.mem=p.pax.filter((x,j)=>j!==i).map(x=>({n:x.n,r:'',a:x.a||'b'})); FG.add('mem'); }   // 18 Nov: everybody on the ticket goes into "साथ में कौन-कौन" (the guest himself is left out)
+  return n; }
 function render(){ const g=GP, p=g.pick||{}, dr=g.drop||{}, lg=g.lg||{}; let h='';
   if(g.rsvp&&!EDIT&&(RSV||!GQ||GQ.st==='n'||(!GQ.st&&String(GQ.ppl)==='0'))){ const no=!RSV&&(GQ?(GQ.st==='n'||String(GQ.ppl)==='0'):g.st0==='n');   // 10 Nov: "aa rahe hai ya nahi" – asked first
     h+=`<div class="gc"><p class="hi">आदरणीय <span data-notx>${esc(EN&&g.en?g.en:g.name)}</span></p><p class="lead">${EN?'You are warmly invited to the wedding of Aditya & Khhushboo (20–21 November 2026, Jodhpur).':'आदित्य संग खुशबू के शुभ विवाह (20–21 नवम्बर 2026, जोधपुर) में आप सादर आमंत्रित हैं।'}</p></div>`;

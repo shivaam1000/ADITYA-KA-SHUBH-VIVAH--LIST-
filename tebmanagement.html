@@ -833,7 +833,7 @@ function fAg(g,pre){ loadGuests(); const nk=!g&&pre&&pre.kind; form(g?(g.kind?'�
     let id=g&&g.id, ok; if(id) ok=await put('ag',id,o); else { id='ag'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); o.by=ME.name; o.at=Date.now(); try{ await setDoc(doc(db,'cr_ag',id),o); toast('सेव हो गया ✓'); ok=true; }catch(e){ toast('सेव नहीं हुआ – नेट या अनुमति देखें'); ok=false; } }
     if(ok&&TKFILE){ try{ await vfSave('ag',id,TKFILE,'tk','टिकट',false); }catch(e){ toast('टिकट की फ़ाइल सेव नहीं हुई'); } } TKFILE=null;
     if(ok&&g&&g.tok) syncGp({...g,...o}); return ok; }, g&&(()=>del('ag',g.id)));
-  setTimeout(()=>tfRun('fm-'),0);
+  setTimeout(()=>tfRun('fm-'),0); rmHint();
   TKFILE=null; if(ME.mgr) $('#fm-b').insertAdjacentHTML('afterbegin',`<button type="button" class="btn" id="fm-tkb" style="background:#1F5C8B;margin:0 0 8px">🎫 टिकट से भरें (PDF / फ़ोटो)</button><input type="file" id="fm-tkf" accept="application/pdf,image/*" style="display:none"><p class="sm" id="fm-tks"></p>`);
   const tb=$('#fm-tkb'), tf=$('#fm-tkf'); if(tb&&tf){ tb.onclick=()=>tf.click(); tf.onchange=()=>{ const f=tf.files[0]; if(f) tkApply(f); }; }
   const vs=$('#fm-vd'), ks=$('#fm-kind');
@@ -1380,6 +1380,14 @@ function fRoomGive(x,r){ const busy=new Set(); const opts=[['',EN?'– choose gu
     if(h===x.name.trim()&&rm.length){ if(confirm((EN?'Add room '+r+' to ':'कमरा '+r+' भी दें – ')+a.name+(EN?' (already has ':' (पहले से ')+rm.join(', ')+')?')) room=[...rm,r]; }
     else if(h&&h!==x.name.trim()&&!confirm(a.name+(EN?' is in ':' अभी ')+h+(EN?' – move to ':' में हैं – ')+x.name+(EN?'?':' में बदलें?'))) return false;
     const ok=await put('ag',a.id,{hotel:x.name,room:room.join(', ')}); if(ok&&a.tok) syncGp({...a,hotel:x.name,room:room.join(', ')}); return ok; }); }
+// 18 Nov: rooms a family needs (rmNeed: 2 in a room, a child as the third) against the room numbers already given
+const RMRULE=()=>EN?'2 in a room · 3 with a child':'1 कमरे में 2 · बच्चा साथ हो तो 3';
+const rmLine=g=>{ if(!g||g.rmq==='नहीं') return ''; const need=rmNeed(g), got=rmOf(g).length; if(got>=need) return '';
+  return got?`<small class="late">⚠ ${EN?'Rooms needed '+need+' – given '+got:'कमरे चाहिए '+need+' – अभी '+got+' दिया'} <span style="font-weight:400">(${RMRULE()})</span></small>`:`<small>🛏 ${EN?'Rooms needed: ':'कमरे चाहिए: '}<b>${need}</b></small>`; };
+function rmHint(){ const el=$('#fm-room'), pe=$('#fm-ppl'); if(!el||!pe) return; let h=document.getElementById('fm-rmn'); if(!h){ h=document.createElement('div'); h.id='fm-rmn'; h.className='sm'; h.style.margin='-4px 0 8px'; el.insertAdjacentElement('afterend',h); }
+  const need=rmNeed({ppl:pe.value,mem:memRead('fm-mem')||[]}), got=rmOf({room:el.value}).length; h.innerHTML='🛏 '+(EN?'Rooms needed: ':'कमरे चाहिए: ')+'<b>'+need+'</b> ('+RMRULE()+')'+(got&&got<need?' · <span style="color:var(--mr)">'+(EN?'given ':'अभी ')+got+(EN?'':' दिया')+'</span>':''); }
+['input','change'].forEach(ev=>document.addEventListener(ev,e=>{ if(e.target&&e.target.closest&&e.target.closest('#fm-b')&&document.getElementById('fm-room')) rmHint(); }));
+document.addEventListener('click',e=>{ if(e.target&&e.target.closest&&e.target.closest('#fm-b .mdel,#fm-b .madd')) setTimeout(rmHint,60); });
 function rmClash(o,self){ if(!o.hotel||!o.room) return ''; const mine=new Set(rmOf(o)); const c=C.ag.filter(a=>a.id!==self&&(a.hotel||'').trim()===String(o.hotel).trim()&&rmOf(a).some(r=>mine.has(r)));
   return c.map(a=>rmOf(a).filter(r=>mine.has(r)).join(',')+' → '+a.name).join(' · '); }
 function htMap(x,gs){ const rl=rlParse(x.rl); const occ=new Map(); gs.forEach(g=>rmOf(g).forEach(r=>{ if(!occ.has(r)) occ.set(r,[]); occ.get(r).push(g); }));
@@ -1394,14 +1402,14 @@ function htOne(x){ const gs=htGuests(x).sort((a,b)=>String(a.room||'ॿ').locale
   let h=`<div class="dh"><a href="#" data-a="htback">‹ सारे होटल</a>${ME.mgr?`<a href="#" data-a="hted" data-id="${x.id}">✏️ बदलें</a>`:''}</div>
    <div class="row"><div class="rh"><div class="w"><b style="font-size:18px">🏨 ${esc(x.name)}</b><small>${[x.addr?'📍 '+esc(x.addr):'',m?`<a href="${esc(m)}" target="_blank" rel="noopener">नक्शा</a>`:''].filter(Boolean).join(' · ')}</small>
    <small>${[x.person?'👤 '+esc(x.person):'',x.cin?'⬇ चेक-इन: '+esc(x.cin):'',x.cout?'⬆ चेक-आउट: '+esc(x.cout):''].filter(Boolean).join(' · ')}</small>${x.note?`<small>${esc(x.note)}</small>`:''}</div></div><div class="btns">${phBtns(x.ph)}</div>
-   <div class="money"><div>कमरे बुक<b>${x.rooms||'–'}</b></div><div>कमरे दिए<b>${rooms}</b></div><div>मेहमान<b>${gs.length} परिवार · ${ppl}</b></div></div></div>`;
+   <div class="money"><div>कमरे बुक<b>${x.rooms||'–'}</b></div><div>कमरे चाहिए<b>${gs.reduce((a,g)=>a+rmNeed(g),0)}</b></div><div>कमरे दिए<b>${rooms}</b></div><div>मेहमान<b>${gs.length} परिवार · ${ppl}</b></div></div><p class="sm" style="margin:4px 0 0">🛏 ${RMRULE()}</p></div>`;
   h+=htMap(x,gs)+(ME.mgr?`<div class="btns" style="margin:4px 0 10px"><button data-a="rledit" data-id="${x.id}">✏️ ${EN?'Room list':'कमरों की सूची'}</button><button data-a="rlpdf" data-id="${x.id}">📄 ${EN?'Read rooms from layout PDF':'लेआउट PDF से कमरे पढ़ें'}</button><input type="file" id="rlf-${x.id}" accept="application/pdf" style="display:none"></div>`:'');
   h+=`<div class="dh">🛏 कमरा-वार मेहमान<span>${gs.length}</span></div>`+(gs.map(agRow).join('')||'<p class="muted">अभी कोई मेहमान इस होटल में नहीं – मेहमान के फ़ॉर्म में "होटल" में यह नाम चुनें</p>');
   h+=`<div class="dh">📎 रूम लेआउट / फ़ाइलें<span>${C.vf.filter(f=>f.ht===x.id&&(!f.adm||ME.admin)).length}</span></div>`+vfList('ht',x.id);
   if(ME.mgr) h+=`<button class="add" data-a="vfadd" data-v="ht" data-id="${x.id}">📤 रूम लेआउट / फ़ाइल डालें</button>`;
   return h; }
 function htRow(x){ const gs=htGuests(x), rooms=new Set(gs.map(g=>g.room).filter(Boolean)).size, nf=C.vf.filter(f=>f.ht===x.id&&(!f.adm||ME.admin)).length;
-  return `<button class="lc" data-a="hto" data-id="${x.id}"><div class="w"><b>🏨 ${esc(x.name)}</b><div class="sm">${gs.length} परिवार · ${gs.reduce((a,g)=>a+(Number(g.ppl)||1),0)} लोग · कमरे ${rooms}${x.rooms?' / '+x.rooms:''}${nf?' · 📎 '+nf:''}</div></div><span>›</span></button>`; }
+  return `<button class="lc" data-a="hto" data-id="${x.id}"><div class="w"><b>🏨 ${esc(x.name)}</b><div class="sm">${gs.length} परिवार · ${gs.reduce((a,g)=>a+(Number(g.ppl)||1),0)} लोग · कमरे ${rooms}${x.rooms?' / '+x.rooms:''} · चाहिए ${gs.reduce((a,g)=>a+rmNeed(g),0)}${nf?' · 📎 '+nf:''}</div></div><span>›</span></button>`; }
 // ---------- 🎫 टिकट से अपने-आप भरना (PDF: pdf.js · फ़ोटो: Tesseract OCR) – (his words) "guests ki tkts bhi upload karunga taaki mujhe details manual na dalni pade / tumhara system khud fetch karle"
 const loadJs=src=>new Promise((res,rej)=>{ if(document.querySelector(`script[src="${src}"]`)){ res(); return; } const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>rej(new Error('script')); document.head.appendChild(s); });
 const PDFJS_V='3.11.174';
@@ -1411,7 +1419,7 @@ async function pdfText(file,maxP){ await loadJs(`https://cdnjs.cloudflare.com/aj
 // 18 Nov: the text of a PDF as printed lines (what stands on one line stays on one line, " ¦ " between columns) – the ticket reader works on these
 async function pdfLinesY(file,maxP){ await loadJs(`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.min.js`); const lib=window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc=`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.worker.min.js`;
   const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise, out=[];
-  for(let i=1;i<=Math.min(pdf.numPages,maxP||6);i++){ const pg=await pdf.getPage(i), vp=pg.getViewport({scale:1}), tc=await pg.getTextContent(), L=[]; let cur=null;
+  for(let i=1;i<=Math.min(pdf.numPages,maxP||24);i++){ const pg=await pdf.getPage(i), vp=pg.getViewport({scale:1}), tc=await pg.getTextContent(), L=[]; let cur=null;   // 24 pages: a family of 5 is 10 pages on an IndiGo print
     tc.items.filter(t=>String(t.str).trim()).map(t=>({s:t.str,x:t.transform[4],y:vp.height-t.transform[5],fs:Math.hypot(t.transform[2],t.transform[3])||10,w:t.width||0})).sort((a,b)=>a.y-b.y||a.x-b.x)
       .forEach(it=>{ if(!cur||Math.abs(it.y-cur.y)>Math.max(2.2,it.fs*0.45)){ cur={y:it.y,its:[]}; L.push(cur); } cur.its.push(it); });
     L.forEach(l=>{ l.its.sort((a,b)=>a.x-b.x); let t='', px=null; l.its.forEach(it=>{ const g=px==null?0:it.x-px; t+=px==null?'':g>it.fs*1.1?' ¦ ':g>it.fs*0.18?' ':''; t+=it.s; px=it.x+it.w; }); out.push(t); }); }
@@ -1450,22 +1458,27 @@ function tkToks(s){ const tk=[], Y=new Date().getFullYear(), free=(i,e)=>!tk.som
   tk.filter(x=>x.k==='D').forEach(d=>{ const r=/^\s{1,2}([01]\d|2[0-3])([0-5]\d)(?!\d)/.exec(s.slice(d.e)); if(r&&free(d.e,d.e+r[0].length)) tk.push({k:'T',i:d.e,e:d.e+r[0].length,v:r[1]+':'+r[2]}); });   // "21NOV 1010"
   TKCRE.lastIndex=0; while((m=TKCRE.exec(s))){ const i=m.index+m[1].length; if(free(i,TKCRE.lastIndex)) tk.push({k:'C',i,e:TKCRE.lastIndex,v:TKCW[m[2]]}); }
   return tk.sort((a,b)=>a.i-b.i); }
-function tkNames(lines){ const out=[], put=n=>{ n=String(n).replace(/[^A-Za-z .]/g,' ').replace(/\s+/g,' ').trim().replace(/^[ .]+/,'');
+// every passenger of the ticket: name + b (adult) / c (child 5–12) / s (under 5) – 18 Nov, his words: "agar member 4 ya 5 bhi ho toh bhi autofill hona chahiye"
+function tkPax(lines){ const out=[], AG=y=>y==null||isNaN(y)?'':(y<5?'s':y<=12?'c':'b'), TT=t=>/^(MSTR|MASTER|MISS)$/i.test(t||'')?'c':'';
+  const put=(n,a)=>{ n=String(n).replace(/[^A-Za-z .]/g,' ').replace(/\s+/g,' ').trim().replace(/^[ .]+/,'');
     if(/^[A-Z]{2}/.test(n)){ const w=n.split(' '); let j=0; while(j<w.length&&w[j]===w[j].toUpperCase()) j++; n=w.slice(0,j).join(' '); }   // MANJEET SINGH Nish -> MANJEET SINGH (a photo adds scraps after the name)
-    n=n.replace(/(\s+(ADULT|ADUTT|ADU.T|CHILD|INFANT|MALE|FEMALE|ADT|CHD|INF))+$/i,'').trim(); if(n.replace(/[^A-Za-z]/g,'').length<4||/^(AND|THE|FOR|ADULT|CHILD|INFANT|PASSENGER|NAME|DETAILS)$/i.test(n)) return; const k=n.toUpperCase().replace(/[^A-Z]/g,''); if(!out.some(x=>x.k===k)) out.push({k,n}); };
+    n=n.replace(/(\s+(ADULT|ADUTT|ADU.T|CHILD|INFANT|MALE|FEMALE|ADT|CHD|INF))+$/i,'').trim(); if(n.replace(/[^A-Za-z]/g,'').length<4||/^(AND|THE|FOR|ADULT|CHILD|INFANT|PASSENGER|NAME|DETAILS)$/i.test(n)) return;
+    const k=n.toUpperCase().replace(/[^A-Z]/g,''), o=out.find(x=>x.k===k); if(o){ if(a&&(!o.a||(o.a==='b'&&a!=='b'))) o.a=a; return; } out.push({k,n,a:a||''}); };
   const dd=x=>{ x=String(x).trim(); const h=x.length/2; return x.length%2===0&&x.slice(0,h)===x.slice(h)?x.slice(0,h):x; };   // 'Ram KumarRam Kumar' -> 'Ram Kumar' (bold text comes twice in some PDFs)
-  lines.forEach((l,i)=>{ const s=String(l); let m;
-    if(/^\s*PASSENGER DETAILS\b/i.test(s)&&/SEAT/i.test(s)&&lines[i+1]){ const c=dd(String(lines[i+1]).split('¦')[0]); if(/^[A-Za-z][A-Za-z .]{3,38}$/.test(c)) put(c); }   // bus ticket: name under 'Passenger Details ¦ Seat no'
-    const a=/(^|[^A-Za-z])([A-Z]{2,20})\/([A-Z][A-Z ]{1,28}?)\s+(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)\b/g; while((m=a.exec(s))) put(m[3]+' '+m[2]);                       // BHATIA/RAJU MR
-    const b=/PASSENGER\s*:?\s+([A-Za-z][A-Za-z ]{3,38}?)\s+(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)\b/gi; while((m=b.exec(s))) put(m[1]);                                     // PASSENGER: SINGH TEJINDER PAL MR
-    const c=/(^|[^A-Za-z\/])(?:MR|MRS|MS|MISS|MSTR|MASTER|DR)(?:\.[ \t]*|[ \t]+\.?[ \t]*)([A-Za-z][A-Za-z .]{2,38}?)(?=[ \t]{2,}|[ \t]*(?:¦|\d|\(|,|\/|\||$|ADULT|CHILD|INFANT))/gi; while((m=c.exec(s))) put(m[2]);   // Mr MANJEET SINGH
-    const d=/^\s*\d{1,2}\.?\s*¦?\s*([A-Z][A-Za-z .]{3,30}?)\s*¦?\s*\d{1,3}\s*¦?\s*(?:M|F|MALE|FEMALE|TRANSGENDER)\b/i.exec(s); if(d) put(d[1]);
-    const e2=/^\s*\d{1,2}\.?\s+([A-Z][A-Z .]{3,30})\s*$/.exec(s); if(e2&&/^\s*(MALE|FEMALE)\b/i.test(String(lines[i+1]||''))) put(e2[1]); });   // IRCTC app: '1 NAME' and 'Male | 42 yrs' under it                    // 1. ¦ NAME ¦ 45 ¦ Male (IRCTC)
+  lines.forEach((l,i)=>{ const s=String(l), kid=/\(CHD\)|\bCHILD\b/i.test(s)?'c':/\(INF\)|\bINFANT\b/i.test(s)?'s':''; let m;
+    if(/^\s*PASSENGER DETAILS\b/i.test(s)&&/SEAT/i.test(s)&&lines[i+1]){ const c=dd(String(lines[i+1]).split('¦')[0]), y=/(\d{1,3})\s*YRS?/i.exec(String(lines[i+2]||'')); if(/^[A-Za-z][A-Za-z .]{3,38}$/.test(c)) put(c,AG(y?+y[1]:null)); }   // bus ticket: name under 'Passenger Details ¦ Seat no', '77Yrs, MALE' under it
+    const a=/(^|[^A-Za-z])([A-Z]{2,20})\/([A-Z][A-Z ]{1,28}?)\s+(MR|MRS|MS|MISS|MSTR|MASTER|DR)\b/g; while((m=a.exec(s))) put(m[3]+' '+m[2],TT(m[4])||kid);                       // BHATIA/RAJU MR
+    const b=/PASSENGER\s*:?\s+([A-Za-z][A-Za-z ]{3,38}?)\s+(MR|MRS|MS|MISS|MSTR|MASTER|DR)\b/gi; while((m=b.exec(s))) put(m[1],TT(m[2])||kid);                                     // PASSENGER: SINGH TEJINDER PAL MR
+    const c=/(^|[^A-Za-z\/])(MR|MRS|MS|MISS|MSTR|MASTER|DR)(?:\.[ \t]*|[ \t]+\.?[ \t]*)([A-Za-z][A-Za-z .]{2,38}?)(?=[ \t]{2,}|[ \t]*(?:¦|\d|\(|,|\/|\||$|ADULT|CHILD|INFANT))/gi; while((m=c.exec(s))) put(m[3],TT(m[2])||kid);   // Mr MANJEET SINGH
+    const d=/^\s*\d{1,2}\.?\s*¦?\s*([A-Z][A-Za-z .]{3,30}?)\s*¦?\s*(\d{1,3})\s*¦?\s*(?:M|F|MALE|FEMALE|TRANSGENDER)\b/i.exec(s); if(d) put(d[1],AG(+d[2]));                    // 1. ¦ NAME ¦ 45 ¦ Male (IRCTC)
+    const f2=/^\s*([A-Za-z][A-Za-z .¦]{2,44}?)\s*¦?\s*(ADULT|CHILD|INFANT)\s*[|¦]\s*(?:MALE|FEMALE)\b/i.exec(s); if(f2){ const y=/(\d{1,3})\s*YEARS?/i.exec(s); put(f2[1],y?AG(+y[1]):/CHILD/i.test(f2[2])?'c':/INFANT/i.test(f2[2])?'s':'b'); }   // Ravi Bihani Adult | Male | 35 Years
+    const e2=/^\s*\d{1,2}\.?\s+([A-Z][A-Z .]{3,30})\s*$/.exec(s), n2=String(lines[i+1]||''); if(e2&&/^\s*(MALE|FEMALE)\b/i.test(n2)){ const y=/(\d{1,3})\s*YRS?/i.exec(n2); put(e2[1],AG(y?+y[1]:null)); } });   // IRCTC app: '1 NAME' and 'Male | 42 yrs' under it
   if(!out.length) lines.forEach(l=>{ const e=/^\s*(?:HEY|HI|HELLO|DEAR)\s+([A-Za-z][A-Za-z .]{3,38}?)\s*[,!]/i.exec(String(l)); if(e&&!/CUSTOMER|SIR|MADAM|GUEST|PASSENGER|TRAVELL?ER|USER|MEMBER|TEAM|ALL\b/i.test(e[1])) put(e[1]); });   // last resort: 'Hey Ram Kumar,'
-  return out.map(x=>x.n.toLowerCase().replace(/(^|[\s.])([a-z])/g,(q,a,b)=>a+b.toUpperCase())); }
+  return out.map(x=>({n:x.n.toLowerCase().replace(/(^|[\s.])([a-z])/g,(q,a,b)=>a+b.toUpperCase()),a:x.a||'b'})); }
+function tkNames(lines){ return tkPax(lines).map(x=>x.n); }
 function tkRead(lines){ lines=(lines||[]).map(l=>String(l)); const ig=/INDIGO|(^|[^A-Z0-9])6E([^A-Z0-9]|$)/i.test(lines.join('\n'));
   const U=lines.map(l=>{ let u=l.toUpperCase().replace(/6€/g,'6E'); if(ig) u=u.replace(/(^|[^A-Z0-9])(?:BE|GE|6F)(\s?-?\s?\d{3,4})(?!\d)/g,'$16E$2'); return u; }), TK=U.map(tkToks), n=U.length;   // a photo may read 6E as BE / 6€
-  const bad=u=>/CHECK.?IN|CLOSES|REPORTING|BOOKED ON|GENERATED|ISSUED|\bUTC\b|DATE OF BOOKING|INVOICE|DURATION|TRAVEL TIME|TRANSACTION/.test(u)||/\d\d:\d\d:\d\d/.test(u)||(/\bDATE:/.test(u)&&!/ARRIV|DEPART|\d:\d\d/.test(u)), isF=t=>t.k==='F'||t.k==='R';   // bad = not travel lines ("DATE: 05 NOVEMBER" alone = the day the ticket was issued)
+  const bad=u=>/CHECK.?IN|CLOSES|REPORTING|BOOKED ON|GENERATED|ISSUED|\bUTC\b|DATE OF BOOKING|INVOICE|DURATION|TRAVEL TIME|TRANSACTION/.test(u)||/\d\d:\d\d:\d\d/.test(u)||/^\s*\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d\d(?:\s*[AP]M)?[\s¦]+[A-Z][^0-9]*$/.test(u)||(/\bDATE:/.test(u)&&!/ARRIV|DEPART|\d:\d\d/.test(u)), isF=t=>t.k==='F'||t.k==='R';   // bad = not travel lines ("DATE: 05 NOVEMBER" alone = the day the ticket was issued)
   const cs=l=>TK[l].filter(t=>t.k==='C').map(t=>t.v), uq=a=>a.filter((c,i)=>i===0||c!==a[i-1]), jod=t=>/JODHPUR|\(JU\)|BGKT|BHAGAT KI KOTHI|\(RKB\)|RAIKA/.test(t);
   const pnrRe=/(?:PNR|BOOKING REF(?:ERENCE)?\.?)[^A-Z0-9]{0,12}(?:(?:PNR|BOOKING|REF(?:ERENCE)?|NO|NUMBER)\.?[^A-Z0-9]{0,6}){0,3}(?:[A-Z0-9]{2}\/)?((?=[A-Z0-9]*\d)[A-Z0-9]{6,10})(?![A-Z0-9])/;
   const legs=[];
@@ -1499,6 +1512,7 @@ function tkRead(lines){ lines=(lines||[]).map(l=>String(l)); const ig=/INDIGO|(^
       if(!L.depT||!L.arrT){ const T=[...new Set(W.flatMap(l=>TK[l].filter(t=>t.k==='T').map(t=>t.v)))].slice(0,6).sort(); if(T.length>=2){ if(!L.depT) L.depT=T[0]; if(!L.arrT) L.arrT=T[T.length-1]; } else if(T.length===1&&!L.depT&&!L.arrT) L.depT=T[0]; }
       if(!L.d){ const dk=l=>(TK[l].find(t=>t.k==='D')||{}).v, ok=l=>l===k||!bad(U[l]); L.d=[...fwd,...back].filter(ok).map(dk).find(Boolean)||''; }
       if(!L.pnr){ const p=[...fwd,...back].map(l=>pnrRe.exec(U[l])).find(Boolean); if(p) L.pnr=p[1]; if(L.tr&&!L.pnr){ const q=/(^|[^0-9])(\d{10})(?!\d)/.exec(U[k]); if(q) L.pnr=q[2]; } } }); }
+  if(legs.some(L=>L.depT||L.arrT)) for(let i=legs.length-1;i>=0;i--) if(!legs[i].depT&&!legs[i].arrT) legs.splice(i,1);   // "e.g. 6E-333" in the small print has no time – not a leg of this ticket
   const gp=(U.map(u=>pnrRe.exec(u)).find(Boolean)||[])[1]||''; legs.forEach(L=>{ if(!L.pnr) L.pnr=gp; });
   // ---- which leg is the arrival, which the return
   let home=legs.some(L=>L.to==='JDH'||L.from==='JDH')?'JDH':''; if(!home) for(let i=0;i<legs.length&&!home;i++) if(legs[i].to&&legs.slice(i+1).some(M=>M.from===legs[i].to)) home=legs[i].to;
@@ -1511,7 +1525,7 @@ function tkRead(lines){ lines=(lines||[]).map(l=>String(l)); const ig=/INDIGO|(^
     if(DT.length){ DT.sort((a,b)=>(a[0]+a[1]).localeCompare(b[0]+b[1])); const x=frJ&&!toJ?DT[0]:DT[DT.length-1], r={dir:frJ&&!toJ?'dep':'arr',no:'',pnr:'',d:x[0],t:x[1],am:'बस',ap:frJ&&!toJ?'':'बस स्टैंड',from:'',to:''}; if(r.dir==='arr') A=r; else B=r; } }
   if(!legs.length&&!A&&!B){ const l=U.findIndex((u,i)=>!bad(u)&&!/BEFORE|UNTIL|CANCEL|REFUND/.test(u)&&TK[i].filter(t=>t.k==='T').length===2&&TK[i].some(t=>t.k==='D'));
     if(l>=0){ const T=TK[l].filter(t=>t.k==='T'), D=TK[l].filter(t=>t.k==='D'); one={dir:'',no:'',pnr:gp,d:D[D.length-1].v,t:T[1].v,am:/FLIGHT|AIRLINE|AIRPORT/.test(all)?'फ़्लाइट':/\bTRAIN|IRCTC|RAILWAY/.test(all)?'ट्रेन':'',ap:'',from:'',to:'',dd:D[0].v,dt:T[0].v,ad:D[D.length-1].v,at:T[1].v}; } }
-  return {legs,home,arr:A,dep:B,one,names:tkNames(lines)}; }
+  const pax=tkPax(lines); return {legs,home,arr:A,dep:B,one,names:pax.map(x=>x.n),pax}; }
 
 function parseTicket(raw){ const up=' '+String(raw||'').toUpperCase().replace(/[ \s]+/g,' ')+' ', o={}, found=[];
   const fl=/\b(6E|AI|UK|SG|IX|QP|I5|G8)\s?-?\s?(\d{2,4})\b/.exec(up), tr=/\b(\d{5})\s*[\/\-]\s*([A-Z][A-Z .]{3,28}?)(?=\s+(?:DATE|CLASS|QUOTA|FROM|BOOKED|START|BOARDING|\d)|\s*$)/.exec(up)||/TRAIN\s*(?:NO\.?|NUMBER|NAME)?[^0-9]{0,12}(\d{5})/.exec(up), pnr=/PNR\s*(?:NO\.?|NUMBER)?[^A-Z0-9]{0,10}([A-Z0-9]{6,10})\b/.exec(up);
@@ -1528,7 +1542,7 @@ function parseTicket(raw){ const up=' '+String(raw||'').toUpperCase().replace(/[
   const ppl=(up.match(/\b(?:CNF|RAC|RLWL|GNWL|PQWL|WL)\b(?:\s*\/|\s+\d)/g)||[]).length||(up.match(/\b(?:MR|MRS|MS|MSTR|MISS)\b\.?\s+[A-Z]{2,}/g)||[]).length; if(ppl) o.ppl=ppl;
   if(/\bBGKT\b|BHAGAT KI KOTHI/.test(up)) o.ap='भगत की कोठी'; else if(/\bRKB\b|RAIKA ?BAGH/.test(up)) o.ap='राईका बाग'; else if(o.am==='फ़्लाइट'||/\bJDH\b/.test(up)) o.ap='जोधपुर एयरपोर्ट'; else if(/\bJU\b|JODHPUR/.test(up)) o.ap='जोधपुर स्टेशन';
   // v2 (18 Nov): the legs of the ticket (from -> to) decide what is the arrival and what the return – tkRead; a round trip fills both
-  try{ const R=tkRead(String(raw||'').split('\n')), A=R.arr, B=R.dep, X=A||B||R.one, nn=x=>[x.no,x.pnr?'PNR '+x.pnr:''].filter(Boolean).join(' · '); o.names=R.names; if(R.names.length>1) o.ppl=R.names.length;
+  try{ const R=tkRead(String(raw||'').split('\n')), A=R.arr, B=R.dep, X=A||B||R.one, nn=x=>[x.no,x.pnr?'PNR '+x.pnr:''].filter(Boolean).join(' · '); o.names=R.names; o.pax=R.pax||[]; if(R.names.length>1) o.ppl=R.names.length;
     if(X){ found.length=0; if(X.am) o.am=X.am; const f0=(X.am+' '+X.no).trim(); if(f0) found.push(f0); if(X.pnr) found.push('PNR');
       if(A||B){ o.arr=A; o.dep=B; o.dir=A?'arr':'dep'; o.no=nn(A||B); o.ano=A?nn(A):''; o.dno=B?nn(B):''; o.ad=A?A.d:''; o.at=A?A.t:''; o.dd=B?B.d:''; o.dt=B?B.t:''; if(A) o.ap=A.ap||o.ap||''; if(A&&B) found.push('आना + वापसी');
         const fc=(A||B)[A?'from':'to']; if(fc&&TKCM[fc]) o.city=TKCM[fc].split('|').filter(w=>w.length>3)[0]||o.city||'';
@@ -1543,6 +1557,9 @@ async function ticketRead(file){ const isPdf=/pdf/.test(file.type)||/\.pdf$/i.te
 const MREL=['पत्नी','पति','बेटा','बेटी','भाई','बहन','माता','पिता','बहू','दामाद','पोता','पोती','अन्य'], MAGE=[['b','बड़े'],['c','बच्चा (5–12)'],['s','5 साल से छोटा']];
 function memNorm(m){ return (Array.isArray(m)?m:[]).map(x=>({n:String((x&&x.n)||'').trim().slice(0,60),r:String((x&&x.r)||'').trim().slice(0,20),a:['b','c','s'].includes(x&&x.a)?x.a:'b'})).filter(x=>x.n).slice(0,15); }
 function memTxt(m){ return memNorm(m).map(x=>x.n+(x.r?' ('+x.r+')':'')+(x.a==='c'?' · बच्चा':x.a==='s'?' · छोटा बच्चा':'')).join(', '); }
+// 18 Nov (his words): "ek room me 2 hi guest stay karenge / agar kisi ka koi chota baccha hai toh 3 saath me stay karenge warna alag room"
+//   -> rooms a family needs: 2 in a room; a child (marked बच्चा / 5 साल से छोटा among the members) stays as the third with the parents. No member details -> 2 in a room.
+function rmNeed(g){ const m=memNorm(g&&g.mem), kids=m.filter(x=>x.a==='s'||x.a==='c').length, P=Math.max(Number(g&&g.ppl)||0,m.length?m.length+1:0,1), big=Math.max(1,P-Math.min(kids,P-1)); return Math.max(Math.ceil(big/2),Math.ceil(P/3)); }
 function memParse(t){ const m=/साथ में: (.*?)(?= कमरा चाहिए:| पिकअप चाहिए:|$)/.exec(String(t||'')); if(!m) return [];
   return memNorm(m[1].split(', ').map(p=>{ const x=/^(.*?)(?: \(([^)]*)\))?(?: · (बच्चा|छोटा बच्चा))?$/.exec(p.trim())||[]; return {n:x[1]||p,r:x[2]||'',a:x[3]==='बच्चा'?'c':x[3]?'s':'b'}; })); }
 function memRow(x){ x=x||{}; return `<div class="mrow"><input class="in mn" value="${esc(x.n||'')}" placeholder="नाम" autocomplete="off"><select class="in mr">${['',...MREL].map(r=>`<option value="${r}"${r===(x.r||'')?' selected':''}>${r||'रिश्ता'}</option>`).join('')}</select><select class="in ma">${MAGE.map(([k,l])=>`<option value="${k}"${k===(x.a||'b')?' selected':''}>${l}</option>`).join('')}</select><button type="button" class="mdel" data-mdel="1" aria-label="हटाएँ">✕</button></div>`; }
@@ -1587,6 +1604,10 @@ document.addEventListener('input',e=>{ const id=e.target&&e.target.id||'', m=/^(
 document.addEventListener('change',e=>{ const id=e.target&&e.target.id||'', m=/^(fm-|q-)(ano|dno)$/.exec(id); if(m) tfRun(m[1],m[2]); },true);
 
 function tkFill(p){ const set=(k,v)=>{ const el=$('#fm-'+k); if(el&&v){ el.value=v; el.style.background='#E3F1E6'; } };
+  { const PX=(p.pax||[]).filter(z=>z&&z.n), tv=PX.length?PX[0].n:'', nm=$('#fm-name'), kd=$('#fm-kind');   // 18 Nov: the guest of the list by itself, who is coming, how many, who else
+    if(PX.length&&nm&&!(kd&&kd.value)){ if(!nm.value.trim()&&GU){ const pk=tkPick({names:p.names||[],city:p.city||'',txt:''}); if(pk.g){ nm.value=pk.g.name; nm.style.background=pk.weak?'#FFF3CD':'#E3F1E6'; } }
+      const g=GUM.get(nm.value.trim()), cm=$('#fm-cm'); if(cm&&!cm.value.trim()&&nm.value.trim()&&!tkSelf(tv,g)&&nnm(tv)!==nnm(nm.value)) set('cm',tv);
+      if(PX.length>1){ const pe=$('#fm-ppl'); if(pe&&!(Number(pe.value)>=PX.length)) set('ppl',String(PX.length)); const mb=document.getElementById('fm-mem'); if(mb&&!(memRead('fm-mem')||[]).length) mb.innerHTML=tkMem(PX,tv).map(memRow).join(''); } } setTimeout(rmHint,0); }
   if(p.arr||p.dep){ if(p.arr){ set('ad',p.ad); set('ati',p.at); set('am',p.am); set('ano',p.ano); set('ap',p.ap); } if(p.dep){ set('dd',p.dd); set('dt',p.dt); set('dno',p.dno); } if(p.city&&!$('#fm-city').value) set('city',p.city.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())); }   // 18 Nov: the ticket itself says which way
   else if(p.dir==='dep'){ set('dd',p.dd); set('dt',p.dt); set('dno',p.no); } else { set('ad',p.ad); set('ati',p.at); set('am',p.am); set('ano',p.no); set('ap',p.ap); if(p.city&&!$('#fm-city').value) set('city',p.city.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())); }
   if(p.ppl&&!$('#fm-ppl').value) set('ppl',p.ppl); if(typeof tfRun==='function') setTimeout(()=>tfRun('fm-'),50); }
@@ -1597,16 +1618,44 @@ function tkFill(p){ const set=(k,v)=>{ const el=$('#fm-'+k); if(el&&v){ el.value
 //    its guest (arrival or return) and the file is kept with that guest. A name not yet in 🚉 is added there.
 let TKB=null;
 const TKHON=/^(SHRI|SHREE|SRI|SMT|SHRIMATI|MR|MRS|MS|MISS|MSTR|DR|JI|JEE|SHAH|KANWARSAHAB|KANWAR|SAHAB|EVAM|AND|FAMILY|SUSHRI|KUMARI|BHAI|SARDAR|PARIVAR)$/;
-function tkGuess(txt,fname){ if(!GU) return null; const up=' '+String(txt||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ')+' ', fn=' '+String(fname||'').toUpperCase().replace(/\.[A-Z0-9]+$/,'').replace(/[^A-Z0-9]+/g,' ')+' ';
-  const nums=new Set(), raw=String(txt||''), grab=t=>{ const re=/(?:^|\D)(?:\+?91)?([6-9]\d{9})(?!\d)/g; let m; while((m=re.exec(t))) nums.add(m[1]); }; grab(raw); grab(raw.replace(/(\d)[ -](?=\d)/g,'$1'));
-  let best=null, bs=0, tie=false;
-  GU.forEach(g=>{ let sc=0; if((g.phs||[]).some(x=>nums.has(x))) sc+=5;
-    const tk=String(g.en||'').toUpperCase().replace(/[^A-Z ]+/g,' ').split(/\s+/).filter(w=>w.length>2&&!TKHON.test(w));
-    if(tk.length>=2){ const has=(src,w)=>src.includes(' '+w+' '), last=tk[tk.length-1], rest=tk.slice(0,-1);
-      for(const src of [up,fn]){ if(tk.every(w=>has(src,w))){ sc+=4; break; } if(has(src,last)&&rest.some(w=>has(src,w))){ sc+=3; break; } } }
-    if(sc&&(g.sec==='ba'||g.sec==='eb')) sc+=0.5;
-    if(sc>bs){ bs=sc; best=g; tie=false; } else if(sc&&sc===bs) tie=true; });
-  return bs>=3&&!tie?best:null; }
+// 18 Nov (his words, with a real ticket in hand: "ye surname se bhi nahi pick kar raha") – the guest of the list is found from the TRAVELLER'S NAME:
+//   first name + surname of one guest -> picked (green); surname alone -> picked (yellow, "check once") when only one guest of the list has it or only one
+//   of them is from the ticket's city; several possible guests -> shown as buttons under the box, one tap picks. Spelling variants are the same name
+//   (Agarwal / Agrawal, Mundra / Mundhra). The old way counted a surname written twice in one guest's name as "first name + surname" -> ties -> nothing picked.
+const tkNz=w=>String(w).replace(/OO/g,'U').replace(/EE/g,'I').replace(/AA/g,'A').replace(/OU|OW/g,'AU').replace(/PH/g,'F').replace(/W/g,'V').replace(/Y/g,'I').replace(/([BCDGJKPST])H/g,'$1').replace(/(.)\1+/g,'$1'), tkNa=k=>k[0]+k.slice(1).replace(/A/g,'');   // same sound, same spelling: Moondra = Mundra = Mundhra, Deepak = Dipak, Aggarwal = Agarwal = Agrawal (but Bhootra is not Bhatter)
+const TKWEAK=/^(KUMAR|KUMARI|LAL|CHAND|CHANDRA|PRASAD|DEVI|SINGH|RAM|NATH|DAS|BAI|KANWAR|DEV|BEN|PRAKASH|PAL)$/;
+const tkWd=s=>String(s||'').toUpperCase().replace(/[^A-Z ]+/g,' ').split(/\s+/).filter(w=>w.length>2&&!TKHON.test(w));
+const tkCt=c=>{ const k=String(c||'').toLowerCase().replace(/[^a-z]/g,''); return k==='navimumbai'?'mumbai':CTA[k]||k; }, tkCtEq=(a,b)=>!!a&&!!b&&(a===b||(a.length>=4&&b.length>=4&&(a.startsWith(b)||b.startsWith(a))));
+const tkLev1=(a,b)=>{ if(a.length<5||b.length<5||Math.abs(a.length-b.length)>1) return false; let i=0; while(i<a.length&&i<b.length&&a[i]===b[i]) i++; let x=a.length-1, y=b.length-1; while(x>=i&&y>=i&&a[x]===b[y]){ x--; y--; } return x-i<=0&&y-i<=0; };   // one letter different / missing / extra (a photo reads AHUJA as ANUJA)
+let TKLS=null;   // the surnames of the list (a ticket surname that IS in the list is never "corrected" to a similar one: Sharma stays Sharma, not Sharda)
+function tkCands(src,city,ptxt,exact){ if(!GU) return []; const WO=tkWd(src), W=[...new Set(WO)], EX=new Set(W), NZ=new Set(), NA=new Map(), ct=tkCt(city), RW=W.filter(w=>!TKWEAK.test(w)), one=RW.length===1;
+  if(!TKLS||TKLS.n!==GU.length){ TKLS={n:GU.length,s:new Set()}; GU.forEach(g=>{ const t=tkWd(g.en); if(t.length>=2) TKLS.s.add(tkNz(t[t.length-1])); }); }
+  const mk=w=>{ const z=tkNz(w), a=tkNa(z); return [z,a]; }, same=(Z,A,w)=>{ const [z,a]=mk(w); return Z.has(z)||(a.length>=3&&(A.get(a)||[]).some(n=>Math.abs(n-w.length)<=1)); };
+  if(!exact) W.forEach(w=>{ const [z,a]=mk(w); NZ.add(z); (NA.get(a)||NA.set(a,[]).get(a)).push(w.length); });
+  const has=w=>EX.has(w)||(!exact&&same(NZ,NA,w));
+  const SZ=new Set(), SA=new Map(); if(!exact&&WO.length) [WO[0],WO[WO.length-1]].filter(w=>!TKWEAK.test(w)).forEach(w=>{ const [z,a]=mk(w); SZ.add(z); (SA.get(a)||SA.set(a,[]).get(a)).push(w.length); });   // where a surname stands on a ticket: last word, or first ("SINGH TEJINDER PAL")
+  const fz=exact?[]:RW.map(tkNz).filter(z=>!TKLS.s.has(z));
+  const nums=new Set(), raw=String(ptxt||''), grab=t=>{ const re=/(?:^|\D)(?:\+?91)?([6-9]\d{9})(?!\d)/g; let m; while((m=re.exec(t))) nums.add(m[1]); }; grab(raw); grab(raw.replace(/(\d)[ -](?=\d)/g,'$1'));
+  const out=[]; GU.forEach(g=>{ let sc=0; if((g.phs||[]).some(x=>nums.has(x))) sc+=5;
+    const tk=tkWd(g.en); if(tk.length&&W.length){ const last=tk[tk.length-1]; let rest=[...new Set(tk.filter(w=>w!==last))]; const strong=rest.filter(w=>!TKWEAK.test(w)); if(strong.length) rest=strong;
+      const two=tk.length>=2, hl=two&&has(last), hs=two&&!exact&&!TKWEAK.test(last)&&same(SZ,SA,last), hf=two&&!hl&&fz.some(z=>tkLev1(z,tkNz(last))), mt=rest.filter(has), nr=mt.length;
+      if(hl&&rest.length&&nr===rest.length) sc+=4; else if(hl&&nr) sc+=3+0.2*(nr-1); else if(hs) sc+=1; else if(hf&&nr) sc+=2.5; else if(hf&&!TKWEAK.test(last)) sc+=0.8;   // (Kumar / Singh / Lal / Pal alone is not a surname to go by)
+      else if(!exact&&one&&(two?mt:tk.filter(has)).some(w=>w.length>=5&&!TKWEAK.test(w))) sc+=1.2; }   // the ticket has only a first name ("Jinesh", "Harnarayan Chand", "Janki Prasad") -> the guest with that first name
+    if(!sc) return; const base=sc; if(ct&&[g.ce,g.city].some(y=>tkCtEq(tkCt(y),ct))) sc+=0.6; if(g.sec==='ba'||g.sec==='eb') sc+=0.3; out.push({g,sc,base}); });   // base = what the name itself says; city / outside-guest only break ties
+  return out.sort((a,b)=>b.sc-a.sc); }
+const tkBest=C=>{ const a=C[0], b=C[1]; if(!a) return null; if(a.base>=3) return !b||a.sc-b.sc>=0.25?a:null; return a.base>=0.8&&(!b||a.sc-b.sc>=0.55)?a:null; };
+function tkPick(a){ const NM=[...new Set((a.names||[]).map(x=>String(x||'').trim()).filter(Boolean))], M=new Map();
+  NM.forEach(n=>tkCands(n,a.city,a.txt).forEach(c=>{ const o=M.get(c.g.rid); if(!o||c.sc>o.sc) M.set(c.g.rid,c); }));   // each traveller of the ticket on its own – the best guest over all of them
+  let C=[...M.values()].sort((x,y)=>y.sc-x.sc), b=tkBest(C);
+  if(!b||b.base<3){ const C2=tkCands((a.txt||'')+' '+String(a.fname||'').replace(/\.[A-Za-z0-9]+$/,''),a.city,a.txt,true).filter(c=>c.base>=3), b2=tkBest(C2); if(b2) b=b2; else if(!C.length) C=C2; }   // no name read / nothing sure from the name -> the whole ticket text and the file name, exact words only
+  const g=b?b.g:null, weak=!!(b&&b.base<3), top=C.length?C.filter(c=>c.sc>=C[0].sc-0.01):[], show=C.length<=8?C:top.length<=6?top:[];
+  return {g,weak,cands:!g||weak?show.map(c=>c.g).filter(x=>!g||x.rid!==g.rid).slice(0,6):[]}; }   // buttons only where the pick is open, and only for a handful of guests
+function tkGuess(txt,fname){ return tkPick({txt,fname}).g; }
+// 18 Nov (his words): "agar member 4 ya 5 bhi ho toh bhi autofill hona chahiye" – everybody on the ticket: the first is the traveller, the rest go into "साथ में"
+const tkMem=(pax,tv)=>{ const L=(pax||[]).filter(x=>x&&x.n), T=nnm(tv||''); let i=L.findIndex(x=>nnm(x.n)===T); if(i<0) i=0; return L.filter((x,j)=>j!==i).map(x=>({n:x.n,r:'',a:x.a||'b'})); };
+const tkSelf=(tv,g)=>{ if(!g) return false; const T=nnm(tv); if(T===nnm(g.name)||T===nnm(g.en)) return true; const W=tkWd(tv).map(tkNz), G=tkWd(g.en).map(tkNz); return W.length>0&&G.length>0&&W.every(w=>G.includes(w))&&G.filter(w=>!TKWEAK.test(w)).every(w=>W.includes(w)); };   // Vipul Agarwal = Vipul Ji Aggarwal
+const tkPaxL=(pax,tv)=>{ const L=(pax||[]).filter(x=>x&&x.n); if(L.length<2) return ''; const need=rmNeed({ppl:L.length,mem:tkMem(L,tv)});
+  return `<small class="sm" style="display:block;color:#4E5B2E" data-notx>👥 ${L.length} ${EN?'people':'लोग'}: ${esc(L.map(x=>x.n+(x.a==='s'?(EN?' (under 5)':' (छोटा बच्चा)'):x.a==='c'?(EN?' (child)':' (बच्चा)'):'')).join(', '))} · 🛏 ${need} ${EN?(need>1?'rooms':'room'):(need>1?'कमरे':'कमरा')}</small>`; };
 // ---------- 🎫 एक PDF में कई टिकट + यात्री / निमंत्रण के दो नाम (18 Nov 2026 – his words: "multiple tkts hai / main chahta hu pdf se website khud
 //   fetch kare details" + "kayi jagah ye bhi ho sakta hai ki invitation name kuch aur ho aur traveller ka name kuch aur ho / toh us case me kya karna raha ?")
 //   -> a PDF is split by itself: (a) several tickets merged in one PDF -> one ticket per page (pages of one PNR stay together; a booking with a flight to
@@ -1653,22 +1702,24 @@ function tkListRecs(lines){ const recs=[]; let sec='', hx=null, cdate='', lname=
       if(c<0){ c=i2; while(c-1>i1&&tk[c-1].k==='D') c--; } groups=[[tk.slice(0,c),'arr'],[tk.slice(c),'dep']]; }
     groups.forEach(([g,gd])=>{ const f=g.find(x=>x.k==='F'); if(!f) return; const T=g.filter(x=>x.k==='T'), D=g.filter(x=>x.k==='D');
       const dir=gd||(hasA&&!hasD?'arr':hasD&&!hasA?'dep':'')||tkDirTxt(u)||sec||(hx!=null?(tkX(l,f.i)>=hx?'dep':'arr'):'')||'arr';   // ARR / DEP written on the line itself comes first
-      recs.push({trav:nm,dir,d:D.length?(dir==='dep'?D[D.length-1].v:D[0].v):(gd?'':cdate),t:T.length?(dir==='dep'?T[0].v:T[T.length-1].v):'',no:f.v,am:f.tr?'ट्रेन':'फ़्लाइट',ap:f.tr?'जोधपुर स्टेशन':'जोधपुर एयरपोर्ट',src:(EN?'page ':'पेज ')+(l.pg+1),list:1,li,ns}); }); });
+      recs.push({trav:nm,dir,d:D.length?(dir==='dep'?D[D.length-1].v:D[0].v):(gd?'':cdate),t:T.length?(dir==='dep'?T[0].v:T[T.length-1].v):'',no:f.v,am:f.tr?'ट्रेन':'फ़्लाइट',ap:f.tr?'जोधपुर स्टेशन':'जोधपुर एयरपोर्ट',src:(EN?'page ':'पेज ')+(l.pg+1),list:1,li,ns,q:(T.length||D.length)>0&&l.raw.length<=150&&(!nm||nm.split(' ').length<=5)}); }); });
   return recs; }
-function tkPageRecs(pages,lines){ const FR=new RegExp('(^|[^A-Z0-9])'+TKFL), grp=[];
-  pages.forEach((pg,i)=>{ const t=lines.filter(l=>l.pg===i).map(l=>l.raw).join('\n'), u=t.toUpperCase(), pnr=(/PNR[^A-Z0-9]{0,12}(?:BOOKING REF\w*\.?[^A-Z0-9]{0,6})?((?=[A-Z0-9]*\d)[A-Z0-9]{6,10})(?![A-Z0-9])/.exec(u)||[])[1]||'', tick=FR.test(u)||(/\b\d{5}\s*\//.test(u)&&/TRAIN|IRCTC|COACH|BERTH/.test(u))||!!pnr, last=grp[grp.length-1];
-    if(last&&(!tick||(pnr&&pnr===last.pnr))){ last.pg.push(i); last.t+='\n'+t; } else grp.push({pg:[i],t,pnr}); });
-  const recs=[]; grp.forEach(g=>{ const p=parseTicket(g.t), base={trav:(p.names||[])[0]||'',ppl:p.ppl||0,part:{pg:g.pg},txt:g.t,p,am:p.am||'',ap:p.ap||'',city:p.city||'',src:(EN?'page ':'पेज ')+(g.pg.length>1?(g.pg[0]+1)+'–'+(g.pg[g.pg.length-1]+1):g.pg[0]+1)};
+function tkPageRecs(pages,lines){ const grp=[];
+  pages.forEach((pg,i)=>{ const L=lines.filter(l=>l.pg===i).map(l=>l.raw), t=L.join('\n'), u=t.toUpperCase(), pnr=(/PNR[^A-Z0-9]{0,12}(?:BOOKING REF\w*\.?[^A-Z0-9]{0,6})?((?=[A-Z0-9]*\d)[A-Z0-9]{6,10})(?![A-Z0-9])/.exec(u)||[])[1]||''; let R={legs:[],names:[]}; try{ R=tkRead(L); }catch(e){ console.warn('tkRead page',e); }
+    const real=!!(R.arr||R.dep||R.legs.some(x=>x.depT||x.arrT)), nm=nnm(R.names[0]||''), tick=!!pnr||real||!!nm, last=grp[grp.length-1], sameP=!!(last&&nm&&last.nm&&nm===last.nm);
+    const fresh=!last||(tick&&last.tick&&!(pnr&&pnr===last.pnr)&&((pnr&&last.pnr&&!sameP)||(nm&&last.nm&&nm!==last.nm&&(real||pnr))));
+    if(fresh) grp.push({pg:[i],t,pnr,nm,tick}); else { last.pg.push(i); last.t+='\n'+t; if(!last.pnr) last.pnr=pnr; if(!last.nm) last.nm=nm; if(tick) last.tick=true; } });
+  const recs=[]; grp.forEach(g=>{ const p=parseTicket(g.t); if(!g.tick&&!p.arr&&!p.dep&&!p.no) return; const base={trav:(p.names||[])[0]||'',ppl:p.ppl||0,part:{pg:g.pg},txt:g.t,p,am:p.am||'',ap:p.ap||'',city:p.city||'',src:(EN?'page ':'पेज ')+(g.pg.length>1?(g.pg[0]+1)+'–'+(g.pg[g.pg.length-1]+1):g.pg[0]+1)};
     if(p.arr) recs.push({...base,dir:'arr',no:p.ano,d:p.ad,t:p.at}); if(p.dep) recs.push({...base,dir:'dep',no:p.dno,d:p.dd,t:p.dt,ap:''});
     if(!p.arr&&!p.dep){ const dir=p.dir==='dep'?'dep':'arr'; recs.push({...base,dir,no:p.no||'',d:dir==='dep'?(p.dd||''):(p.ad||''),t:dir==='dep'?(p.dt||''):(p.at||'')}); } });
   return recs; }
 // one PDF -> its tickets ([] = an ordinary single ticket, read the old way)
 async function tkSplit(file){ const pages=await pdfPages(file), lines=tkLines(pages), all=lines.map(l=>l.up).join('\n');
-  const LR=tkListRecs(lines), cnt=f=>new Set(LR.filter(f).map(r=>nnm(r.trav)).filter(Boolean)).size, direct=cnt(r=>r.ns==='d'), total=cnt(()=>true);
+  const LR=tkListRecs(lines), cnt=f=>new Set(LR.filter(f).map(r=>nnm(r.trav)).filter(Boolean)).size, direct=cnt(r=>r.ns==='d'&&r.q), total=cnt(r=>r.q), LQ=LR.filter(r=>r.q&&(r.trav||r.no));   // 18 Nov: his IndiGo ticket (12 pages, flight numbers in the small print) was taken for a list
   const mk=/BOOKING REF|E-?TICKET|ITINERARY|BOARDING PASS|RESERVATION SLIP|IRCTC/.test(all)||/PNR\s*(?:NO\.?|NUMBER)?[^A-Z0-9]{0,10}(?=[A-Z0-9]*\d)[A-Z0-9]{6,10}\b/.test(all);
   // a list = different names on the flight lines themselves; tickets = ticket words / a PNR; a list with the names on their own lines comes after that
   // (a real ticket can have two "names" on its flight lines, e.g. "DELHI INDIRA GANDHI INTL … AI1768" – so with ticket words it takes three)
-  let recs=(direct>=3||(direct>=2&&!mk))?LR.filter(r=>r.trav||r.no):mk?tkPageRecs(pages,lines):total>=2?LR.filter(r=>r.trav||r.no):pages.length>1?tkPageRecs(pages,lines):[];
+  let recs=(direct>=3||(direct>=2&&!mk))?LQ:mk?tkPageRecs(pages,lines):total>=2?LQ:pages.length>1?tkPageRecs(pages,lines):[];
   if(recs.length&&recs.every(r=>r.part&&r.part.pg.length>=pages.length)) return [];   // one ticket in the whole PDF -> read the ordinary way (also gives arrival + return)
   const seen=new Set(); recs=recs.filter(r=>{ const k=[nnm(r.trav),r.dir,r.no,r.d].join('|'); if(seen.has(k)) return false; seen.add(k); return true; }).slice(0,80);
   const np=pages.length; recs.forEach(r=>{ r.np=np; }); return recs.length>=2||(recs.length&&recs[0].list)?recs:[]; }
@@ -1682,27 +1733,31 @@ function tkBulkPick(){ const inp=document.createElement('input'); inp.type='file
 const tkbRowH=(x,i)=>{ const p=x.p||{}, d=x.dir, ok=p.found&&p.found.length;
   return `<div class="tkb" data-tkb="${i}"><div class="tkh"><b data-notx>📎 ${esc(x.f.name)}${x.src?' · '+esc(x.src):''}</b><button type="button" class="tkx" data-tkbx="${i}" aria-label="हटाएँ">✕</button></div>
     <small class="sm" style="color:${x.err?'var(--mr)':ok?'#1E7D45':'var(--mr)'}">${x.err?(EN?'Could not read this file – fill it by hand':'यह फ़ाइल पढ़ नहीं पाए – हाथ से भर दें'):ok?(EN?'✓ Read: ':'✓ पढ़ा: ')+esc(p.found.join(', '))+(x.list?(EN?' · from a list – the file is not attached':' · सूची से – फ़ाइल साथ नहीं लगेगी'):''):(EN?'Nothing could be read – fill it by hand (the file is still saved)':'कुछ पढ़ नहीं पाए – हाथ से भर दें (फ़ाइल फिर भी सेव होगी)')}</small>
+    ${tkPaxL(p.pax,x.trav)}
     <label class="tkl">👤 ${EN?'Traveller (name on the ticket)':'यात्री (टिकट पर लिखा नाम)'}</label><input class="in" type="text" data-tkbtr="${i}" value="${esc(x.trav||'')}" placeholder="${EN?'Traveller\'s name':'यात्री का नाम'}" autocomplete="off" data-notx>
-    <label class="tkl">✉ ${EN?'On whose invitation (guest of the list)':'किसके निमंत्रण पर (सूची का मेहमान)'}</label><div class="gpw"><input class="in" type="text" data-gpk="1" data-tkbn="${i}" value="${esc(x.name)}" placeholder="${EN?'Pick from the list – name / number / mobile (empty = new entry in the traveller\'s name)':'सूची से चुनें – नाम / नंबर / मोबाइल (खाली = यात्री के नाम से नई एंट्री)'}" autocomplete="off"${x.auto&&x.name&&x.name===x.auto?' style="background:#E3F1E6"':''}><div class="gpl" hidden></div></div>
+    <label class="tkl">✉ ${EN?'On whose invitation (guest of the list)':'किसके निमंत्रण पर (सूची का मेहमान)'}</label><div class="gpw"><input class="in" type="text" data-gpk="1" data-tkbn="${i}" value="${esc(x.name)}" placeholder="${EN?'Pick from the list – name / number / mobile (empty = new entry in the traveller\'s name)':'सूची से चुनें – नाम / नंबर / मोबाइल (खाली = यात्री के नाम से नई एंट्री)'}" autocomplete="off"${x.auto&&x.name&&x.name===x.auto?(x.weak?' style="background:#FFF3CD"':' style="background:#E3F1E6"'):''}><div class="gpl" hidden></div></div>
+    ${x.weak&&x.auto&&x.name===x.auto?`<small class="sm" style="color:#8A5A00;display:block;margin-top:2px">⚠ ${EN?'Found by the surname only – check once':'सिर्फ़ सरनेम से मिला – एक बार देख लें'}</small>`:''}${x.cands&&x.cands.length?`<div class="tkc"><small>${EN?'Same surname in the list – tap to pick:':'सूची में इसी सरनेम के – दबाकर चुनें:'}</small>${x.cands.map(c=>`<button type="button" data-tkbc="${i}" data-n="${esc(c.name)}" data-notx>${esc(c.name)}${c.city?' · '+esc(c.city):''}</button>`).join('')}</div>`:''}
     <div class="tkg"><select class="in" data-tkbd="${i}"><option value="arr"${d==='dep'?'':' selected'}>⬇ ${EN?'Arrival ticket':'आने का टिकट'}</option><option value="dep"${d==='dep'?' selected':''}>⬆ ${EN?'Return ticket':'वापसी का टिकट'}</option></select>
       <input class="in" type="date" data-tkbdt="${i}" value="${esc(x.d||'')}"><input class="in" type="time" data-tkbt="${i}" value="${esc(x.t||'')}"></div>
     <input class="in" type="text" data-tkbno="${i}" value="${esc(x.no||'')}" placeholder="${EN?'Train / flight number':'ट्रेन / फ़्लाइट नंबर'}"></div>`; };
 function tkbDraw(){ const X=TKB; if(!X) return; const n=X.L.filter(x=>!x.del).length;
-  $('#fm-b').innerHTML=`<style>.tkl{display:block;font-size:12.5px;color:var(--mu);margin:6px 0 2px;font-weight:600}</style><p class="sm">${EN?'Each ticket has two names: the traveller (as on the ticket) and the guest of the list on whose invitation they come. Where the guest was found by itself the box is green – check once. Pick the guest for the rest, ✕ removes a ticket.':'हर टिकट में दो नाम हैं: यात्री (टिकट पर लिखा) और सूची का वह मेहमान जिसके निमंत्रण पर वे आ रहे हैं। जहाँ मेहमान अपने-आप मिल गया, वहाँ खाना हरा है – एक बार देख लें। बाकी में मेहमान चुनें, ✕ से टिकट हटा दें।'}</p>`
+  $('#fm-b').innerHTML=`<style>.tkl{display:block;font-size:12.5px;color:var(--mu);margin:6px 0 2px;font-weight:600}.tkc{margin:4px 0 2px}.tkc small{display:block;color:var(--mu);font-size:12.5px;margin-bottom:3px}.tkc button{display:block;width:100%;text-align:left;border:1px solid #D8CDAE;background:#FBF6E8;border-radius:9px;padding:7px 10px;margin:0 0 4px;font-family:inherit;font-size:14px;cursor:pointer}</style><p class="sm">${EN?'Each ticket has two names: the traveller (as on the ticket) and the guest of the list on whose invitation they come. Where the guest was found by itself the box is green – check once. Pick the guest for the rest, ✕ removes a ticket.':'हर टिकट में दो नाम हैं: यात्री (टिकट पर लिखा) और सूची का वह मेहमान जिसके निमंत्रण पर वे आ रहे हैं। जहाँ मेहमान अपने-आप मिल गया, वहाँ खाना हरा है – एक बार देख लें। बाकी में मेहमान चुनें, ✕ से टिकट हटा दें।'}</p>`
     +X.L.map((x,i)=>x.del?'':tkbRowH(x,i)).join(''); $('#fm-s').textContent=(EN?'✓ Save all':'✓ सब सेव करें')+' ('+n+')'; $('#fm-s').style.display=n?'':'none'; }
 async function tkBulk(files){ const big=files.filter(f=>f.size>10e6), fs=files.filter(f=>f.size<=10e6).slice(0,30); if(!fs.length){ toast(EN?'The files are too big (up to 10 MB each)':'फ़ाइलें बहुत बड़ी हैं (हर फ़ाइल 10 MB तक)'); return; }
   TKB={L:[]}; form('🎫 '+(EN?'Many tickets at once':'कई टिकट एक साथ')+' · '+fs.length,[],{},tkBulkSave); $('#fm-s').style.display='none';
   const say=t=>{ $('#fm-b').innerHTML=`<p class="sm" style="font-size:16px;padding:14px 0">${t}</p>`; }; await loadGuests();
   for(let i=0;i<fs.length;i++){ const f=fs[i]; if(!TKB||!FM) return; say((EN?'Reading tickets… ':'टिकट पढ़ रहे हैं… ')+(i+1)+' / '+fs.length+`<br><small data-notx>${esc(f.name)}</small>`+(/pdf/i.test(f.type||f.name)?'':(EN?'<br><small>a photo takes 10–20 seconds</small>':'<br><small>फ़ोटो में 10–20 सेकंड लगते हैं</small>')));
     const isPdf=/pdf/.test(f.type)||/\.pdf$/i.test(f.name); let recs=[]; if(isPdf){ try{ recs=await tkSplit(f); }catch(e){ console.warn('tkSplit',e); recs=[]; } }
-    if(recs.length){ recs.forEach(r=>{ const g=(r.trav&&tkGuess(r.trav,''))||(r.txt?tkGuess(r.txt,''):null), found=[]; if(r.no) found.push((r.am||(EN?'No.':'नं.'))+' '+r.no); if(r.d) found.push('तारीख'); if(r.t) found.push('समय');
-        TKB.L.push({f,p:{...(r.p||{}),am:r.am||'',ap:r.ap||'',city:r.city||'',ppl:r.ppl||0,found},err:false,dir:r.dir,name:g?g.name:'',auto:g?g.name:'',trav:r.trav||'',d:r.d||'',t:r.t||'',no:r.no||'',src:r.src||'',part:r.part||null,list:!!r.list,np:r.np||1,split:1}); }); continue; }
+    if(recs.length){ recs.forEach(r=>{ const pk=tkPick({names:[r.trav,...((r.p&&r.p.names)||[])],txt:r.txt||'',city:r.city||''}), g=pk.g, found=[]; if(r.no) found.push((r.am||(EN?'No.':'नं.'))+' '+r.no); if(r.d) found.push('तारीख'); if(r.t) found.push('समय');
+        TKB.L.push({f,p:{...(r.p||{}),am:r.am||'',ap:r.ap||'',city:r.city||'',ppl:r.ppl||0,found},err:false,dir:r.dir,name:g?g.name:'',auto:g?g.name:'',weak:pk.weak,cands:pk.cands,trav:r.trav||'',d:r.d||'',t:r.t||'',no:r.no||'',src:r.src||'',part:r.part||null,list:!!r.list,np:r.np||1,split:1}); }); continue; }
     let p={found:[],dir:'arr'}, txt='', err=false; try{ txt=isPdf?(await pdfLinesY(f)).join('\n'):await imgText(f); p=parseTicket(txt); }catch(e){ console.error(e); err=true; }
-    const g=tkGuess(txt,f.name), trav=(p.names||[])[0]||'', row=(dir,d,t,no)=>TKB.L.push({f,p,err,dir,name:g?g.name:'',auto:g?g.name:'',trav,d:d||'',t:t||'',no:no||'',split:(p.arr||p.dep)?1:0});
+    const pk=tkPick({names:p.names||[],txt,fname:f.name,city:p.city||''}), g=pk.g, trav=(p.names||[])[0]||'', row=(dir,d,t,no)=>TKB.L.push({f,p,err,dir,name:g?g.name:'',auto:g?g.name:'',weak:pk.weak,cands:pk.cands,trav,d:d||'',t:t||'',no:no||'',split:(p.arr||p.dep)?1:0});
     if(p.arr||p.dep){ if(p.arr) row('arr',p.ad,p.at,p.ano); if(p.dep) row('dep',p.dd,p.dt,p.dno); }   // 18 Nov: a round-trip ticket gives two lines – arrival and return – from the one file
     else { const dir=p.dir==='dep'?'dep':'arr'; row(dir,dir==='dep'?p.dd:p.ad,dir==='dep'?p.dt:p.at,p.no); } }
   if(!TKB||!FM) return; tkbDraw(); if(big.length) $('#fm-e').textContent=big.length+(EN?' file(s) over 10 MB were left out':' फ़ाइल 10 MB से बड़ी थी – नहीं ली'); else if(files.length>fs.length) $('#fm-e').textContent=EN?'Only the first 30 files were taken':'सिर्फ़ पहली 30 फ़ाइलें ली हैं'; }
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-tkbx]'); if(!b||!TKB) return; tkbRead(); TKB.L[+b.dataset.tkbx].del=true; tkbDraw(); });
+document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-tkbc]'); if(!b||!TKB) return; tkbRead(); const x=TKB.L[+b.dataset.tkbc], tv=nnm(x.trav||''), old=x.name;   // one tap on a possible guest – the other line(s) of the same traveller follow
+  TKB.L.forEach(y=>{ if(y===x||(!y.del&&tv&&nnm(y.trav||'')===tv&&(!y.name||y.name===old))){ y.name=b.dataset.n; y.auto=y.name; y.weak=false; } }); tkbDraw(); });
 document.addEventListener('change',e=>{ const t=e.target; if(!TKB||!t.dataset||t.dataset.tkbd==null) return; const i=+t.dataset.tkbd, x=TKB.L[i], p=x.p||{}, q=s=>document.querySelector(`[data-${s}="${i}"]`);
   x.dir=t.value; if(x.split) return; x.d=t.value==='dep'?(p.dd||''):(p.ad||''); x.t=t.value==='dep'?(p.dt||''):(p.at||''); q('tkbdt').value=x.d; q('tkbt').value=x.t; });
 function tkbSame(){ if(!TKB) return; const by={}; TKB.L.forEach(x=>{ if(!x.del&&x.name&&x.trav) by[nnm(x.trav)]=x.name; });
@@ -1715,15 +1770,17 @@ async function tkBulkSave(){ const X=TKB; if(!X) return true; tkbRead(); const L
   const made=new Map(), att=new Set(); let n=0, fail=0;
   for(let i=0;i<L.length;i++){ const x=L[i], p=x.p||{}; e.textContent=(EN?'Saving… ':'सेव हो रहा है… ')+(i+1)+' / '+L.length;
     try{ // 18 Nov: name = the invited guest, cm = the traveller when it is somebody else (same as the travel-sheet upload); one line per traveller
-      const g=GUM.get(x.name), tv=String(x.trav||'').trim(), inv=x.name||tv, T=nnm(tv), self=!tv||T===nnm(inv)||!!(g&&(T===nnm(g.name)||T===nnm(g.en)));
+      const g=GUM.get(x.name), tv=String(x.trav||'').trim(), inv=x.name||tv, T=nnm(tv), self=!tv||T===nnm(inv)||tkSelf(tv,g);
       const k=(g?'r:'+g.rid:'n:'+nnm(inv))+'|'+(self?'SELF':T), mine=z=>!z.kind&&(g?(z.rid===g.rid||(!z.rid&&z.name===g.name)):(!z.rid&&nnm(z.name)===nnm(inv))), bare=z=>!z.cm&&!['ad','ati','ano','dd','dt','dno'].some(q=>z[q]);
       let a=made.get(k)||C.ag.find(z=>mine(z)&&(self?!z.cm:nnm(z.cm||'')===T))||(!self&&C.ag.filter(mine).length===1&&bare(C.ag.find(mine))?C.ag.find(mine):null)||null;
       const o=x.dir==='dep'?{dd:x.d||'',dt:x.t||'',dno:x.no||''}:{ad:x.d||'',ati:x.t||'',am:p.am||'',ano:x.no||'',ap:p.ap||''}; Object.keys(o).forEach(q=>{ if(!o[q]) delete o[q]; });
       if(!self) o.cm=tv; o.by=ME.name; o.at=Date.now(); let id;
+      const PX=(p.pax||[]).filter(z=>z&&z.n), pm=PX.length>1?tkMem(PX,tv):[];   // everybody on the ticket: number of people + "साथ में" (what is already written there stays)
+      if(a&&PX.length>1){ if((Number(a.ppl)||0)<PX.length) o.ppl=String(PX.length); if(!memNorm(a.mem).length) o.mem=pm; }
       if(a){ id=a.id; await updateDoc(doc(db,'cr_ag',id),o); a={...a,...o}; if(a.tok) syncGp(a); }
       else { id='ag'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
         const city=g?(g.city||''):(p.city?p.city.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()):'');
-        a={name:g?g.name:inv,rid:g?g.rid:'',ph:g?(g.ph||''):'',city,ppl:p.ppl?String(p.ppl):'',kind:'',cat:'',evs:[],st:'a',...o}; await setDoc(doc(db,'cr_ag',id),a); a.id=id; }
+        a={name:g?g.name:inv,rid:g?g.rid:'',ph:g?(g.ph||''):'',city,ppl:PX.length>1?String(PX.length):(p.ppl?String(p.ppl):''),mem:pm,kind:'',cat:'',evs:[],st:'a',...o}; await setDoc(doc(db,'cr_ag',id),a); a.id=id; }
       made.set(k,a);
       if(!x.list){ const whole=!x.part||x.part.pg.length>=(x.np||1), fk=id+'|'+x.f.name+'|'+(whole?'all':x.part.pg.join(','));   // a list is not attached; a merged PDF gives each guest only their own page(s), once
         if(!att.has(fk)){ att.add(fk); await vfSave('ag',id,whole?x.f:await tkPart(x.f,x.part.pg),'tk',x.dir==='dep'?'वापसी का टिकट':'आने का टिकट',false); } }
@@ -2336,7 +2393,7 @@ function agRow(g){ const arr=[g.ad?dSh(g.ad):'',g.ati?tHi(g.ati):''].filter(Bool
   <div class="w"><b>${esc(nmE(g.name,g.rid))}${g.ppl?` · ${g.ppl} लोग`:''}</b>${g.kind?`<small class="kd">${esc(AGKL(g.kind,g.cat))}${(v=>v?` · <a href="#" data-a="vdo" data-id="${v.id}">${esc(v.name)}</a>`:'')(g.vd&&VDI(g.vd))}${(g.evs||[]).map(EVI).filter(Boolean).map(e=>` · <a href="#" data-a="evo" data-id="${e.id}">${esc(e.title)}</a>`).join('')}</small>`:''}${g.cm?`<small class="cmx">👤 आ रहे हैं: <b>${esc(nmE(g.cm))}</b></small>`:''}${memNorm(g.mem).length?`<small class="cmx">👥 साथ में: <b>${esc(memTxtL(g.mem))}</b></small>`:''}${idWarn(g)}<small>${[g.city?'📍 '+esc(EN&&g.ce?g.ce:ctE(g.city)):'',g.ph?`<a href="tel:${ph10(g.ph)}">${ph10(g.ph)}</a>`:''].filter(Boolean).join(' · ')}</small>
   ${arr||g.ano||g.ap?`<small>⬇ आगमन: ${[arr,g.am&&g.am!=='अन्य'?esc(g.am):'',g.ano?esc(g.ano)+tfLive(g.ano):'',g.ap?esc(g.ap):''].filter(Boolean).join(' · ')}</small>`:''}
   ${g.pick||g.car?`<small>🚗 लेने: ${[g.pick?esc(g.pick):'',g.pph?`<a href="tel:${ph10(g.pph)}">${ph10(g.pph)}</a>`:'',g.car?esc(g.car):''].filter(Boolean).join(' · ')}</small>`:''}
-  ${g.hotel||g.room?`<small>🏨 ${esc(g.hotel||'')}${g.room?' · कमरा '+esc(g.room):''}</small>`:''}${g.rmq==='हाँ'&&!g.hotel?'<small class="late">🛏 कमरा चाहिए – अभी होटल तय नहीं</small>':''}${g.pkq==='हाँ'&&!g.pick?'<small class="late">🚗 पिकअप चाहिए – अभी कोई तय नहीं</small>':''}
+  ${g.hotel||g.room?`<small>🏨 ${esc(g.hotel||'')}${g.room?' · कमरा '+esc(g.room):''}</small>`:''}${g.rmq==='हाँ'&&!g.hotel?'<small class="late">🛏 कमरा चाहिए – अभी होटल तय नहीं</small>':''}${rmLine(g)}${g.pkq==='हाँ'&&!g.pick?'<small class="late">🚗 पिकअप चाहिए – अभी कोई तय नहीं</small>':''}
   ${dep||g.dno||g.drop?`<small>⬆ वापसी: ${[dep,g.dno?esc(g.dno)+tfLive(g.dno):'',g.drop?'छोड़ने: '+esc(g.drop)+(g.dph?` <a href="tel:${ph10(g.dph)}">${ph10(g.dph)}</a>`:''):''].filter(Boolean).join(' · ')}</small>`:''}${g.note&&noteShow(g.note)?`<small>📝 ${esc(noteShow(g.note))}</small>`:''}${g.gqAt?`<small style="color:#1E7D45">📩 यह जानकारी मेहमान ने खुद भेजी · ${tm(g.gqAt)}</small>`:''}</div>
   ${ME.mgr?`<button class="eb" data-a="aged" data-id="${g.id}">✏️</button>`:''}</div>${gwAgLine(g)}
   ${(()=>{ const q=ME.mgr&&gqNew(g); return q?`<div class="next" style="text-align:left;margin:8px 0 0;padding:8px 10px">📩 <b style="display:inline;font-size:14px">मेहमान ने खुद भेजा:</b> ${gqTxt(q)}<div class="btns"><button data-a="gqok" data-id="${g.id}">✓ यह जानकारी लगा दें</button>${(q.tk||[]).map((m,i)=>`<button data-a="gqtk" data-id="${g.id}" data-v="${i}">🎫 ${EN?'View ticket':'टिकट देखें'}${q.tk.length>1?' '+(i+1):''}</button>`).join('')}</div></div>`:''; })()}
@@ -2349,7 +2406,7 @@ const AGMD=[['f','✈ फ़्लाइट से'],['t','🚆 ट्रेन 
 const agMode=g=>{ const a=String(g.am||'').toLowerCase(), o=[g.ano,g.ap].join(' ').toLowerCase();
   if(/फ़्लाइट|फ्लाइट|flight|हवाई|plane|✈/.test(a)) return 'f'; if(/ट्रेन|train|रेल/.test(a)) return 't'; if(/बस|bus/.test(a)) return 'b'; if(/गाड़ी|कार|car|टैक्सी|taxi|cab|सड़क|road|स्वयं|अपनी/.test(a)) return 'c';
   if(/एयरपोर्ट|airport|हवाई/.test(o)||/(^|[^a-z0-9])([a-z]{2}|[a-z]\d|\d[a-z])[ -]?\d{3,4}($|[^0-9])/.test(o)) return 'f'; if(/स्टेशन|station|एक्सप्रेस|express|कोठी|(^|\D)\d{5}($|\D)/.test(o)) return 't'; return ''; };
-const agCl=g=>{ const pk=g.pick?'🚗 '+esc(g.pick):(g.kind||g.pkq==='नहीं'?'':'<span class="late">🚗 पिकअप तय नहीं</span>'), ht=g.hotel?'🏨 '+esc(g.hotel)+(g.room?' · '+esc(g.room):''):(g.kind||g.rmq==='नहीं'?'':'<span class="late">🛏 कमरा तय नहीं</span>');
+const agCl=g=>{ const pk=g.pick?'🚗 '+esc(g.pick):(g.kind||g.pkq==='नहीं'?'':'<span class="late">🚗 पिकअप तय नहीं</span>'), rn=rmNeed(g), rg=rmOf(g).length, ht=g.hotel?'🏨 '+esc(g.hotel)+(g.room?' · '+esc(g.room):'')+(g.rmq!=='नहीं'&&rg<rn?' <span class="late">⚠ '+rn+(EN?' rooms needed':' कमरे चाहिए')+'</span>':''):(g.kind||g.rmq==='नहीं'?'':'<span class="late">🛏 '+rn+(EN?(rn>1?' rooms':' room')+' – not fixed':(rn>1?' कमरे':' कमरा')+' तय नहीं')+'</span>');
   return `<div class="cl" data-a="agx" data-id="${g.id}"><div class="tmx">${g.ati?tHi(g.ati):'–'}<i>${g.ad?dSh(g.ad):'तारीख नहीं'}</i></div><div class="w"><b>${esc(nmE(g.name,g.rid))}${g.ppl?' · '+g.ppl+' लोग':''}${g.st==='p'?' ✅':''}</b>
     <small>${[g.am&&g.am!=='अन्य'?esc(g.am):'',g.ano?esc(g.ano):'',g.ap?esc(g.ap):'',g.city?'📍 '+esc(EN&&g.ce?g.ce:ctE(g.city)):''].filter(Boolean).join(' · ')}</small><small>${[pk,ht].filter(Boolean).join(' · ')}</small></div></div>`; };
 const agR=g=>AGL&&AGX!==g.id?agCl(g):(AGL?`<a href="#" class="sm" data-a="agx" data-id="${g.id}" style="display:block;text-align:right;text-decoration:none;margin:6px 2px -4px">▲ छोटा करें</a>`:'')+agRow(g);
@@ -2372,7 +2429,7 @@ function vAg(){ if(AGM==='ht'&&AGH){ const x=HTI(AGH); if(x){ $('#v-ag').innerHT
   if((CFC||CFH)&&AGM!=='lnk'&&AGM!=='ht'){ if(!GU) loadGuests().then(()=>{ if(TAB==='ag') render(); }); for(let i=L.length-1;i>=0;i--) if(!cfOk(L[i],true)) L.splice(i,1); }   // 14 Nov: city / heading filter
   const tod=C.ag.filter(g=>g.ad===t&&g.st!=='p'&&g.st!=='g').length, here=C.ag.filter(g=>g.st==='p').length;
   const G0=C.ag.filter(g=>!g.kind), X0=C.ag.filter(g=>g.kind), pp=A=>A.reduce((a,g)=>a+(Number(g.ppl)||1),0), idM=G0.filter(g=>{ const N=idNeed(g); return N&&N.miss.length; }).length;
-  let h=`<div class="sum">बाहर से आने वाले<b>मेहमान ${G0.length} परिवार · ${pp(G0)} लोग</b>${idM?`<span class="sm" style="color:#FFD27A;display:block">⚠ ID बाकी (होटल चेक-इन के लिए): ${idM} परिवार</span>`:''}${X0.length?`<span class="sm" style="color:#F3E6C2;display:block">🧳 काम से आने वाले (आर्टिस्ट, मेहंदी, स्टाफ़…): ${X0.length} · ${pp(X0)} लोग</span>`:''}<span class="sm" style="color:#E8E2C8">पहुँच गए ${here} · आज आने वाले ${tod}</span></div>
+  let h=`<div class="sum">बाहर से आने वाले<b>मेहमान ${G0.length} परिवार · ${pp(G0)} लोग</b>${idM?`<span class="sm" style="color:#FFD27A;display:block">⚠ ID बाकी (होटल चेक-इन के लिए): ${idM} परिवार</span>`:''}${X0.length?`<span class="sm" style="color:#F3E6C2;display:block">🧳 काम से आने वाले (आर्टिस्ट, मेहंदी, स्टाफ़…): ${X0.length} · ${pp(X0)} लोग</span>`:''}<span class="sm" style="color:#E8E2C8">पहुँच गए ${here} · आज आने वाले ${tod}</span>${(()=>{ const R=C.ag.filter(g=>g.rmq!=='नहीं'), need=R.reduce((a,g)=>a+rmNeed(g),0), got=R.reduce((a,g)=>a+rmOf(g).length,0); return `<span class="sm" style="color:#F3E6C2;display:block">🛏 ${EN?'Rooms needed':'कमरे चाहिए'}: <b style="display:inline;font-size:inherit">${need}</b> · ${EN?'given':'दिए'} ${got} <span style="opacity:.85">(${RMRULE()})</span></span>`; })()}</div>
    ${AGM==='ht'||AGM==='lnk'?'':agTiles()}
    ${(()=>{ const lg=LGI(); return `<div class="lgc"><span>📞 मेहमानों के page पर: <b>TEB लॉजिस्टिक्स मैनेजर</b> ${lg.name?esc(lg.name)+' · '+lg.ph:'<span class="late">अभी नहीं डाला</span>'}</span>${ME.mgr?'<button class="eb" data-a="lgset">✏️</button>':''}</div>`; })()}
    ${ME.mgr?`<div class="btns imb"><button data-a="imx">📥 Excel से यात्रा जानकारी डालें</button><button data-a="imtpl">⬇ खाली format</button>${ME.admin?'<button data-a="iddelall">🗑 सब ID हटाएँ (शादी के बाद)</button>':''}<input type="file" id="im-f" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" style="display:none"></div>`:''}

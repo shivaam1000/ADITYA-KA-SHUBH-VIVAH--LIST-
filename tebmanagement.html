@@ -342,7 +342,7 @@ const EVI=id=>C.ev.find(e=>e.id===id), VDI=id=>C.vd.find(v=>v.id===id);
 const linkify=u=>/^https?:\/\//.test(u||'')?u:'';
 const CATS=['आर्टिस्ट / एंटरटेनमेंट','टेंट / शामियाना','हलवाई / केटरिंग','डेकोरेशन','लाइट / साउंड','LED वॉल / स्क्रीन','बैंड / ढोल','DJ','फ़ोटो / वीडियो','फूल','मेहंदी','पंडित जी','घोड़ी / बग्गी','गाड़ियाँ / ट्रांसपोर्ट','होटल / वेन्यू','प्रिंटिंग','मिठाई','SFX / आतिशबाज़ी','सुरक्षा','स्टेज / फ़र्नीचर','अन्य'];   // 12 Nov: + SFX, सुरक्षा, स्टेज / फ़र्नीचर (his rider vendor split)
 // ---------- data
-function sub(k){ onSnapshot(collection(db,COL[k]), s=>{ C[k]=s.docs.map(d=>({id:d.id,...d.data()})); LOADED[k]=true; XLG.warm(C[k],EN?'en':'hi'); if(k==='ev') seed(s); if(k==='gq'||k==='ag'||k==='meta') gqAuto(); if(k==='ag'||k==='meta') gwSched(); if(k==='vf'||k==='ag') tkKick(); sched(); }, e=>{ console.warn(k,e); LOADED[k]=true; sched(); }); }
+function sub(k){ onSnapshot(collection(db,COL[k]), s=>{ C[k]=s.docs.map(d=>({id:d.id,...d.data()})); LOADED[k]=true; XLG.warm(C[k],EN?'en':'hi'); if(k==='ev') seed(s); if(k==='gq'||k==='ag'||k==='meta') gqAuto(); if(k==='ag'||k==='meta') gwSched(); if(k==='vf'||k==='ag') tkKick(); if(k==='ag'){ agNmFix(); if(!GU) loadGuests(); } sched(); }, e=>{ console.warn(k,e); LOADED[k]=true; sched(); }); }
 let rq=0; function sched(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; render(); }); }
 async function put(k,id,data){ data.by=ME.name; data.at=Date.now();
   try{ if(id) await updateDoc(doc(db,COL[k],id),data); else await addDoc(collection(db,COL[k]),data); toast('सेव हो गया ✓'); return true; }
@@ -699,12 +699,15 @@ const phBtns=(...a)=>a.filter(x=>ph10(x).length===10).map(x=>`<a href="tel:${ph1
 let GU=null, GUL=null, LGG=[], LGR=[]; const GUM=new Map(), GUR=new Map();
 const guReset=()=>{ GU=null; GUL=null; GUM.clear(); GUR.clear(); };
 function loadGuests(){ if(GU) return Promise.resolve(); if(!GUL) GUL=loadGuests2(); return GUL; }
+// 18 Nov 2026 (found while linking his Delhi travel sheet): he renamed guests in the list (D-27 जवाहर जी -> नरिंदर सिंह जी, D-29 राजा जी -> तेजिंदर पाल सिंह जी …)
+// but the 🚉 cards kept the old name saved inside the entry. -> a card always shows the list's CURRENT name of its guest (found by its list id); nothing is written.
+function agNmFix(){ if(!GU||!C.ag) return; C.ag.forEach(a=>{ const g=!a.kind&&a.rid&&GUR.get(a.rid); if(g&&g.name&&a.name!==g.name) a.name=g.name; }); }
 async function loadGuests2(){
   try{ const m=await getDoc(doc(db,'list','meta')); if(!m.exists()) return; const md=m.data(), G=JSON.parse(md.G); let rows=[]; LGG=G;
     for(let i=0;i<md.chunks;i++){ const c=await getDoc(doc(db,'list','c'+i)); if(c.exists()) rows=rows.concat(JSON.parse(c.data().d)); }
     const pri={ba:0,eb:1,jo:2,ej:3,ho:4}; rows.sort((a,b)=>(pri[G[a[1]][6]]??9)-(pri[G[b[1]][6]]??9));
     try{ NMD=trBuild(rows); }catch(_){} try{ TRE=teBuild(rows); }catch(_){} LGR=rows; GU=rows.map(r=>({rid:r[0],no:r[2],name:r[3]||r[4],en:r[4]||'',ph:ph10(String(r[9]||'').split('\n')[0]),phs:String(r[9]||'').split('\n').map(x=>ph10(x)).filter(x=>x.length===10),city:G[r[1]][4]||'',ce:G[r[1]][5]||'',sec:G[r[1]][6],f:r[10]||[],addr:r[7]||'',prog:r[12]||'',hd:r[5]||'',hde:r[6]||''}));
-    GU.forEach(g=>{ if(!GUM.has(g.name)) GUM.set(g.name,g); GUR.set(g.rid,g); XLG.learn(g.name,g.en); }); (LGG||[]).forEach(g=>{ XLG.learn(g[0],g[1]); XLG.learn(g[2],g[3]); XLG.learn(g[4],g[5]); }); $('#dl-gu').innerHTML=GU.map(g=>`<option value="${esc(g.name)}">${esc((g.no?g.no+' · ':'')+g.city)}</option>`).join(''); }
+    GU.forEach(g=>{ if(!GUM.has(g.name)) GUM.set(g.name,g); GUR.set(g.rid,g); XLG.learn(g.name,g.en); }); (LGG||[]).forEach(g=>{ XLG.learn(g[0],g[1]); XLG.learn(g[2],g[3]); XLG.learn(g[4],g[5]); }); $('#dl-gu').innerHTML=GU.map(g=>`<option value="${esc(g.name)}">${esc((g.no?g.no+' · ':'')+g.city)}</option>`).join(''); agNmFix(); try{ sched(); }catch(_){} }
   catch(e){ console.warn('guests',e); GUL=null; } }
 // ---------- 🔗 guest page (g.html): copy of what the guest may see -> gp/{tok}
 const FEV=[['e18vin'],['e20til','e20rec'],['e21geet'],['e21viv']], inv=f=>{ const on=x=>x&&String(x)!=='0'; return on(f[2])?'C':on(f[3])?'B':'A'; };

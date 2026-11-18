@@ -1660,10 +1660,11 @@ function tkCands(src,city,ptxt,exact){ if(!GU) return []; const WO=tkWd(src), W=
   return out.sort((a,b)=>b.sc-a.sc); }
 const tkBest=C=>{ const a=C[0], b=C[1]; if(!a) return null; if(a.base>=3) return !b||a.sc-b.sc>=0.25?a:null; return a.base>=0.8&&(!b||a.sc-b.sc>=0.55)?a:null; };
 function tkPick(a){ const NM=[...new Set((a.names||[]).map(x=>String(x||'').trim()).filter(Boolean))], M=new Map();
+  { const K=NM.map(nnm).filter(Boolean), E=K.length?C.ag.find(z=>!z.kind&&z.rid&&GUR.get(z.rid)&&[z.cm,...memNorm(z.mem).map(m=>m.n)].some(n=>n&&K.includes(nnm(n)))):null; if(E) return {g:GUR.get(E.rid),weak:false,cands:[]}; }   // 18 Nov: Varsha Bhootra is written on the Lodha line -> her next ticket goes there by itself
   NM.forEach(n=>tkCands(n,a.city,a.txt).forEach(c=>{ const o=M.get(c.g.rid); if(!o||c.sc>o.sc) M.set(c.g.rid,c); }));   // each traveller of the ticket on its own – the best guest over all of them
-  let C=[...M.values()].sort((x,y)=>y.sc-x.sc), b=tkBest(C);
-  if(!b||b.base<3){ const C2=tkCands((a.txt||'')+' '+String(a.fname||'').replace(/\.[A-Za-z0-9]+$/,''),a.city,a.txt,true).filter(c=>c.base>=3), b2=tkBest(C2); if(b2) b=b2; else if(!C.length) C=C2; }   // no name read / nothing sure from the name -> the whole ticket text and the file name, exact words only
-  const g=b?b.g:null, weak=!!(b&&b.base<3), top=C.length?C.filter(c=>c.sc>=C[0].sc-0.01):[], show=C.length<=8?C:top.length<=6?top:[];
+  let CL=[...M.values()].sort((x,y)=>y.sc-x.sc), b=tkBest(CL);
+  if(!b||b.base<3){ const C2=tkCands((a.txt||'')+' '+String(a.fname||'').replace(/\.[A-Za-z0-9]+$/,''),a.city,a.txt,true).filter(c=>c.base>=3), b2=tkBest(C2); if(b2) b=b2; else if(!CL.length) CL=C2; }   // no name read / nothing sure from the name -> the whole ticket text and the file name, exact words only
+  const g=b?b.g:null, weak=!!(b&&b.base<3), top=CL.length?CL.filter(c=>c.sc>=CL[0].sc-0.01):[], show=CL.length<=8?CL:top.length<=6?top:[];
   return {g,weak,cands:!g||weak?show.map(c=>c.g).filter(x=>!g||x.rid!==g.rid).slice(0,6):[]}; }   // buttons only where the pick is open, and only for a handful of guests
 function tkGuess(txt,fname){ return tkPick({txt,fname}).g; }
 // 18 Nov (his words): "agar member 4 ya 5 bhi ho toh bhi autofill hona chahiye" – everybody on the ticket: the first is the traveller, the rest go into "साथ में"
@@ -1828,17 +1829,25 @@ function tkCmp(a){ const F=C.vf.filter(f=>f.ag===a.id&&f.kind==='tk'&&f.tr&&f.tr
   F.forEach(f=>(f.tr.pax||[]).forEach(x=>{ if(x&&x.n&&!pax.some(y=>nnm(y.n)===nnm(x.n))) pax.push(x); }));
   const dif=[]; if(A.length===1){ const x=A[0]; if((a.ad||'')!==x.d||(x.t&&(a.ati||'')!==x.t)||(x.no&&tkNoK(a.ano)!==tkNoK(x.no))) dif.push({k:'arr',x}); }
   if(D.length===1){ const x=D[0]; if((a.dd||'')!==x.d||(x.t&&(a.dt||'')!==x.t)||(x.no&&tkNoK(a.dno)!==tkNoK(x.no))) dif.push({k:'dep',x}); }
-  const sig=tkSig(A,D); return {A,D,pax,dif,clash:A.length>1||D.length>1,sig,open:(dif.length>0||A.length>1||D.length>1)&&a.tks!==sig}; }
-function tkOwn(a,c){ const g=a.rid&&GUR.get(a.rid); return c.pax.some(x=>nnm(x.n)===nnm(a.cm||'')||nnm(x.n)===nnm(a.name)||tkSelf(x.n,g)||(!!a.cm&&tkSelf(x.n,{name:a.cm,en:a.cm}))||(!!g&&tkCands(x.n,'','').some(z=>z.g.rid===g.rid&&z.base>=3))); }
+  const sig=tkSig(A,D); return {A,D,pax,dif,clash:A.length>1||D.length>1,sig,sent:F.some(f=>/^मेहमान ने भेजा/.test(f.note||'')),open:(dif.length>0||A.length>1||D.length>1)&&a.tks!==sig}; }
+// 18 Nov (his words): "Ankur Lodha ki wife ka naam Varsha Bhootra hai, kyuki uske wife ne apna ID change nahi karwaya" – a ticket in another surname can
+//   still be the family's own. It counts as the guest's own when (1) the guest sent it from his own page, or (2) the name on it is already written on his
+//   line ("कौन आ रहा है" / "साथ में कौन-कौन"), or (3) it is his own name. Once somebody presses "टिकट के हिसाब से करें", that traveller is written into
+//   "साथ में" – from then on the system knows that person belongs to this guest (also for the next ticket in that name).
+const tkKnown=(a,n)=>{ const g=a.rid&&GUR.get(a.rid), N=nnm(n); return !!N&&(N===nnm(a.cm||'')||N===nnm(a.name)||tkSelf(n,g)||(!!a.cm&&tkSelf(n,{name:a.cm,en:a.cm}))||memNorm(a.mem).some(m=>nnm(m.n)===N||tkSelf(n,{name:m.n,en:m.n}))); };
+function tkOwn(a,c){ const g=a.rid&&GUR.get(a.rid); return c.sent||c.pax.some(x=>tkKnown(a,x.n)||(!!g&&tkCands(x.n,'','').some(z=>z.g.rid===g.rid&&z.base>=3))); }
 function tkPatch(a,c){ const o={}, tx=[], wh=(d,t)=>d?dSh(d)+(t?' '+tHi(t):''):(EN?'empty':'खाली');
   c.dif.forEach(({k,x})=>{ const A=k==='arr', od=A?a.ad:a.dd, ot=A?a.ati:a.dt, same=(od||'')===x.d&&(!x.t||(ot||'')===x.t);
     tx.push(same?(A?(EN?'arrival no. ':'आने का नंबर '):(EN?'return no. ':'वापसी का नंबर '))+String(x.no).split(' · ')[0]:(A?(EN?'arrival ':'आगमन '):(EN?'return ':'वापसी '))+wh(od,ot)+' → '+wh(x.d,x.t));
     if(A){ o.ad=x.d; if(x.t) o.ati=x.t; if(x.no) o.ano=x.no; if(x.am) o.am=x.am; if(x.ap) o.ap=x.ap; } else { o.dd=x.d; if(x.t) o.dt=x.t; if(x.no) o.dno=x.no; } });
-  if(c.pax.length>1){ if((Number(a.ppl)||0)<c.pax.length) o.ppl=String(c.pax.length); if(!memNorm(a.mem).length) o.mem=tkMem(c.pax,a.cm||c.pax[0].n); }
+  const g=a.rid&&GUR.get(a.rid), M=memNorm(a.mem), P=c.pax.filter(x=>x&&x.n); let cm=a.cm||'';
+  if(!cm&&P.length&&g&&!tkSelf(P[0].n,g)&&tkCands(P[0].n,'','').some(z=>z.g.rid===g.rid&&z.base>=3)){ cm=P[0].n; o.cm=cm; }   // one of the people named on the invitation is the traveller
+  const add=P.filter(x=>nnm(x.n)!==nnm(cm)&&!tkKnown(a,x.n)).map(x=>({n:x.n,r:'',a:x.a||'b'})); if(add.length) o.mem=[...M,...add].slice(0,15);   // everybody else on the ticket -> "साथ में"
+  if(P.length>1||(o.mem||M).length){ const np=Math.max((o.mem||M).length+1,P.length); if(np>(Number(a.ppl)||0)) o.ppl=String(np); }
   o.tks=c.sig; if(tx.length) o.tkfx=tx.join(' · '); return o; }
-async function tkAuto(a){ const c=tkCmp(a); if(!c||c.clash||a.tks===c.sig) return false; const more=c.pax.length>1&&((Number(a.ppl)||0)<c.pax.length||!memNorm(a.mem).length);
-  if(!c.dif.length&&!more) return false; if(!tkOwn(a,c)) return false;   // a ticket in somebody else's name is never taken by itself – it shows in red on the card
-  const o=tkPatch(a,c); try{ await updateDoc(doc(db,'cr_ag',a.id),{...o,by:'🎫 '+(EN?'ticket':'टिकट'),at:Date.now()}); if(a.tok) syncGp({...a,...o}); if(o.tkfx) toast('🎫 '+(EN?'Corrected from the ticket: ':'टिकट से ठीक किया: ')+a.name+' – '+o.tkfx); return true; }catch(e){ console.warn('tkAuto',e); return false; } }
+async function tkAuto(a){ const c=tkCmp(a); if(!c||c.clash||a.tks===c.sig) return false; const o=tkPatch(a,c);
+  if(!c.dif.length&&!o.mem&&!o.ppl&&!o.cm) return false; if(!tkOwn(a,c)) return false;   // a ticket of somebody the system does not know on this line is never taken by itself – it shows in red on the card
+  try{ await updateDoc(doc(db,'cr_ag',a.id),{...o,by:'🎫 '+(EN?'ticket':'टिकट'),at:Date.now()}); if(a.tok) syncGp({...a,...o}); if(o.tkfx) toast('🎫 '+(EN?'Corrected from the ticket: ':'टिकट से ठीक किया: ')+a.name+' – '+o.tkfx); return true; }catch(e){ console.warn('tkAuto',e); return false; } }
 async function tkJob(){ if(TKJ.run||!ME.mgr||!LOADED.vf||!LOADED.ag) return; TKJ.run=true;
   try{ await loadGuests();
     for(;;){ const Q=C.vf.filter(f=>f.kind==='tk'&&f.ag&&f.fid&&!f.adm&&!(f.tr&&f.tr.v===TKV)&&!TKJ.fail.has(f.id)&&C.ag.some(a=>a.id===f.ag)); TKJ.tot=TKJ.done+Q.length; if(!Q.length) break;

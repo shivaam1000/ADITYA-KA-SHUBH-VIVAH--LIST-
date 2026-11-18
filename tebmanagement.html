@@ -2593,8 +2593,73 @@ function gfRow(g){ const e=EVI(g.ev); return `<div class="row${g.st==='d'?' done
 //   his choices: the confirmed outside guests (same list as 🎁 कार्ड वाला गिफ्ट), the name of whoever is COMING (else the invited name), English names,
 //   mithai box = a name sticker. One kit + one envelope per travel party (a family coming in 2 groups = 2 kits); programme card + key holder per room,
 //   luggage tags = people (2 when not filled). print-kit.html makes the sheets; what is printed is remembered for everyone (cr_meta/kitp).
+// 18 Nov 2026 (his words): "printable sheet 13x19 fix rahega / isme se mithai sticker hatana hai / luggage tag ka new design base design same - qty 6 per guest /
+//   programme card tent card style me - qty 1 / key card holder ka bhi new design base design same - qty 2 / pla card - qty 1 /
+//   sabke naam ke aage shree aur ji middle me lagana hi hai / jo guests attend ho rahe hai unke naam se hi chizein banegi"
 const KITI=()=>[['env','✉',EN?'Envelope':'लिफ़ाफ़ा'],['lug','🧳',EN?'Luggage tag':'लगेज टैग'],['gift','🎁',EN?'Return gift tag':'रिटर्न गिफ्ट टैग'],
-  ['iti','📋',EN?'Programme card':'कार्यक्रम विवरण'],['key','🔑',EN?'Key card holder':'की-कार्ड होल्डर'],['mithai','🍬',EN?'Mithai box sticker':'मिठाई डिब्बा स्टिकर']];
+  ['iti','📋',EN?'Programme tent card':'कार्यक्रम टेंट कार्ड'],['key','🔑',EN?'Key card holder':'की-कार्ड होल्डर'],['plc','🪧',EN?'Placard':'प्लाकार्ड']];
+const KITQ={env:1,lug:6,gift:1,iti:1,key:2,plc:1};   // pieces per guest
+// "Shri" in front and "Ji" in the middle of every name. A name that already has its title / Ji / Sahab stays as typed; a firm, a temple or a group is left alone.
+const KNF=/\b(family|parivar|co|company|ltd|limited|pvt|llp|traders|enterprises|industries|mandir|temple|trust|sansthan|samaj|group|staff|team|school|bank|hotel|sons|bros|brothers|associates|agency|agencies|stores?|jewellers|textiles|mills|corporation|corp|inc|foundation|club|office|association|society|sangh|samiti|sales|agences|tailors|electricals|electronics|motors|garments|fashion|sarees|emporium|bhandar|udyog|pharma|medical|medicos|printers|digital|infotech|solutions|services|logistics|transport|roadways|builders|developers|constructions?|properties|finance|marbles?|granites?|handicrafts?|exports?|imports?|international|marketing|distributors|suppliers|dealers|wholesale|kirana|sweets|namkeen|restaurant|cafe|bakery|dairy|steel|plastics|chemicals|paints|hardware|tiles|furniture|timber|opticals?|events|tent|light|sound|flowers?|caterers|decorators|studio|band|travels|messrs|mandi|devta|dham|ashram|bhawan|bhavan|sabha|gaushala|math|peeth|kendra|sangathan|vidyalaya|college|university|hospital|clinic|press|media|news|samast)\b|\bm\s*[\\\/]\s*s\b|&\s*co\b|\d/i;
+const KNFH=/परिवार|कंपनी|कम्पनी|ट्रेडर्स|एंटरप्राइजेज|इंडस्ट्रीज|मंदिर|ट्रस्ट|संस्थान|समाज|ग्रुप|स्टाफ|स्टाफ़|टीम|स्कूल|बैंक|होटल|संस|ब्रदर्स|एजेंसी|स्टोर|ज्वैलर्स|मिल्स|क्लब|ऑफिस|संघ|समिति|मेसर्स|टेलर्स|सेल्स|एजेंसीज|इलेक्ट्रिकल्स|इलेक्ट्रॉनिक्स|मोटर्स|गारमेंट्स|फैशन|एम्पोरियम|भंडार|उद्योग|फार्मा|मेडिकल|प्रिंटर्स|बिल्डर्स|डेवलपर्स|मार्बल|ग्रेनाइट|हैंडीक्राफ्ट|एक्सपोर्ट|स्वीट्स|नमकीन|रेस्टोरेंट|डेयरी|स्टील|हार्डवेयर|टाइल्स|फर्नीचर|टेंट|लाइट|साउंड|इवेंट|मंडी|देवता|धाम|आश्रम|भवन|सभा|गौशाला|मठ(?=\s|$)|पीठ|केंद्र|संगठन|विद्यालय|कॉलेज|अस्पताल|समस्त|एंड\s+कं|(^|\s)मै\.|[0-9०-९]/;
+const KNT=/^(shri|shree|sri|smt|shrimati|sushri|kumari|ku|dr|sardar|sardarni|shahji|shah\s+ji|kanwarsahab|kanwar\s*sahab|kunwar|janab|pandit|pt|prof|adv|col|major|capt|seth|lala|thakur|rao|maharaj|swami|sant|baba|chi|sau|late|justice|er|master|begum)\b\.?/i;
+const KNTH=/^(श्रीमती|श्रीमान|श्री|सुश्री|कुमारी|डॉ|डा|सरदार|शाह\s*जी|कँवर\s*साहब|कंवर\s*साहब|कुँवर|कुंवर|जनाब|पंडित|पं|सेठ|स्व|ठाकुर|राव|महाराज|स्वामी|संत|चि|सौ|प्रो|एडवोकेट|मास्टर|बाबा|लाला|बेगम)(?=[\s.]|$)\.?/;
+const KNJ=/\bji\b|[a-z]{2,}ji\b|\b(sahab|saheb|sahib|sa)\b|[a-z](bhai|ben|bai)\b|\b(bhai|ben|bai)\b/i, KNJH=/जी(?=[\s.,]|$)|(^|\s)सा(?=[\s.,]|$)|साहब|साहेब|साहिब|भाई(?=\s|$)|बेन(?=\s|$)|बाई(?=\s|$)/;
+const KNL=new Set('devi kumar lal chand singh kaur prasad nath das ram pal dev kumari bai rani prakash mohan narayan kishore shankar dutt raj ratan bhushan swaroop swarup dayal bihari kishan krishan gopal'.split(' '));
+const KNLH=new Set('देवी कुमार लाल चंद चन्द सिंह कौर प्रसाद नाथ दास राम पाल देव कुमारी बाई रानी प्रकाश मोहन नारायण किशोर शंकर दत्त राज रतन भूषण स्वरूप दयाल बिहारी किशन कृष्ण गोपाल'.split(' '));
+const KNW=new Set(('sunita anita kavita savita sangeeta sangita geeta gita seema sima rekha usha asha nisha pooja puja neha priya priyanka shweta sweta swati divya deepika deepa jyoti meena meenakshi neelam neetu nidhi pinky poonam punam preeti priti rachna radha rajni rakhi rashmi renu ritu ruchi sarita saroj shalini shilpa shobha sneha sonal sonia sudha sushma sushila urmila vandana varsha veena vidya vimla kamla kanta kusum lalita lata laxmi lakshmi mamta manju maya mona monika anju anjali archana aarti arti babita bhawna bhavna chanda durga ekta garima gayatri hema indira indu jaya kalpana khushboo khhushboo komal leela megha nandini nirmala pallavi parul pushpa rita shanti sharda shakuntala sita smita snehlata sunaina surbhi tara tripti uma vaishali vedika vinita yashoda simran ankita akanksha aditi shruti sakshi riya payal pragya richa mansi juhi isha himani disha charu ayushi aparna alka abha sarla sanjana sapna shikha shivani sonali sonam tanvi tanya trisha vaishnavi vidhi yamini aishwarya amrita anamika anushka aruna bharti bhumika chhaya chitra damini deepti dimple dolly falguni heena hina ishita jagriti janvi jhanvi kajal karishma khushi kriti kritika madhuri mahima malti manisha meenu minal mitali muskan namrata neelu neeru nikita nupur palak prachi pratibha prerna radhika ragini rajshree rajshri reena rina ritika roshni ruchika rupali sadhna sadhana sarika shagun shanta sheetal shital shefali shivangi shraddha shreya shubhangi srishti stuti sulochana sumitra sunanda supriya tanisha tanuja urvashi vaidehi vijaya vineeta yogita kamini').split(' ').map(w=>w.replace(/ee/g,'i').replace(/oo/g,'u').replace(/aa/g,'a').replace(/w/g,'v')));
+const KNWH=new Set('सुनीता अनीता कविता सविता संगीता गीता सीमा रेखा उषा आशा निशा पूजा नेहा प्रिया प्रियंका श्वेता स्वाति दिव्या दीपिका दीपा ज्योति मीना मीनाक्षी नीलम नीतू निधि पिंकी पूनम प्रीति रचना राधा रजनी राखी रश्मि रेणु रेनू रितु ऋतु रुचि सरिता सरोज शालिनी शिल्पा शोभा स्नेहा सोनल सोनिया सुधा सुषमा सुशीला उर्मिला वंदना वर्षा वीणा विद्या विमला कमला कांता कुसुम ललिता लता लक्ष्मी ममता मंजू माया मोना मोनिका अंजू अंजलि अर्चना आरती बबीता भावना चंदा दुर्गा एकता गरिमा गायत्री हेमा इंदिरा इंदु जया कल्पना खुशबू कोमल लीला मेघा नंदिनी निर्मला पल्लवी पारुल पुष्पा रीता शांति शारदा शकुंतला सीता स्मिता स्नेहलता सुनैना सुरभि तारा तृप्ति उमा वैशाली वेदिका विनीता यशोदा सिमरन अंकिता आकांक्षा अदिति श्रुति साक्षी रिया पायल प्रज्ञा ऋचा मानसी जूही ईशा हिमानी दिशा चारु आयुषी अपर्णा अलका आभा सरला संजना सपना शिखा शिवानी सोनाली मनीषा राधिका रीना शीतल श्रेया सुमित्रा विजया भारती चित्रा दीप्ति माधुरी नम्रता निकिता प्राची प्रतिभा प्रेरणा राजश्री साधना श्रद्धा सुप्रिया उर्वशी योगिता कामिनी अमृता अरुणा काजल करिश्मा कृतिका खुशी'.split(' '));
+const knCap=(w,au)=>{ if(!/^[A-Za-z]+$/.test(w)) return w; if(/^(ji|shri|smt|dr|sa)$/i.test(w)) return w[0].toUpperCase()+w.slice(1).toLowerCase(); if(w===w.toLowerCase()||(w===w.toUpperCase()&&(w.length>3||(au&&w.length>1&&/[AEIOU]/.test(w))))) return w[0].toUpperCase()+w.slice(1).toLowerCase(); return w; };
+function knOne(n,nt){ n=String(n||'').replace(/\s+/g,' ').trim(); if(!n) return n; const H=/[ऀ-ॿ]/.test(n);
+  const au=!/[a-z]/.test(n); n=n.split(' ').map(x=>knCap(x,au)).join(' '); if(!H) n=n.replace(/^(mr|sh)\b\.?\s*/i,'Shri ').replace(/^mrs\b\.?\s*/i,'Smt. ').replace(/^(ms|miss)\b\.?\s*/i,'Sushri ');
+  const T=!nt&&(KNTH.test(n)||KNT.test(n)), J=KNJH.test(n)||KNJ.test(n); let w=n.split(' ');
+  if(!J){ const b=T?w.slice(1):w; if(b.length&&b.join('').length>1){ const last=b[b.length-1], L=(H?KNLH.has(last):KNL.has(last.toLowerCase()))||/^(mohd|mohammad|mohammed|mohamed|md|मोहम्मद|मो)\.?$/i.test(b[0]), ji=H?'जी':'Ji';
+      if(b.length===1||L) b.push(ji); else b.splice(b.length-1,0,ji); w=T?[w[0],...b]:b; } }
+  if(!T&&!nt){ const f=String(w[0]).toLowerCase().replace(/[^a-z]/g,'').replace(/ee/g,'i').replace(/oo/g,'u').replace(/aa/g,'a').replace(/w/g,'v'), W=(H?KNWH.has(w[0]):KNW.has(f))||w.some(x=>/^kaur$/i.test(x)||x==='कौर'); w.unshift(H?(W?'श्रीमती':'श्री'):(W?'Smt.':'Shri')); }
+  return w.join(' '); }
+function kitNm(n){ n=String(n||'').replace(/\s+/g,' ').trim(); if(!n) return n;
+  let tail=''; const m=n.match(/\s*(\(.*\)|(?:&|and|एवं|व)\s+(?:family|परिवार)|सपरिवार|saparivar)\s*$/i); if(m){ tail=' '+m[1].replace(/[A-Za-z]+/g,x=>knCap(x)); n=n.slice(0,m.index).trim(); }
+  if(!n||KNF.test(n)||KNFH.test(n)) return (n+tail).trim();
+  let pre='', c;   // a couple written with both titles keeps them: "Mrs. & Mr. Ujjwal Jain" → "Smt. & Shri Ujjwal Ji Jain"
+  if(c=n.match(/^(?:mrs|smt|shrimati)\b\.?\s*(?:&|and)\s*(?:mr|shri|sh)\b[.,]?\s*/i)) pre='Smt. & Shri ';
+  else if(c=n.match(/^(?:mr|shri|sh)\b\.?\s*(?:&|and)\s*(?:mrs|smt|shrimati)\b[.,]?\s*/i)) pre='Shri & Smt. ';
+  else if(c=n.match(/^श्रीमती\s*(?:एवं|और|व|&)\s*श्री\s+/)) pre='श्रीमती एवं श्री ';
+  else if(c=n.match(/^श्री\s*(?:एवं|और|व|&)\s*श्रीमती\s+/)) pre='श्री एवं श्रीमती ';
+  if(c) n=n.slice(c[0].length).trim();
+  const ci=n.indexOf(','); if(ci>0){ tail=n.slice(ci)+tail; n=n.slice(0,ci).trim(); }   // "…, ए.सी.पी." – the post stays behind the name
+  const pm=n.match(/\s+((?:acp|dcp|dsp|asp|ips|ias|ras|rps|mla|sho|sdm|adm|dig|collector|commissioner|inspector|judge|minister|maa|mata|mummy|mother|father|papa|wife|son|daughter|with|[cwsd]\/o)\b.*)$/i); if(pm){ tail=' '+pm[1]+tail; n=n.slice(0,pm.index).trim(); }
+  if(c) return pre+knOne(n,1)+tail;
+  return n.split(/\s+(&|and|एवं|और|व)\s+/).map((x,i)=>i%2?x:knOne(x)).join(' ')+tail; }
+// 18 Nov 2026 (his words): "tum ticket se traveller name seedha uthao na / tumhare paas bohot raaste hai / tkts + id's"
+//   the name on the kit, in this order:
+//   1. "कौन आ रहा है" written on the card (by hand / Excel)                      -> that name
+//   2. the ticket or an ID on the card is the invited guest's own                 -> the list's own name (the family's spelling)
+//   3. the people on the ticket / IDs are fewer than "कितने लोग"                    -> the invited guest is coming with them -> the list's own name
+//   4. the ticket / ID shows only somebody else (a firm's man, a relative)         -> that traveller's name
+//   5. no ticket, no ID                                                           -> the invited name
+const kitCl=n=>String(n||'').replace(/\s+/g,' ').replace(/\s+(adult|adut|adu1t|child|infant|chd|inf|mr|mrs|ms|mstr|miss|master)\b.*$/i,'').trim();
+function kitWho(a,g){ const inv=src=>({hi:g.name,en:g.en||kitEn(g.name),src});
+  const GW=tkWd(g.en||kitEn(g.name)).map(tkNz), GS=GW.filter(w=>!TKWEAK.test(w));
+  const isInv=n=>{ const k=nnm(n); return !!k&&((!!a&&k===nnm(a.name))||k===nnm(g.name)||k===nnm(g.en)); };
+  const lvl=n=>{ if(isInv(n)) return 2; const W=tkWd(n).map(tkNz).filter(w=>!TKWEAK.test(w)); if(!W.length||!W.every(w=>GW.includes(w))) return 0; return GS.every(w=>W.includes(w))?2:1; };   // 2 = the invited guest himself, 1 = one of the people named on the invitation
+  if(a&&kitCl(a.cm)){ const c=kitCl(a.cm); return lvl(c)===2?inv('cm'):{hi:c,en:kitEn(c),src:'cm'}; }   // "Dilip Dhomeja" written for श्री दिलीप जी डोमेझा = the guest himself -> the list's spelling
+  if(!a) return inv('inv');
+  const F=C.vf.filter(f=>f.ag===a.id), ok=n=>n.replace(/[^A-Za-zऀ-ॿ]/g,'').length>2, PXA=[], KID=[], IDW=[], q=gqNew(a);
+  F.filter(f=>f.kind==='tk'&&f.tr).forEach(f=>(f.tr.pax||[]).forEach(x=>{ const n=kitCl(x&&x.n); if(!ok(n)) return; (x.a==='c'||x.a==='s'?KID:PXA).push(n); }));
+  F.filter(f=>f.kind==='id').map(idWho).forEach(n=>{ n=kitCl(n); if(ok(n)) IDW.push(n); }); ((q&&q.idf)||[]).forEach(x=>{ const n=kitCl(x&&x.who); if(ok(n)) IDW.push(n); });
+  const ownId=IDW.some(isInv), firm=KNF.test(g.en||'')||KNFH.test(g.name||'')||KNF.test(g.name||'');
+  const uq=A=>{ const S=new Set(); return A.filter(n=>{ const k=nnm(n); if(!k||S.has(k)) return false; S.add(k); return true; }); };
+  const PT=uq(PXA), P=uq([...PXA,...IDW.filter(n=>!isInv(n))]); if(!P.length) return inv(ownId?'self':'inv');
+  if(!firm&&(ownId||P.some(n=>lvl(n)===2))) return inv('self');
+  const M=memNorm(a.mem).map(m=>kitCl(m.n)).filter(ok), ALL=uq([...P,...KID,...M]).filter(n=>lvl(n)!==2);
+  if(!firm&&(Number(a.ppl)||0)>ALL.length) return inv('with');
+  const two=n=>n.trim().split(/\s+/).length>1;   // a firm's man is taken from a ticket only; a name known from an ID alone needs name + surname
+  let n=PT.find(x=>lvl(x)===1)||PT[0]||(firm?'':P.find(x=>lvl(x)===1&&two(x))||P.find(two)||''); if(!n) return inv(ownId?'self':'inv');
+  const tk=PT.some(x=>nnm(x)===nnm(n));
+  { const w=n.split(' '), lw=x=>{ const t=tkWd(x); return t.length?tkNz(t[t.length-1]):''; }, S=new Set([firm?'':lw(g.en||''),...uq([...P,...M]).filter(x=>nnm(x)!==nnm(n)).map(lw)].filter(Boolean));   // "SINGH TEJINDER PAL", "KHANIA MEHUL GAUTAM": the surname printed first goes to the end
+    if(w.length>1&&!/[ऀ-ॿ]/.test(n)&&S.has(tkNz(w[0].toUpperCase()))&&!S.has(tkNz(w[w.length-1].toUpperCase()))) n=[...w.slice(1),w[0]].join(' '); }
+  return {hi:n,en:kitEn(n),src:tk?'tk':'id'}; }
+const KITSRC=u=>({cm:EN?'👤 traveller written on the card':'👤 कार्ड में लिखा – कौन आ रहा है',tk:EN?'🎫 name from the ticket':'🎫 नाम टिकट से',id:EN?'🪪 name from the ID':'🪪 नाम ID से',self:EN?'✓ ticket / ID is the guest\'s own':'✓ टिकट / ID इन्हीं की है',with:EN?'✓ coming with the family (ticket / ID of the others)':'✓ परिवार के साथ आ रहे हैं (टिकट / ID साथ वालों की)'})[u.src]||'';
 let KITF='new'; const KITX=new Set();
 const kitEn=s=>{ s=String(s||'').trim(); return /[ऀ-ॿ]/.test(s)?toEn(s):s; };
 const kitCity=s=>{ s=String(s||'').trim(); if(!/[ऀ-ॿ]/.test(s)) return s; const g=(LGG||[]).find(x=>x[4]===s||x[2]===s); return g?(g[4]===s?g[5]:g[3])||kitEn(s):kitEn(s); };   // the list's own English city name first
@@ -2602,26 +2667,29 @@ const kitRooms=u=>String(u.room||'').split(/[,\/&;]+|\s+(?:and|और)\s+/).map(
 const kitDone=()=>{ const m=C.meta.find(x=>x.id==='kitp'); return (m&&m.u)||{}; };
 function kitUnits(){ const out=[];
   gwW().forEach(x=>{ const g=x.g, L=C.ag.filter(a=>!a.kind&&(a.rid===g.rid||(!a.rid&&a.name===g.name)));
-    const sn=new Set(), L2=L.slice().sort((p,q)=>(q.room?1:0)-(p.room?1:0)||(q.hotel?1:0)-(p.hotel?1:0)).filter(a=>{ const k=nnm(a.cm||''); if(sn.has(k)) return false; sn.add(k); return true; });   // 18 Nov: the same traveller on two cards = one kit
-    (L2.length?L2:[null]).forEach(a=>{ const cm=a&&a.cm, city=(a&&a.city)||g.city||'', hotel=(a&&a.hotel)||'';
-      out.push({k:a?a.id:'rv_'+g.rid, rid:g.rid, hi:cm||g.name, en:cm?kitEn(cm):(g.en||kitEn(g.name)), city, city_en:(a&&a.city&&a.city!==g.city)?kitCity(a.city):(g.ce||kitCity(city)),
+    const sn=new Set(), L2=L.slice().sort((p,q)=>(q.room?1:0)-(p.room?1:0)||(q.hotel?1:0)-(p.hotel?1:0));
+    (L2.length?L2:[null]).forEach(a=>{ const w=kitWho(a,g), k=nnm(w.hi)||nnm(w.en); if(sn.has(k)) return; sn.add(k);   // the same traveller on two cards = one kit
+      const city=(a&&a.city)||g.city||'', hotel=(a&&a.hotel)||'';
+      out.push({k:a?a.id:'rv_'+g.rid, rid:g.rid, hi:kitNm(w.hi), en:kitNm(w.en), src:w.src, inv:nnm(w.hi)===nnm(g.name)?'':g.name, city, city_en:(a&&a.city&&a.city!==g.city)?kitCity(a.city):(g.ce||kitCity(city)),
         hotel, hotel_en:kitEn(hotel).replace(/^Hotal\b/,'Hotel'), room:(a&&a.room)||'', ppl:(a&&a.ppl)||'', ad:(a&&a.ad)||'', ati:(a&&a.ati)||''}); }); });
   return out.sort((p,q)=>(p.hotel||'ॿ').localeCompare(q.hotel||'ॿ')||String(p.room).localeCompare(String(q.room),undefined,{numeric:true})||String(p.en).localeCompare(String(q.en))); }
 const kitNew=(u,D0)=>KITI().some(([k])=>!((D0[u.k]||{})[k]));
-function kitList(){ const D0=kitDone(); return kitUnits().filter(u=>KITF==='all'||kitNew(u,D0)); }
+const kitEv=u=>u.src!=='inv';   // a ticket, an ID or a written traveller speaks for this name
+function kitList(){ const D0=kitDone(); return kitUnits().filter(u=>KITF==='all'||(KITF==='ev'?kitEv(u):kitNew(u,D0))); }
 const kitSel=()=>kitList().filter(u=>!KITX.has(u.k));
 function kitBlock(){ if(!ME.mgr) return ''; if(!GU) return `<p class="muted">${EN?'Loading the guest list…':'मेहमान सूची खुल रही है…'}</p>`;
-  const U=kitUnits(), D0=kitDone(), its=KITI(), L=U.filter(u=>KITF==='all'||kitNew(u,D0)), S=L.filter(u=>!KITX.has(u.k));
-  const rooms=S.reduce((a,u)=>a+Math.max(1,kitRooms(u).length),0), lug=S.reduce((a,u)=>a+Math.max(1,Math.min(10,parseInt(u.ppl)||2)),0);
-  let h=`<div class="sum">🧳 ${EN?"Room kit – with the guest's name":'रूम किट – मेहमान के नाम के साथ'}<b>${S.length}</b><div class="money"><div>${EN?'Rooms':'कमरे'}<b>${rooms}</b></div><div>${EN?'Luggage tags':'लगेज टैग'}<b>${lug}</b></div></div>
-    <small class="sm">${EN?'Confirmed outside guests (RSVP ✅ or travel / hotel filled). One envelope per guest party with the name on it – that guest\'s whole kit goes inside.':'बाहर से पक्के आने वाले (RSVP ✅ या यात्रा / होटल भरी)। हर मेहमान का अपना नाम वाला लिफ़ाफ़ा – उसकी पूरी किट उसी में।'}</small></div>`;
-  h+=`<div class="chips">${[['new',(EN?'Not printed yet':'अभी नहीं छपे')+' ('+U.filter(u=>kitNew(u,D0)).length+')'],['all',(EN?'All':'सब')+' ('+U.length+')']].map(([k,l])=>`<button class="chip${KITF===k?' on':''}" data-a="kitf" data-v="${k}">${l}</button>`).join('')}</div>`;
+  const U=kitUnits(), D0=kitDone(), its=KITI(), L=U.filter(u=>KITF==='all'||(KITF==='ev'?kitEv(u):kitNew(u,D0))), S=L.filter(u=>!KITX.has(u.k));
+  let h=`<div class="sum">🧳 ${EN?"Room kit – with the guest's name":'रूम किट – मेहमान के नाम के साथ'}<b>${S.length}</b><div class="money"><div>${EN?'Luggage tags (6 each)':'लगेज टैग (6-6)'}<b>${S.length*KITQ.lug}</b></div><div>${EN?'Key holders (2 each)':'की-होल्डर (2-2)'}<b>${S.length*KITQ.key}</b></div></div>
+    <small class="sm">${EN?'Only guests who are coming (RSVP ✅ or travel / hotel filled; RSVP ❌ left out). Name = the traveller written on the card → the one on the ticket / ID → else the invited name, with Shri / Ji. All sheets 13 × 19 in (the envelope prints straight on a C5 envelope).':'सिर्फ़ आने वाले मेहमान (RSVP ✅ या यात्रा / होटल भरी; RSVP ❌ वाले नहीं)। नाम = कार्ड में लिखा आने वाला → टिकट / ID वाला → वरना निमंत्रण वाला – श्री / जी के साथ। सब शीट 13 × 19 इंच (लिफ़ाफ़ा सीधे C5 लिफ़ाफ़े पर)।'}</small></div>`;
+  h+=`<div class="chips">${[['new',(EN?'Not printed yet':'अभी नहीं छपे')+' ('+U.filter(u=>kitNew(u,D0)).length+')'],['ev',(EN?'🎫🪪 Ticket / ID / traveller known':'🎫🪪 टिकट / ID / आने वाले का नाम पक्का')+' ('+U.filter(kitEv).length+')'],['all',(EN?'All':'सब')+' ('+U.length+')']].map(([k,l])=>`<button class="chip${KITF===k?' on':''}" data-a="kitf" data-v="${k}">${l}</button>`).join('')}</div>`;
   if(!L.length) return h+`<p class="muted">${U.length?(EN?'All kits are printed ✓ – tap "All" to print again':'सबकी किट छप चुकी ✓ – दोबारा छापनी हो तो "सब" दबाएँ'):(EN?'No confirmed outside guest yet':'अभी कोई पक्का बाहर का मेहमान नहीं')}</p>`;
-  h+=`<div class="btns">${its.map(([k,ic,l])=>`<button data-a="kitp" data-v="${k}" ${S.length?'':'disabled'}>${ic} ${l}</button>`).join('')}<button data-a="kitpl" ${S.length?'':'disabled'}>📝 ${EN?'Packing list (PDF)':'पैकिंग सूची (PDF)'}</button></div>`;
+  h+=`<div class="btns">${its.map(([k,ic,l])=>`<button data-a="kitp" data-v="${k}" ${S.length?'':'disabled'}>${ic} ${l}${KITQ[k]>1?' ×'+KITQ[k]:''}</button>`).join('')}<button data-a="kitpl" ${S.length?'':'disabled'}>📝 ${EN?'Packing list (PDF)':'पैकिंग सूची (PDF)'}</button></div>`;
   h+=`<div class="btns"><button data-a="kitall" data-v="1">☑ ${EN?'Select all':'सब चुनें'}</button><button data-a="kitall" data-v="0">☐ ${EN?'Select none':'सब हटाएँ'}</button></div>`;
+  const DN=new Map(); U.forEach(u=>{ const k=nnm(u.en); DN.set(k,(DN.get(k)||0)+1); });
   return h+L.map(u=>{ const dn=D0[u.k]||{}, on=!KITX.has(u.k), rm=kitRooms(u);
     return `<div class="row${on?'':' done'}"><div class="rh"><label style="display:flex;gap:9px;align-items:flex-start;flex:1;cursor:pointer;min-width:0"><input type="checkbox" data-a="kitsel" data-id="${esc(u.k)}" ${on?'checked':''} style="width:20px;height:20px;margin-top:2px;flex:none">
-    <div class="w" data-keep="1"><b>${esc(u.en)}</b><small>${[u.city_en?'📍 '+esc(u.city_en):'',u.hotel?'🏨 '+esc(u.hotel_en||u.hotel):'',rm.length?(EN?'Room ':'कमरा ')+esc(rm.join(', ')):'',u.ad?'⬇ '+dSh(u.ad)+(u.ati?' · '+tHi(u.ati):''):''].filter(Boolean).join(' · ')}</small>
+    <div class="w" data-keep="1"><b>${esc(u.en)}</b>${KITSRC(u)||u.inv?`<small style="color:${u.src==='tk'||u.src==='id'||u.src==='cm'?'#1F5C8B':'#1E7D45'}">${[KITSRC(u),u.inv?(EN?'invited: ':'निमंत्रण: ')+esc(u.inv):''].filter(Boolean).join(' · ')}</small>`:''}<small>${[u.city_en?'📍 '+esc(u.city_en):'',u.hotel?'🏨 '+esc(u.hotel_en||u.hotel):'',rm.length?(EN?'Room ':'कमरा ')+esc(rm.join(', ')):'',u.ad?'⬇ '+dSh(u.ad)+(u.ati?' · '+tHi(u.ati):''):''].filter(Boolean).join(' · ')}</small>
+    ${DN.get(nnm(u.en))>1?`<small class="late">⚠ ${EN?'This name is in the list twice – untick one':'यही नाम सूची में दो बार है – एक का ✓ हटा दें'}</small>`:''}
     <small>${KITI().map(([k,ic])=>dn[k]?`<span style="color:#1E7D45">${ic}✓</span>`:`<span style="opacity:.4">${ic}</span>`).join(' ')}</small></div></label></div></div>`; }).join(''); }
 async function kitPrint(item){ const S=kitSel(); if(!S.length) return; const d=new Date(), MO=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   try{ localStorage.setItem('prt',JSON.stringify({kind:'kit',item,tag:KITF==='new'?(EN?'new':'नए'):'',dateEn:d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear(),
@@ -2632,9 +2700,9 @@ async function kitPrint(item){ const S=kitSel(); if(!S.length) return; const d=n
   if(PK.MOB){ let gone=false; const go=()=>{ if(gone) return; gone=true; location.href='print-kit.html'; }; save().finally(go); setTimeout(go,4000); return; }
   const w=window.open('print-kit.html','_blank'); if(!w) location.href='print-kit.html'; save(); }
 function kitPack(){ const S=kitSel(); if(!S.length) return;
-  const H=EN?['No.','Guest','City','Hotel · room','Arrival','Envelope','Luggage tags','Gift tag','Programme card','Key holder','Mithai sticker','Packed ✓']
-            :['नं.','मेहमान','शहर','होटल · कमरा','आगमन','लिफ़ाफ़ा','लगेज टैग','गिफ्ट टैग','कार्यक्रम विवरण','की-होल्डर','मिठाई स्टिकर','पैक ✓'];
-  const R=S.map((u,i)=>{ const rm=Math.max(1,kitRooms(u).length); return [i+1,EN?u.en:u.hi,EN?u.city_en:u.city,[EN?u.hotel_en||u.hotel:u.hotel,u.room?(EN?'Room ':'कमरा ')+u.room:''].filter(Boolean).join(' · '),u.ad?dSh(u.ad)+(u.ati?' '+tHi(u.ati):''):'',1,Math.max(1,Math.min(10,parseInt(u.ppl)||2)),1,rm,rm,1,'']; });
+  const H=EN?['No.','Guest','City','Hotel · room','Arrival','Envelope','Luggage tags','Gift tag','Programme tent card','Key holder','Placard','Packed ✓']
+            :['नं.','मेहमान','शहर','होटल · कमरा','आगमन','लिफ़ाफ़ा','लगेज टैग','गिफ्ट टैग','कार्यक्रम टेंट कार्ड','की-होल्डर','प्लाकार्ड','पैक ✓'];
+  const R=S.map((u,i)=>[i+1,EN?u.en:u.hi,EN?u.city_en:u.city,[EN?u.hotel_en||u.hotel:u.hotel,u.room?(EN?'Room ':'कमरा ')+u.room:''].filter(Boolean).join(' · '),u.ad?dSh(u.ad)+(u.ati?' '+tHi(u.ati):''):'',KITQ.env,KITQ.lug,KITQ.gift,KITQ.iti,KITQ.key,KITQ.plc,'']);
   pdfOpen('Room kit - packing list ('+S.length+')',EN?'Room kit – packing list':'रूम किट – पैकिंग सूची',(EN?'One envelope per guest – put these inside, then tick ✓ · ':'हर मेहमान का एक लिफ़ाफ़ा – ये चीज़ें अंदर रखें, फिर ✓ लगाएँ · ')+S.length+(EN?' guests':' मेहमान'),H,R,{cc:[0,5,6,7,8,9,10,11],w:[4,20,9,17,9,6,6,6,7,6,7,6]}); }
 function vGf(){ let h=`<div class="chips">${[['gw',EN?'🎁 Card gift – outside':'🎁 कार्ड वाला गिफ्ट – बाहर वाले'],['kit',EN?'🧳 Room kit (names)':'🧳 रूम किट (नाम वाली)'],['gf','🎁 गिफ्ट'],['hp','🧺 रूम हैम्पर']].map(([k,l])=>`<button class="chip${GFM===k?' on':''}" data-a="gfm" data-v="${k}">${l}</button>`).join('')}</div>`;
   if(GFM==='gw'){ h+=gwBlock(); $('#v-gf').innerHTML=h; return; }

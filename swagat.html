@@ -410,7 +410,21 @@ function parseTicket(raw){ const up=' '+String(raw||'').toUpperCase().replace(/[
         if(/JODHPUR|^TO\b|^FROM\b/.test(o.city||'')) o.city=''; }
       else { o.no=nn(X); o.ad=X.ad; o.at=X.at; o.dd=X.dd; o.dt=X.dt; } } }catch(e){ console.warn('tkRead',e); }
   if(o.ad||o.dd) found.push('तारीख'); if(o.at||o.dt) found.push('समय'); o.found=found; return o; }
-async function ticketRead(file){ const isPdf=/pdf/.test(file.type)||/\.pdf$/i.test(file.name); const txt=isPdf?(await pdfLinesY(file)).join('\n'):await imgText(file); return parseTicket(txt); }
+// 18 Nov (his words, with an IndiGo "Itinerary.pdf" saved from a phone): "ab website kehti hai coudnt read / isme kya coudnt read jaisa hai batao"
+//   -> that PDF looks fine to the eye, but its letters are stored without a letter table (phone / Mac "save as PDF"; the same with a scan): the text
+//      comes out as symbols. Such a PDF is now drawn page by page and read like a photo. Pages are read until the small print begins (max 8).
+const TKWORDS=/\b(PNR|FLIGHT|PASSENGER|TICKET|BOOKING|TRAIN|AIRPORT|JODHPUR|TRAVEL|SEAT|STATUS|DEPARTURE|ARRIVAL|ITINERARY|DATE|TIME|NAME)\b/g;
+const pdfBad=t=>new Set(String(t||'').toUpperCase().match(TKWORDS)||[]).size<3;   // no ordinary ticket words in the text = the text layer is not readable
+async function pdfOcrPages(file,maxP,onPage){ await loadJs(`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.min.js`); const lib=window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc=`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.worker.min.js`;
+  await loadJs('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js'); const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise, out=[]; let seen=false; out.np=pdf.numPages;
+  for(let i=1;i<=Math.min(pdf.numPages,maxP||8);i++){ if(onPage) onPage(i,pdf.numPages); const pg=await pdf.getPage(i), v0=pg.getViewport({scale:1}), vp=pg.getViewport({scale:Math.min(2.2,Math.max(1.2,1700/Math.max(v0.width,1)))}), cv=document.createElement('canvas'); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
+    const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height); await pg.render({canvasContext:cx,viewport:vp}).promise;
+    const r=await window.Tesseract.recognize(cv,'eng'), L=String((r.data&&r.data.text)||'').split('\n').filter(x=>x.trim()); let R={legs:[],names:[]}; try{ R=tkRead(L); }catch(e){ console.warn(e); }
+    const tick=R.legs.length>0||R.names.length>0||/\bPNR\b/i.test(L.join(' ')); if(!tick&&seen) break; if(tick) seen=true; out.push(L); cv.width=cv.height=1; }
+  return out; }   // one array of lines per page read
+async function ticketRead(file){ const isPdf=/pdf/.test(file.type)||/\.pdf$/i.test(file.name); const txt=isPdf?(await pdfLinesY(file)).join('\n'):await imgText(file), p=parseTicket(txt);
+  if(isPdf&&!p.arr&&!p.dep&&pdfBad(txt)){ try{ const P=await pdfOcrPages(file), p2=parseTicket(P.map(L=>L.join('\n')).join('\n')); if(p2.arr||p2.dep||p2.no||p2.ad||p2.dd||(p2.names||[]).length){ p2.ocr=1; return p2; } }catch(e){ console.warn('pdf as photo',e); } }
+  return p; }
 
 // 10 Nov (his words): "uske saath uski wife, bhai, bachcha ya koi bhi aa raha hai to unke bhi naam … taaki TEB ko sheet banane, RSVP aur check-in check-out me problem na ho"
 // -> साथ आने वाले: नाम · रिश्ता · बड़े / बच्चा (guest page + TEB, both ways)

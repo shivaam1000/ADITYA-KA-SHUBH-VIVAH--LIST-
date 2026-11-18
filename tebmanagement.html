@@ -342,7 +342,7 @@ const EVI=id=>C.ev.find(e=>e.id===id), VDI=id=>C.vd.find(v=>v.id===id);
 const linkify=u=>/^https?:\/\//.test(u||'')?u:'';
 const CATS=['आर्टिस्ट / एंटरटेनमेंट','टेंट / शामियाना','हलवाई / केटरिंग','डेकोरेशन','लाइट / साउंड','LED वॉल / स्क्रीन','बैंड / ढोल','DJ','फ़ोटो / वीडियो','फूल','मेहंदी','पंडित जी','घोड़ी / बग्गी','गाड़ियाँ / ट्रांसपोर्ट','होटल / वेन्यू','प्रिंटिंग','मिठाई','SFX / आतिशबाज़ी','सुरक्षा','स्टेज / फ़र्नीचर','अन्य'];   // 12 Nov: + SFX, सुरक्षा, स्टेज / फ़र्नीचर (his rider vendor split)
 // ---------- data
-function sub(k){ onSnapshot(collection(db,COL[k]), s=>{ C[k]=s.docs.map(d=>({id:d.id,...d.data()})); LOADED[k]=true; XLG.warm(C[k],EN?'en':'hi'); if(k==='ev') seed(s); if(k==='gq'||k==='ag'||k==='meta') gqAuto(); if(k==='ag'||k==='meta') gwSched(); sched(); }, e=>{ console.warn(k,e); LOADED[k]=true; sched(); }); }
+function sub(k){ onSnapshot(collection(db,COL[k]), s=>{ C[k]=s.docs.map(d=>({id:d.id,...d.data()})); LOADED[k]=true; XLG.warm(C[k],EN?'en':'hi'); if(k==='ev') seed(s); if(k==='gq'||k==='ag'||k==='meta') gqAuto(); if(k==='ag'||k==='meta') gwSched(); if(k==='vf'||k==='ag') tkKick(); sched(); }, e=>{ console.warn(k,e); LOADED[k]=true; sched(); }); }
 let rq=0; function sched(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; render(); }); }
 async function put(k,id,data){ data.by=ME.name; data.at=Date.now();
   try{ if(id) await updateDoc(doc(db,COL[k],id),data); else await addDoc(collection(db,COL[k]),data); toast('सेव हो गया ✓'); return true; }
@@ -820,21 +820,22 @@ const agLine=a=>`<small>🚉 <b>${esc(nmE(a.cm||a.name,a.rid))}</b>${a.kind&&a.c
 function agMini(v){ const L=C.ag.filter(a=>a.vd===v.id); let h=L.map(agLine).join('');
   if(ME.mgr) h+=`<button data-a="agnewv" data-id="${v.id}">🚉 ${L.length?'+ और कोई आ रहा है':'यात्रा · होटल · पिकअप · ड्रॉप जोड़ें'}</button>`; return h?`<div class="trvb">${h}</div>`:''; }
 const MODES=[['ट्रेन','🚆 ट्रेन'],['फ़्लाइट','✈️ फ़्लाइट'],['बस','🚌 बस'],['गाड़ी','🚗 अपनी गाड़ी'],['अन्य','अन्य']];
-let TKFILE=null;   // ticket chosen in the guest form – saved with the guest
+let TKFILE=null, TKSIG='';   // ticket chosen in the guest form – saved with the guest
 async function tkApply(f){ TKFILE=f; const st=$('#fm-tks'); if(st){ st.textContent='टिकट पढ़ रहे हैं… (फ़ोटो हो तो 10–20 सेकंड)'; st.style.color='#7A5A10'; }
-  try{ const p=await ticketRead(f); tkFill(p); if(st){ st.innerHTML=p.found.length?'✓ टिकट से भरा: '+esc(p.found.join(', '))+(p.arr&&p.dep?' (आना + वापसी – दोनों भरे)':p.dir==='dep'?' (वापसी का टिकट)':p.arr?' (आने का टिकट)':'')+' – हरे खाने एक बार देख लें':'टिकट से कुछ पढ़ नहीं पाए – हाथ से भर दें (टिकट फ़ाइल मेहमान के साथ सेव हो जाएगी)'; st.style.color=p.found.length?'#1E7D45':'var(--mr)'; } }
+  try{ const p=await ticketRead(f); tkFill(p); { const tr=tkTr(p); TKC.set(f.name+'|'+f.size,tr); TKSIG=tkSig(tr.arr?[tr.arr]:[],tr.dep?[tr.dep]:[]); } if(st){ st.innerHTML=p.found.length?'✓ टिकट से भरा: '+esc(p.found.join(', '))+(p.arr&&p.dep?' (आना + वापसी – दोनों भरे)':p.dir==='dep'?' (वापसी का टिकट)':p.arr?' (आने का टिकट)':'')+' – हरे खाने एक बार देख लें':'टिकट से कुछ पढ़ नहीं पाए – हाथ से भर दें (टिकट फ़ाइल मेहमान के साथ सेव हो जाएगी)'; st.style.color=p.found.length?'#1E7D45':'var(--mr)'; } }
   catch(e){ console.error(e); if(st){ st.textContent='टिकट नहीं पढ़ पाए (नेट देखें) – हाथ से भर दें, फ़ाइल फिर भी सेव होगी'; st.style.color='var(--mr)'; } } }
 function fAg(g,pre){ loadGuests(); const nk=!g&&pre&&pre.kind; form(g?(g.kind?'यात्रा बदलें':'मेहमान बदलें'):nk?'बाहर से आने वाले – काम से (मेहमान नहीं)':'बाहर से आने वाले मेहमान',[{k:'kind',l:'मेहमान हैं या काम से आ रहे हैं',t:'sel',o:AGKS},{k:'cat',l:'किस काम से – जो भी हो लिखें',dl:'dl-agc',ph:'जैसे: मेहंदी वाले, आर्टिस्ट, फ़ोटोग्राफ़र, DJ, मेकअप…'},{k:'vd',l:'किसके साथ (आर्टिस्ट / वेंडर) – न हो तो छोड़ दें',t:'sel',o:agVdOpts()},{k:'evs',l:'किस कार्यक्रम के लिए – उस कार्यक्रम की शीट में भी दिखेंगे',t:'multi',o:agEvOpts()},{k:'name',l:'नाम (मेहमान हैं तो सूची से चुनें · बाकी नाम लिखें)',req:1,dl:'dl-gu'},{k:'cm',l:'कौन आ रहा है (अगर निमंत्रण वाले की जगह परिवार से कोई और)',ph:'जैसे: राहुल जी (बेटा)'},{k:'ppl',l:'कितने लोग',t:'num'},{k:'mem',l:'👥 साथ में कौन-कौन आ रहे हैं (नाम · रिश्ता · बड़े / बच्चा)',t:'mem'},{k:'ph',l:'मोबाइल',t:'tel'},{k:'city',l:'कहाँ से'},
   {k:'ad',l:'आने की तारीख',t:'date',v:'2026-11-20'},{k:'ati',l:'आने का समय',t:'time'},{k:'am',l:'कैसे आ रहे हैं – चुनें या लिखें',dl:'dl-am',ph:'ट्रेन / फ़्लाइट / बस / अपनी गाड़ी / टैक्सी…'},{k:'ano',l:'ट्रेन / फ़्लाइट नंबर'},{k:'ap',l:'कहाँ उतरेंगे',ph:'जैसे: जोधपुर स्टेशन, एयरपोर्ट, भगत की कोठी'},
   {k:'pick',l:'लेने कौन जाएगा – ड्राइवर या TEB लॉजिस्टिक्स मैनेजर (जो उपलब्ध हो)',dl:'dl-who'},{k:'pph',l:'उनका मोबाइल (ज़रूरी नहीं)',t:'tel'},{k:'car',l:'गाड़ी',ph:'जैसे: इनोवा RJ19…'},{k:'hotel',l:'होटल / ठहरने की जगह',dl:'dl-ht'},{k:'room',l:'कमरा नंबर'},{k:'hpn',l:'हैम्पर के लिए नोट',ph:'जैसे: VIP हैम्पर, बच्चे भी हैं'},
   {k:'dd',l:'वापसी की तारीख',t:'date'},{k:'dt',l:'वापसी का समय',t:'time'},{k:'dno',l:'वापसी ट्रेन / फ़्लाइट'},{k:'drop',l:'छोड़ने कौन जाएगा – ड्राइवर या TEB लॉजिस्टिक्स मैनेजर',dl:'dl-who'},{k:'dph',l:'उनका मोबाइल (ज़रूरी नहीं)',t:'tel'},{k:'note',l:'नोट',t:'area'}], g||pre,
-  async o=>{ if(o.kind){ o.rid=''; } else { o.cat=''; o.evs=[]; const m=GUM.get(o.name); o.rid=m?m.rid:(g&&g.name===o.name?g.rid||'':''); } if(!g) o.st='a';   // artist / team / staff never go into the family list
+  async o=>{ if(o.kind){ o.rid=''; } else { o.cat=''; o.evs=[]; const m=GUM.get(o.name); o.rid=m?m.rid:(g&&g.name===o.name?g.rid||'':''); } if(!g) o.st='a';
+    { const c=g?tkCmp({...g,...o}):null; if(c){ o.tks=c.sig; o.tkfx=''; } else if(TKFILE&&TKSIG) o.tks=TKSIG; }   // 18 Nov: what is saved here by hand stays – the ticket check does not change it back   // artist / team / staff never go into the family list
     { const cl=rmClash(o,g&&g.id); if(cl&&!confirm((EN?'This room is already given: ':'यह कमरा पहले से दिया है: ')+cl+(EN?' – save anyway?':' – फिर भी सेव करें?'))) return false; }   // 12 Nov: no double booking by mistake
     let id=g&&g.id, ok; if(id) ok=await put('ag',id,o); else { id='ag'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); o.by=ME.name; o.at=Date.now(); try{ await setDoc(doc(db,'cr_ag',id),o); toast('सेव हो गया ✓'); ok=true; }catch(e){ toast('सेव नहीं हुआ – नेट या अनुमति देखें'); ok=false; } }
     if(ok&&TKFILE){ try{ await vfSave('ag',id,TKFILE,'tk','टिकट',false); }catch(e){ toast('टिकट की फ़ाइल सेव नहीं हुई'); } } TKFILE=null;
     if(ok&&g&&g.tok) syncGp({...g,...o}); return ok; }, g&&(()=>del('ag',g.id)));
   setTimeout(()=>tfRun('fm-'),0); rmHint();
-  TKFILE=null; if(ME.mgr) $('#fm-b').insertAdjacentHTML('afterbegin',`<button type="button" class="btn" id="fm-tkb" style="background:#1F5C8B;margin:0 0 8px">🎫 टिकट से भरें (PDF / फ़ोटो)</button><input type="file" id="fm-tkf" accept="application/pdf,image/*" style="display:none"><p class="sm" id="fm-tks"></p>`);
+  TKFILE=null; TKSIG=''; if(ME.mgr) $('#fm-b').insertAdjacentHTML('afterbegin',`<button type="button" class="btn" id="fm-tkb" style="background:#1F5C8B;margin:0 0 8px">🎫 टिकट से भरें (PDF / फ़ोटो)</button><input type="file" id="fm-tkf" accept="application/pdf,image/*" style="display:none"><p class="sm" id="fm-tks"></p>`);
   const tb=$('#fm-tkb'), tf=$('#fm-tkf'); if(tb&&tf){ tb.onclick=()=>tf.click(); tf.onchange=()=>{ const f=tf.files[0]; if(f) tkApply(f); }; }
   const vs=$('#fm-vd'), ks=$('#fm-kind');
   const tgK=()=>{ const on=!!(ks&&ks.value); ['cat','vd','evs'].forEach(k=>{ const el=$('#fm-'+k); if(!el) return; el.style.display=on?'':'none'; const lb=el.previousElementSibling; if(lb&&lb.tagName==='LABEL') lb.style.display=on?'':'none'; }); }; if(ks){ ks.addEventListener('change',tgK); tgK(); }
@@ -1383,7 +1384,7 @@ function fRoomGive(x,r){ const busy=new Set(); const opts=[['',EN?'– choose gu
 // 18 Nov: rooms a family needs (rmNeed: 2 in a room, a child as the third) against the room numbers already given
 const RMRULE=()=>EN?'2 in a room · 3 with a child':'1 कमरे में 2 · बच्चा साथ हो तो 3';
 const rmLine=g=>{ if(!g||g.rmq==='नहीं') return ''; const need=rmNeed(g), got=rmOf(g).length; if(got>=need) return '';
-  return got?`<small class="late">⚠ ${EN?'Rooms needed '+need+' – given '+got:'कमरे चाहिए '+need+' – अभी '+got+' दिया'} <span style="font-weight:400">(${RMRULE()})</span></small>`:`<small>🛏 ${EN?'Rooms needed: ':'कमरे चाहिए: '}<b>${need}</b></small>`; };
+  return got?`<small class="late" style="color:#B3261E">⚠ ${EN?'Rooms needed '+need+' – given '+got:'कमरे चाहिए '+need+' – अभी '+got+' दिया'} <span style="font-weight:400">(${RMRULE()})</span></small>`:`<small>🛏 ${EN?'Rooms needed: ':'कमरे चाहिए: '}<b>${need}</b></small>`; };
 function rmHint(){ const el=$('#fm-room'), pe=$('#fm-ppl'); if(!el||!pe) return; let h=document.getElementById('fm-rmn'); if(!h){ h=document.createElement('div'); h.id='fm-rmn'; h.className='sm'; h.style.margin='-4px 0 8px'; el.insertAdjacentElement('afterend',h); }
   const need=rmNeed({ppl:pe.value,mem:memRead('fm-mem')||[]}), got=rmOf({room:el.value}).length; h.innerHTML='🛏 '+(EN?'Rooms needed: ':'कमरे चाहिए: ')+'<b>'+need+'</b> ('+RMRULE()+')'+(got&&got<need?' · <span style="color:var(--mr)">'+(EN?'given ':'अभी ')+got+(EN?'':' दिया')+'</span>':''); }
 ['input','change'].forEach(ev=>document.addEventListener(ev,e=>{ if(e.target&&e.target.closest&&e.target.closest('#fm-b')&&document.getElementById('fm-room')) rmHint(); }));
@@ -1550,7 +1551,21 @@ function parseTicket(raw){ const up=' '+String(raw||'').toUpperCase().replace(/[
         if(/JODHPUR|^TO\b|^FROM\b/.test(o.city||'')) o.city=''; }
       else { o.no=nn(X); o.ad=X.ad; o.at=X.at; o.dd=X.dd; o.dt=X.dt; } } }catch(e){ console.warn('tkRead',e); }
   if(o.ad||o.dd) found.push('तारीख'); if(o.at||o.dt) found.push('समय'); o.found=found; return o; }
-async function ticketRead(file){ const isPdf=/pdf/.test(file.type)||/\.pdf$/i.test(file.name); const txt=isPdf?(await pdfLinesY(file)).join('\n'):await imgText(file); return parseTicket(txt); }
+// 18 Nov (his words, with an IndiGo "Itinerary.pdf" saved from a phone): "ab website kehti hai coudnt read / isme kya coudnt read jaisa hai batao"
+//   -> that PDF looks fine to the eye, but its letters are stored without a letter table (phone / Mac "save as PDF"; the same with a scan): the text
+//      comes out as symbols. Such a PDF is now drawn page by page and read like a photo. Pages are read until the small print begins (max 8).
+const TKWORDS=/\b(PNR|FLIGHT|PASSENGER|TICKET|BOOKING|TRAIN|AIRPORT|JODHPUR|TRAVEL|SEAT|STATUS|DEPARTURE|ARRIVAL|ITINERARY|DATE|TIME|NAME)\b/g;
+const pdfBad=t=>new Set(String(t||'').toUpperCase().match(TKWORDS)||[]).size<3;   // no ordinary ticket words in the text = the text layer is not readable
+async function pdfOcrPages(file,maxP,onPage){ await loadJs(`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.min.js`); const lib=window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc=`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_V}/pdf.worker.min.js`;
+  await loadJs('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js'); const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise, out=[]; let seen=false; out.np=pdf.numPages;
+  for(let i=1;i<=Math.min(pdf.numPages,maxP||8);i++){ if(onPage) onPage(i,pdf.numPages); const pg=await pdf.getPage(i), v0=pg.getViewport({scale:1}), vp=pg.getViewport({scale:Math.min(2.2,Math.max(1.2,1700/Math.max(v0.width,1)))}), cv=document.createElement('canvas'); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
+    const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height); await pg.render({canvasContext:cx,viewport:vp}).promise;
+    const r=await window.Tesseract.recognize(cv,'eng'), L=String((r.data&&r.data.text)||'').split('\n').filter(x=>x.trim()); let R={legs:[],names:[]}; try{ R=tkRead(L); }catch(e){ console.warn(e); }
+    const tick=R.legs.length>0||R.names.length>0||/\bPNR\b/i.test(L.join(' ')); if(!tick&&seen) break; if(tick) seen=true; out.push(L); cv.width=cv.height=1; }
+  return out; }   // one array of lines per page read
+async function ticketRead(file){ const isPdf=/pdf/.test(file.type)||/\.pdf$/i.test(file.name); const txt=isPdf?(await pdfLinesY(file)).join('\n'):await imgText(file), p=parseTicket(txt);
+  if(isPdf&&!p.arr&&!p.dep&&pdfBad(txt)){ try{ const P=await pdfOcrPages(file), p2=parseTicket(P.map(L=>L.join('\n')).join('\n')); if(p2.arr||p2.dep||p2.no||p2.ad||p2.dd||(p2.names||[]).length){ p2.ocr=1; return p2; } }catch(e){ console.warn('pdf as photo',e); } }
+  return p; }
 
 // 10 Nov (his words): "uske saath uski wife, bhai, bachcha ya koi bhi aa raha hai to unke bhi naam … taaki TEB ko sheet banane, RSVP aur check-in check-out me problem na ho"
 // -> साथ आने वाले: नाम · रिश्ता · बड़े / बच्चा (guest page + TEB, both ways)
@@ -1748,9 +1763,16 @@ async function tkBulk(files){ const big=files.filter(f=>f.size>10e6), fs=files.f
   const say=t=>{ $('#fm-b').innerHTML=`<p class="sm" style="font-size:16px;padding:14px 0">${t}</p>`; }; await loadGuests();
   for(let i=0;i<fs.length;i++){ const f=fs[i]; if(!TKB||!FM) return; say((EN?'Reading tickets… ':'टिकट पढ़ रहे हैं… ')+(i+1)+' / '+fs.length+`<br><small data-notx>${esc(f.name)}</small>`+(/pdf/i.test(f.type||f.name)?'':(EN?'<br><small>a photo takes 10–20 seconds</small>':'<br><small>फ़ोटो में 10–20 सेकंड लगते हैं</small>')));
     const isPdf=/pdf/.test(f.type)||/\.pdf$/i.test(f.name); let recs=[]; if(isPdf){ try{ recs=await tkSplit(f); }catch(e){ console.warn('tkSplit',e); recs=[]; } }
-    if(recs.length){ recs.forEach(r=>{ const pk=tkPick({names:[r.trav,...((r.p&&r.p.names)||[])],txt:r.txt||'',city:r.city||''}), g=pk.g, found=[]; if(r.no) found.push((r.am||(EN?'No.':'नं.'))+' '+r.no); if(r.d) found.push('तारीख'); if(r.t) found.push('समय');
-        TKB.L.push({f,p:{...(r.p||{}),am:r.am||'',ap:r.ap||'',city:r.city||'',ppl:r.ppl||0,found},err:false,dir:r.dir,name:g?g.name:'',auto:g?g.name:'',weak:pk.weak,cands:pk.cands,trav:r.trav||'',d:r.d||'',t:r.t||'',no:r.no||'',src:r.src||'',part:r.part||null,list:!!r.list,np:r.np||1,split:1}); }); continue; }
-    let p={found:[],dir:'arr'}, txt='', err=false; try{ txt=isPdf?(await pdfLinesY(f)).join('\n'):await imgText(f); p=parseTicket(txt); }catch(e){ console.error(e); err=true; }
+    const pushR=RR=>RR.forEach(r=>{ const pk=tkPick({names:[r.trav,...((r.p&&r.p.names)||[])],txt:r.txt||'',city:r.city||''}), g=pk.g, found=[]; if(r.no) found.push((r.am||(EN?'No.':'नं.'))+' '+r.no); if(r.d) found.push('तारीख'); if(r.t) found.push('समय');
+        TKB.L.push({f,p:{...(r.p||{}),am:r.am||'',ap:r.ap||'',city:r.city||'',ppl:r.ppl||0,found},err:false,dir:r.dir,name:g?g.name:'',auto:g?g.name:'',weak:pk.weak,cands:pk.cands,trav:r.trav||'',d:r.d||'',t:r.t||'',no:r.no||'',src:r.src||'',part:r.part||null,list:!!r.list,np:r.np||1,split:1}); });
+    if(recs.length){ pushR(recs); continue; }
+    let p={found:[],dir:'arr'}, txt='', err=false; try{ txt=isPdf?(await pdfLinesY(f)).join('\n'):await imgText(f); p=parseTicket(txt);
+      if(isPdf&&!p.arr&&!p.dep&&pdfBad(txt)){   // 18 Nov: a PDF saved from a phone / a scan – the text cannot be read, so its pages are read like photos
+        const P=await pdfOcrPages(f,8,(k,n)=>say((EN?'Reading tickets… ':'टिकट पढ़ रहे हैं… ')+(i+1)+' / '+fs.length+`<br><small data-notx>${esc(f.name)}</small><br><small>${EN?'this PDF has to be read like a photo – page ':'यह PDF फ़ोटो की तरह पढ़नी पड़ रही है – पेज '}${k} / ${n}</small>`));
+        if(P.length){ const LN=[]; P.forEach((L,pi)=>L.forEach(t=>LN.push({pg:pi,raw:t,up:t.toUpperCase()}))); const rr=tkPageRecs(P,LN), ng=new Set(rr.map(r=>r.part.pg.join(','))).size;
+          if(ng>=2){ rr.forEach(r=>{ r.np=P.np||P.length; }); recs=rr; } else { const t2=P.map(L=>L.join('\n')).join('\n'), p2=parseTicket(t2); if(p2.arr||p2.dep||p2.no||p2.ad||p2.dd||(p2.names||[]).length){ p=p2; txt=t2; } } } } }catch(e){ console.error(e); err=true; }
+    if(recs.length){ pushR(recs); continue; }
+    if(!err) TKC.set(f.name+'|'+f.size,tkTr(p));   // what this ticket says is kept – the background check does not read the file a second time
     const pk=tkPick({names:p.names||[],txt,fname:f.name,city:p.city||''}), g=pk.g, trav=(p.names||[])[0]||'', row=(dir,d,t,no)=>TKB.L.push({f,p,err,dir,name:g?g.name:'',auto:g?g.name:'',weak:pk.weak,cands:pk.cands,trav,d:d||'',t:t||'',no:no||'',split:(p.arr||p.dep)?1:0});
     if(p.arr||p.dep){ if(p.arr) row('arr',p.ad,p.at,p.ano); if(p.dep) row('dep',p.dd,p.dt,p.dno); }   // 18 Nov: a round-trip ticket gives two lines – arrival and return – from the one file
     else { const dir=p.dir==='dep'?'dep':'arr'; row(dir,dir==='dep'?p.dd:p.ad,dir==='dep'?p.dt:p.at,p.no); } }
@@ -1775,6 +1797,7 @@ async function tkBulkSave(){ const X=TKB; if(!X) return true; tkbRead(); const L
       let a=made.get(k)||C.ag.find(z=>mine(z)&&(self?!z.cm:nnm(z.cm||'')===T))||(!self&&C.ag.filter(mine).length===1&&bare(C.ag.find(mine))?C.ag.find(mine):null)||null;
       const o=x.dir==='dep'?{dd:x.d||'',dt:x.t||'',dno:x.no||''}:{ad:x.d||'',ati:x.t||'',am:p.am||'',ano:x.no||'',ap:p.ap||''}; Object.keys(o).forEach(q=>{ if(!o[q]) delete o[q]; });
       if(!self) o.cm=tv; o.by=ME.name; o.at=Date.now(); let id;
+      { const trc=!x.part&&TKC.get(x.f.name+'|'+x.f.size); if(trc&&trc.ok) o.tks=tkSig(trc.arr?[trc.arr]:[],trc.dep?[trc.dep]:[]); }   // what is saved from this dialog (also a time corrected by hand in it) stays
       const PX=(p.pax||[]).filter(z=>z&&z.n), pm=PX.length>1?tkMem(PX,tv):[];   // everybody on the ticket: number of people + "साथ में" (what is already written there stays)
       if(a&&PX.length>1){ if((Number(a.ppl)||0)<PX.length) o.ppl=String(PX.length); if(!memNorm(a.mem).length) o.mem=pm; }
       if(a){ id=a.id; await updateDoc(doc(db,'cr_ag',id),o); a={...a,...o}; if(a.tok) syncGp(a); }
@@ -1788,6 +1811,53 @@ async function tkBulkSave(){ const X=TKB; if(!X) return true; tkbRead(); const L
     catch(err){ console.error(err); fail++; } }
   if(fail){ tkbDraw(); e.textContent='✓ '+n+(EN?' saved · ':' सेव हुए · ')+fail+(EN?' not saved – check the net and press Save again':' सेव नहीं हुए – नेट देखकर फिर "सब सेव करें" दबाएँ'); return false; }
   toast('✓ '+n+(EN?' tickets saved onto their guests':' टिकट अपने-अपने मेहमान पर लग गए')); TKB=null; render(); return true; }
+
+// ---------- 🎫 टिकट से मिलान (18 Nov 2026 – his words: "TEB Management ki taraf se 17 November ka arrival hai, lekin ticket 20 tareekh ka daal rakha hai –
+//   ya to wo auto correct hona chahiye ya is tarah ka koi error aana chahiye. Main yahi saari cheezein hi to tumse theek karne ko maang raha hu")
+//   1. every saved ticket is read once, by itself, in the background (PDF as text; photo / phone-PDF like a photo); what it says is kept with the file (cr_vf.tr)
+//   2. each guest's line is compared with the ticket(s) on it:
+//        the ticket is that guest's own (the name on it matches)  -> the line is corrected by itself, the card says in green what was changed
+//        the ticket is in another name, or two tickets disagree   -> red line on the card: what the ticket says / what is written, one tap "as the ticket" or "keep"
+//   3. a date changed by hand afterwards is never changed back (tks = the ticket that was already taken into account)
+const TKV=3, TKC=new Map(), TKJ={run:false,done:0,tot:0,fail:new Set(),t:0};   // TKV: reader version – raise it and every saved ticket is read again
+const tkNoK=x=>String(x||'').split('·')[0].toUpperCase().replace(/[^A-Z0-9]/g,''), tkKy=x=>x.d+'|'+(x.t||'')+'|'+tkNoK(x.no);
+const tkTr=p=>({v:TKV,ok:(p.arr||p.dep)?1:0,arr:p.arr&&p.ad?{d:p.ad,t:p.at||'',no:p.ano||'',ap:p.ap||'',am:p.am||''}:null,dep:p.dep&&p.dd?{d:p.dd,t:p.dt||'',no:p.dno||''}:null,pax:(p.pax||[]).slice(0,12).map(x=>({n:x.n,a:x.a||'b'}))});
+const tkSig=(A,D)=>JSON.stringify([A.map(tkKy).sort(),D.map(tkKy).sort()]);
+function tkCmp(a){ const F=C.vf.filter(f=>f.ag===a.id&&f.kind==='tk'&&f.tr&&f.tr.v===TKV&&f.tr.ok); if(!F.length) return null;
+  const uq=k=>{ const m=new Map(); F.forEach(f=>{ const x=f.tr[k]; if(x&&x.d) m.set(tkKy(x),x); }); return [...m.values()]; }, A=uq('arr'), D=uq('dep'), pax=[];
+  F.forEach(f=>(f.tr.pax||[]).forEach(x=>{ if(x&&x.n&&!pax.some(y=>nnm(y.n)===nnm(x.n))) pax.push(x); }));
+  const dif=[]; if(A.length===1){ const x=A[0]; if((a.ad||'')!==x.d||(x.t&&(a.ati||'')!==x.t)||(x.no&&tkNoK(a.ano)!==tkNoK(x.no))) dif.push({k:'arr',x}); }
+  if(D.length===1){ const x=D[0]; if((a.dd||'')!==x.d||(x.t&&(a.dt||'')!==x.t)||(x.no&&tkNoK(a.dno)!==tkNoK(x.no))) dif.push({k:'dep',x}); }
+  const sig=tkSig(A,D); return {A,D,pax,dif,clash:A.length>1||D.length>1,sig,open:(dif.length>0||A.length>1||D.length>1)&&a.tks!==sig}; }
+function tkOwn(a,c){ const g=a.rid&&GUR.get(a.rid); return c.pax.some(x=>nnm(x.n)===nnm(a.cm||'')||nnm(x.n)===nnm(a.name)||tkSelf(x.n,g)||(!!a.cm&&tkSelf(x.n,{name:a.cm,en:a.cm}))||(!!g&&tkCands(x.n,'','').some(z=>z.g.rid===g.rid&&z.base>=3))); }
+function tkPatch(a,c){ const o={}, tx=[], wh=(d,t)=>d?dSh(d)+(t?' '+tHi(t):''):(EN?'empty':'खाली');
+  c.dif.forEach(({k,x})=>{ const A=k==='arr', od=A?a.ad:a.dd, ot=A?a.ati:a.dt, same=(od||'')===x.d&&(!x.t||(ot||'')===x.t);
+    tx.push(same?(A?(EN?'arrival no. ':'आने का नंबर '):(EN?'return no. ':'वापसी का नंबर '))+String(x.no).split(' · ')[0]:(A?(EN?'arrival ':'आगमन '):(EN?'return ':'वापसी '))+wh(od,ot)+' → '+wh(x.d,x.t));
+    if(A){ o.ad=x.d; if(x.t) o.ati=x.t; if(x.no) o.ano=x.no; if(x.am) o.am=x.am; if(x.ap) o.ap=x.ap; } else { o.dd=x.d; if(x.t) o.dt=x.t; if(x.no) o.dno=x.no; } });
+  if(c.pax.length>1){ if((Number(a.ppl)||0)<c.pax.length) o.ppl=String(c.pax.length); if(!memNorm(a.mem).length) o.mem=tkMem(c.pax,a.cm||c.pax[0].n); }
+  o.tks=c.sig; if(tx.length) o.tkfx=tx.join(' · '); return o; }
+async function tkAuto(a){ const c=tkCmp(a); if(!c||c.clash||a.tks===c.sig) return false; const more=c.pax.length>1&&((Number(a.ppl)||0)<c.pax.length||!memNorm(a.mem).length);
+  if(!c.dif.length&&!more) return false; if(!tkOwn(a,c)) return false;   // a ticket in somebody else's name is never taken by itself – it shows in red on the card
+  const o=tkPatch(a,c); try{ await updateDoc(doc(db,'cr_ag',a.id),{...o,by:'🎫 '+(EN?'ticket':'टिकट'),at:Date.now()}); if(a.tok) syncGp({...a,...o}); if(o.tkfx) toast('🎫 '+(EN?'Corrected from the ticket: ':'टिकट से ठीक किया: ')+a.name+' – '+o.tkfx); return true; }catch(e){ console.warn('tkAuto',e); return false; } }
+async function tkJob(){ if(TKJ.run||!ME.mgr||!LOADED.vf||!LOADED.ag) return; TKJ.run=true;
+  try{ await loadGuests();
+    for(;;){ const Q=C.vf.filter(f=>f.kind==='tk'&&f.ag&&f.fid&&!f.adm&&!(f.tr&&f.tr.v===TKV)&&!TKJ.fail.has(f.id)&&C.ag.some(a=>a.id===f.ag)); TKJ.tot=TKJ.done+Q.length; if(!Q.length) break;
+      Q.sort((x,y)=>(/pdf/i.test((x.type||'')+x.name)?0:1)-(/pdf/i.test((y.type||'')+y.name)?0:1));   // PDFs first (quick), photos after
+      const f=Q[0], ck=(f.name||'')+'|'+(f.size||0); let tr=TKC.get(ck)||null; sched();
+      if(!tr){ let file=null; try{ file=await fGet(f.col||'blobs',f.fid); }catch(e){ console.warn('tkJob get',f.name,e); TKJ.fail.add(f.id); TKJ.done++; continue; }   // net: tried again on the next visit
+        try{ const p=await ticketRead(new File([file],f.name||'ticket',{type:f.type||file.type||(/\.pdf$/i.test(f.name||'')?'application/pdf':'image/jpeg')})); tr=tkTr(p); }catch(e){ console.warn('tkJob read',f.name,e); tr={v:TKV,ok:0}; } TKC.set(ck,tr); }
+      try{ await updateDoc(doc(db,'cr_vf',f.id),{tr}); const L=C.vf.find(x=>x.id===f.id); if(L) L.tr=tr; }catch(e){ console.warn('tkJob save',e); TKJ.fail.add(f.id); }
+      TKJ.done++; sched(); await new Promise(r=>setTimeout(r,250)); }
+    for(const a of C.ag.slice()) await tkAuto(a); }
+  catch(e){ console.warn('tkJob',e); } finally{ TKJ.run=false; sched(); } }
+function tkKick(){ if(!ME.mgr) return; clearTimeout(TKJ.t); TKJ.t=setTimeout(()=>{ tkJob(); },2500+Math.random()*3500); }
+const agTkBad=g=>{ const c=tkCmp(g); return !!(c&&c.open); };
+const tkLine=a=>{ const c=tkCmp(a); if(!c) return ''; const wh=(d,t)=>d?dSh(d)+(t?' '+tHi(t):''):(EN?'empty':'खाली'), who=c.pax.length?' ('+esc(c.pax[0].n)+')':'';
+  const L=c.dif.map(({k,x})=>`${EN?'Ticket'+who+' says ':'टिकट'+who+' में '}${k==='arr'?(EN?'arrival ':'आगमन '):(EN?'return ':'वापसी ')}<b style="display:inline;font-size:inherit">${wh(x.d,x.t)}</b>${x.no?' · '+esc(String(x.no).split(' · ')[0]):''} – ${EN?'here: ':'यहाँ '}${k==='arr'?wh(a.ad,a.ati):wh(a.dd,a.dt)}`);
+  if(c.open) return (c.clash?`<small class="late" style="color:#B3261E">⚠ ${EN?'The tickets on this guest have different dates / times – check':'इस मेहमान पर लगे टिकटों में तारीख़ / समय अलग-अलग हैं – देख लें'}</small>`:'')+L.map(t=>`<small class="late" style="color:#B3261E" data-notx>⚠ ${t}</small>`).join('')
+    +(ME.mgr&&c.dif.length?`<div class="btns"><button data-a="tkfix" data-id="${a.id}">✓ ${EN?'Make it as the ticket':'टिकट के हिसाब से करें'}</button><button data-a="tkkeep" data-id="${a.id}">${EN?'Keep as it is':'रहने दें'}</button></div>`:'');
+  if(c.dif.length) return L.map(t=>`<small class="sm" data-notx>🎫 ${t} ${EN?'(kept by hand)':'(हाथ से रखा है)'}</small>`).join('');
+  return a.tkfx?`<small style="color:#1E7D45" data-notx>🎫 ${EN?'Corrected from the ticket: ':'टिकट से ठीक किया: '}${esc(a.tkfx)}</small>`:''; };
 
 // ---------- views
 const TABS=()=>[['gl','📋 मेहमान सूची'],['ag','🚉 मेहमान व होटल'],['rv','📞 RSVP कॉलिंग'],['aaj','🏠 आज'],['kar','📅 कार्यक्रम'],['du','👥 ड्यूटी'],['gd','🚗 गाड़ियाँ'],['vd','🧑‍🍳 वेंडर'],['ct','📞 संपर्क'],['tk','✅ काम'],['gf','🎁 गिफ्ट / हैम्पर'],['ls','📋 सूचियाँ'],...(ME.admin?[['hb','💰 हिसाब']]:ME.team?[['kh','💰 खर्च']]:[])];
@@ -2393,7 +2463,7 @@ function agRow(g){ const arr=[g.ad?dSh(g.ad):'',g.ati?tHi(g.ati):''].filter(Bool
   <div class="w"><b>${esc(nmE(g.name,g.rid))}${g.ppl?` · ${g.ppl} लोग`:''}</b>${g.kind?`<small class="kd">${esc(AGKL(g.kind,g.cat))}${(v=>v?` · <a href="#" data-a="vdo" data-id="${v.id}">${esc(v.name)}</a>`:'')(g.vd&&VDI(g.vd))}${(g.evs||[]).map(EVI).filter(Boolean).map(e=>` · <a href="#" data-a="evo" data-id="${e.id}">${esc(e.title)}</a>`).join('')}</small>`:''}${g.cm?`<small class="cmx">👤 आ रहे हैं: <b>${esc(nmE(g.cm))}</b></small>`:''}${memNorm(g.mem).length?`<small class="cmx">👥 साथ में: <b>${esc(memTxtL(g.mem))}</b></small>`:''}${idWarn(g)}<small>${[g.city?'📍 '+esc(EN&&g.ce?g.ce:ctE(g.city)):'',g.ph?`<a href="tel:${ph10(g.ph)}">${ph10(g.ph)}</a>`:''].filter(Boolean).join(' · ')}</small>
   ${arr||g.ano||g.ap?`<small>⬇ आगमन: ${[arr,g.am&&g.am!=='अन्य'?esc(g.am):'',g.ano?esc(g.ano)+tfLive(g.ano):'',g.ap?esc(g.ap):''].filter(Boolean).join(' · ')}</small>`:''}
   ${g.pick||g.car?`<small>🚗 लेने: ${[g.pick?esc(g.pick):'',g.pph?`<a href="tel:${ph10(g.pph)}">${ph10(g.pph)}</a>`:'',g.car?esc(g.car):''].filter(Boolean).join(' · ')}</small>`:''}
-  ${g.hotel||g.room?`<small>🏨 ${esc(g.hotel||'')}${g.room?' · कमरा '+esc(g.room):''}</small>`:''}${g.rmq==='हाँ'&&!g.hotel?'<small class="late">🛏 कमरा चाहिए – अभी होटल तय नहीं</small>':''}${rmLine(g)}${g.pkq==='हाँ'&&!g.pick?'<small class="late">🚗 पिकअप चाहिए – अभी कोई तय नहीं</small>':''}
+  ${g.hotel||g.room?`<small>🏨 ${esc(g.hotel||'')}${g.room?' · कमरा '+esc(g.room):''}</small>`:''}${g.rmq==='हाँ'&&!g.hotel?'<small class="late">🛏 कमरा चाहिए – अभी होटल तय नहीं</small>':''}${rmLine(g)}${tkLine(g)}${g.pkq==='हाँ'&&!g.pick?'<small class="late">🚗 पिकअप चाहिए – अभी कोई तय नहीं</small>':''}
   ${dep||g.dno||g.drop?`<small>⬆ वापसी: ${[dep,g.dno?esc(g.dno)+tfLive(g.dno):'',g.drop?'छोड़ने: '+esc(g.drop)+(g.dph?` <a href="tel:${ph10(g.dph)}">${ph10(g.dph)}</a>`:''):''].filter(Boolean).join(' · ')}</small>`:''}${g.note&&noteShow(g.note)?`<small>📝 ${esc(noteShow(g.note))}</small>`:''}${g.gqAt?`<small style="color:#1E7D45">📩 यह जानकारी मेहमान ने खुद भेजी · ${tm(g.gqAt)}</small>`:''}</div>
   ${ME.mgr?`<button class="eb" data-a="aged" data-id="${g.id}">✏️</button>`:''}</div>${gwAgLine(g)}
   ${(()=>{ const q=ME.mgr&&gqNew(g); return q?`<div class="next" style="text-align:left;margin:8px 0 0;padding:8px 10px">📩 <b style="display:inline;font-size:14px">मेहमान ने खुद भेजा:</b> ${gqTxt(q)}<div class="btns"><button data-a="gqok" data-id="${g.id}">✓ यह जानकारी लगा दें</button>${(q.tk||[]).map((m,i)=>`<button data-a="gqtk" data-id="${g.id}" data-v="${i}">🎫 ${EN?'View ticket':'टिकट देखें'}${q.tk.length>1?' '+(i+1):''}</button>`).join('')}</div></div>`:''; })()}
@@ -2401,20 +2471,20 @@ function agRow(g){ const arr=[g.ad?dSh(g.ad):'',g.ati?tHi(g.ati):''].filter(Bool
   ${ME.mgr?`<div class="btns"><button data-a="agtr" data-id="${g.id}" data-v="p">🚗 पिकअप ट्रिप${C.tr.some(t=>t.ag===g.id&&t.kind==='p')?' ✓':''}</button><button data-a="agtr" data-id="${g.id}" data-v="d">🚗 छोड़ने की ट्रिप${C.tr.some(t=>t.ag===g.id&&t.kind==='d')?' ✓':''}</button><button data-a="agtk" data-id="${g.id}">🎫 टिकट डालें</button><button data-a="vfadd" data-id="${g.id}" data-v="agid">🪪 ID डालें</button>${true?`<button data-a="gplink" data-id="${g.id}">🔗 मेहमान का पेज${g.tok?' ✓':''}</button>`:''}</div>`:''}</div>`; }
 // 17 Nov: 🚉 मेहमान व होटल – count buttons on top, "who is coming how" (flight people together, train people together), short lines
 const agNoPick=g=>!g.kind&&!String(g.pick||'').trim()&&g.pkq!=='नहीं'&&(g.st||'a')==='a', agNoRoom=g=>!g.kind&&!String(g.hotel||'').trim()&&g.rmq!=='नहीं'&&g.st!=='g';
-const agFOk=g=>AGF==='npk'?agNoPick(g):AGF==='nrm'?agNoRoom(g):AGF==='nad'?(!g.kind&&!g.ad):true;
+const agFOk=g=>AGF==='npk'?agNoPick(g):AGF==='nrm'?agNoRoom(g):AGF==='nad'?(!g.kind&&!g.ad):AGF==='ntk'?agTkBad(g):true;
 const AGMD=[['f','✈ फ़्लाइट से'],['t','🚆 ट्रेन से'],['b','🚌 बस से'],['c','🚗 गाड़ी / टैक्सी से'],['','❓ कैसे आ रहे – नहीं लिखा']];
 const agMode=g=>{ const a=String(g.am||'').toLowerCase(), o=[g.ano,g.ap].join(' ').toLowerCase();
   if(/फ़्लाइट|फ्लाइट|flight|हवाई|plane|✈/.test(a)) return 'f'; if(/ट्रेन|train|रेल/.test(a)) return 't'; if(/बस|bus/.test(a)) return 'b'; if(/गाड़ी|कार|car|टैक्सी|taxi|cab|सड़क|road|स्वयं|अपनी/.test(a)) return 'c';
   if(/एयरपोर्ट|airport|हवाई/.test(o)||/(^|[^a-z0-9])([a-z]{2}|[a-z]\d|\d[a-z])[ -]?\d{3,4}($|[^0-9])/.test(o)) return 'f'; if(/स्टेशन|station|एक्सप्रेस|express|कोठी|(^|\D)\d{5}($|\D)/.test(o)) return 't'; return ''; };
 const agCl=g=>{ const pk=g.pick?'🚗 '+esc(g.pick):(g.kind||g.pkq==='नहीं'?'':'<span class="late">🚗 पिकअप तय नहीं</span>'), rn=rmNeed(g), rg=rmOf(g).length, ht=g.hotel?'🏨 '+esc(g.hotel)+(g.room?' · '+esc(g.room):'')+(g.rmq!=='नहीं'&&rg<rn?' <span class="late">⚠ '+rn+(EN?' rooms needed':' कमरे चाहिए')+'</span>':''):(g.kind||g.rmq==='नहीं'?'':'<span class="late">🛏 '+rn+(EN?(rn>1?' rooms':' room')+' – not fixed':(rn>1?' कमरे':' कमरा')+' तय नहीं')+'</span>');
   return `<div class="cl" data-a="agx" data-id="${g.id}"><div class="tmx">${g.ati?tHi(g.ati):'–'}<i>${g.ad?dSh(g.ad):'तारीख नहीं'}</i></div><div class="w"><b>${esc(nmE(g.name,g.rid))}${g.ppl?' · '+g.ppl+' लोग':''}${g.st==='p'?' ✅':''}</b>
-    <small>${[g.am&&g.am!=='अन्य'?esc(g.am):'',g.ano?esc(g.ano):'',g.ap?esc(g.ap):'',g.city?'📍 '+esc(EN&&g.ce?g.ce:ctE(g.city)):''].filter(Boolean).join(' · ')}</small><small>${[pk,ht].filter(Boolean).join(' · ')}</small></div></div>`; };
+    <small>${[g.am&&g.am!=='अन्य'?esc(g.am):'',g.ano?esc(g.ano):'',g.ap?esc(g.ap):'',g.city?'📍 '+esc(EN&&g.ce?g.ce:ctE(g.city)):''].filter(Boolean).join(' · ')}</small><small>${[pk,ht].filter(Boolean).join(' · ')}</small>${agTkBad(g)?`<small class="late">⚠ ${EN?'differs from the ticket – open':'टिकट से अलग – खोलकर देखें'}</small>`:''}</div></div>`; };
 const agR=g=>AGL&&AGX!==g.id?agCl(g):(AGL?`<a href="#" class="sm" data-a="agx" data-id="${g.id}" style="display:block;text-align:right;text-decoration:none;margin:6px 2px -4px">▲ छोटा करें</a>`:'')+agRow(g);
 function agTiles(){ if(!GU){ loadGuests().then(()=>{ if(TAB==='ag') render(); }); return ''; }
   const RM=rvMap(), A=GU.filter(rvOut), st=g=>(RM.get(g.rid)||{}).st||'', n=k=>A.filter(g=>st(g)===k).length, n0=A.filter(g=>!st(g)||st(g)==='b').length, G=C.ag.filter(g=>!g.kind);
   const T=(k,cls,num,lab)=>`<button class="${cls}${AGF===k?' on':''}" data-a="agf" data-v="${k}"><b>${num}</b>${lab}</button>`;
   return `<div class="gh2">📞 RSVP – बाहर के ${A.length} मेहमान · गिनती दबाएँ, सूची नीचे आएगी</div><div class="rvg g5">${T('','y',n('y'),'आ रहे')}${T('rn','n',n('n'),'नहीं आ रहे')}${T('rm','',n('m'),'पक्का नहीं')}${T('rx','',n('x'),'फ़ोन नहीं उठा')}${T('r0','',n0,'जवाब बाकी')}</div>
-   <div class="gh2">⚠ आने वालों में काम बाकी</div><div class="rvg g3">${T('npk','n',G.filter(agNoPick).length,'🚗 पिकअप तय नहीं')}${T('nrm','n',G.filter(agNoRoom).length,'🛏 कमरा तय नहीं')}${T('nad','n',G.filter(g=>!g.ad).length,'आने की तारीख नहीं')}</div>`; }
+   <div class="gh2">⚠ आने वालों में काम बाकी</div><div class="rvg">${T('npk','n',G.filter(agNoPick).length,'🚗 पिकअप तय नहीं')}${T('nrm','n',G.filter(agNoRoom).length,'🛏 कमरा तय नहीं')}${T('nad','n',G.filter(g=>!g.ad).length,'आने की तारीख नहीं')}${T('ntk','n',C.ag.filter(agTkBad).length,'🎫 टिकट से अलग')}</div>`; }
 function agRvList(q){ if(!GU) return '<p class="muted">सूची खुल रही है…</p>'; const RM=rvMap(), key={rn:'n',rm:'m',rx:'x'}[AGF], lab={rn:'❌ नहीं आ रहे',rm:'🤔 पक्का नहीं',rx:'📵 फ़ोन नहीं उठा',r0:'⏳ जवाब बाकी'}[AGF];
   const A=GU.filter(rvOut).filter(g=>{ const s=(RM.get(g.rid)||{}).st||''; return AGF==='r0'?(!s||s==='b'):s===key; }).filter(g=>!q||[g.name,g.en,g.city,g.ce].join(' ').toLowerCase().includes(q));
   return `<div id="ag-ls" style="scroll-margin-top:150px"></div><div class="dh">${lab}<span>${A.length} परिवार</span></div><small class="sm" style="display:block;margin:0 0 6px">नाम दबाएँ – 📞 RSVP कॉलिंग में वही मेहमान खुल जाएगा।</small>`+(A.map(g=>rvCl(g,RM.get(g.rid)||{},'rvopen')).join('')||'<p class="muted">इसमें कोई नहीं</p>'); }
@@ -2429,7 +2499,8 @@ function vAg(){ if(AGM==='ht'&&AGH){ const x=HTI(AGH); if(x){ $('#v-ag').innerHT
   if((CFC||CFH)&&AGM!=='lnk'&&AGM!=='ht'){ if(!GU) loadGuests().then(()=>{ if(TAB==='ag') render(); }); for(let i=L.length-1;i>=0;i--) if(!cfOk(L[i],true)) L.splice(i,1); }   // 14 Nov: city / heading filter
   const tod=C.ag.filter(g=>g.ad===t&&g.st!=='p'&&g.st!=='g').length, here=C.ag.filter(g=>g.st==='p').length;
   const G0=C.ag.filter(g=>!g.kind), X0=C.ag.filter(g=>g.kind), pp=A=>A.reduce((a,g)=>a+(Number(g.ppl)||1),0), idM=G0.filter(g=>{ const N=idNeed(g); return N&&N.miss.length; }).length;
-  let h=`<div class="sum">बाहर से आने वाले<b>मेहमान ${G0.length} परिवार · ${pp(G0)} लोग</b>${idM?`<span class="sm" style="color:#FFD27A;display:block">⚠ ID बाकी (होटल चेक-इन के लिए): ${idM} परिवार</span>`:''}${X0.length?`<span class="sm" style="color:#F3E6C2;display:block">🧳 काम से आने वाले (आर्टिस्ट, मेहंदी, स्टाफ़…): ${X0.length} · ${pp(X0)} लोग</span>`:''}<span class="sm" style="color:#E8E2C8">पहुँच गए ${here} · आज आने वाले ${tod}</span>${(()=>{ const R=C.ag.filter(g=>g.rmq!=='नहीं'), need=R.reduce((a,g)=>a+rmNeed(g),0), got=R.reduce((a,g)=>a+rmOf(g).length,0); return `<span class="sm" style="color:#F3E6C2;display:block">🛏 ${EN?'Rooms needed':'कमरे चाहिए'}: <b style="display:inline;font-size:inherit">${need}</b> · ${EN?'given':'दिए'} ${got} <span style="opacity:.85">(${RMRULE()})</span></span>`; })()}</div>
+  let h=`<div class="sum">बाहर से आने वाले<b>मेहमान ${G0.length} परिवार · ${pp(G0)} लोग</b>${idM?`<span class="sm" style="color:#FFD27A;display:block">⚠ ID बाकी (होटल चेक-इन के लिए): ${idM} परिवार</span>`:''}${X0.length?`<span class="sm" style="color:#F3E6C2;display:block">🧳 काम से आने वाले (आर्टिस्ट, मेहंदी, स्टाफ़…): ${X0.length} · ${pp(X0)} लोग</span>`:''}<span class="sm" style="color:#E8E2C8">पहुँच गए ${here} · आज आने वाले ${tod}</span>${(()=>{ const R=C.ag.filter(g=>g.rmq!=='नहीं'), need=R.reduce((a,g)=>a+rmNeed(g),0), got=R.reduce((a,g)=>a+rmOf(g).length,0); return `<span class="sm" style="color:#F3E6C2;display:block">🛏 ${EN?'Rooms needed':'कमरे चाहिए'}: <b style="display:inline;font-size:inherit">${need}</b> · ${EN?'given':'दिए'} ${got} <span style="opacity:.85">(${RMRULE()})</span></span>`; })()}${(()=>{ const T=C.vf.filter(f=>f.kind==='tk'&&f.ag), rd=T.filter(f=>f.tr&&f.tr.v===TKV).length, bad=C.ag.filter(agTkBad).length; if(!T.length) return '';
+     return `<span class="sm" style="color:${bad?'#FFD27A':'#E8E2C8'};display:block">🎫 ${EN?'Tickets':'टिकट'} ${T.length}${rd<T.length?' · '+(EN?'reading… ':'पढ़ रहे हैं… ')+rd+' / '+T.length:''} · ${bad?'⚠ '+bad+(EN?' differ from what is written':' में लिखी तारीख़ टिकट से अलग'):(rd<T.length?'':(EN?'✓ all match':'✓ सब टिकट से मिलते हैं'))}</span>`; })()}</div>
    ${AGM==='ht'||AGM==='lnk'?'':agTiles()}
    ${(()=>{ const lg=LGI(); return `<div class="lgc"><span>📞 मेहमानों के page पर: <b>TEB लॉजिस्टिक्स मैनेजर</b> ${lg.name?esc(lg.name)+' · '+lg.ph:'<span class="late">अभी नहीं डाला</span>'}</span>${ME.mgr?'<button class="eb" data-a="lgset">✏️</button>':''}</div>`; })()}
    ${ME.mgr?`<div class="btns imb"><button data-a="imx">📥 Excel से यात्रा जानकारी डालें</button><button data-a="imtpl">⬇ खाली format</button>${ME.admin?'<button data-a="iddelall">🗑 सब ID हटाएँ (शादी के बाद)</button>':''}<input type="file" id="im-f" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" style="display:none"></div>`:''}
@@ -2658,6 +2729,8 @@ document.addEventListener('click',async e=>{ const b=e.target.closest('[data-a]'
     case 'gdadd': fGd(null); break; case 'gded': fGd(R('gd')); break;
     case 'agtr': { const g=R('ag'); if(!g) break; const ex=C.tr.find(t=>t.ag===id&&t.kind===v); if(ex){ fTr(ex); break; }
       fTr(null, v==='p'?{d:g.ad||'',t:g.ati||'',what:g.name+' – पिकअप',from:g.ap||'',to:g.hotel||'',ppl:g.ppl||'',ag:g.id,kind:'p'}:{d:g.dd||'',t:'',what:g.name+' – छोड़ने',from:g.hotel||'',to:'',ppl:g.ppl||'',ag:g.id,kind:'d',note:g.dt?'गाड़ी/ट्रेन '+tHi(g.dt)+' पर':''}); break; }
+    case 'tkfix': { const a=R('ag'), c=a&&tkCmp(a); if(c&&c.dif.length){ const o=tkPatch(a,c); if(await put('ag',a.id,o)&&a.tok) syncGp({...a,...o}); } break; }
+    case 'tkkeep': { const a=R('ag'), c=a&&tkCmp(a); if(c) await put('ag',a.id,{tks:c.sig,tkfx:''}); break; }
     case 'agtk': { fAg(id?R('ag'):null); const tf=$('#fm-tkf'); if(tf) tf.click(); break; }
     case 'agtkm': if(ME.mgr) tkBulkPick(); break;
     case 'rledit': { const x=HTI(id); if(x) fRl(x); break; }

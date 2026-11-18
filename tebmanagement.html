@@ -342,7 +342,7 @@ const EVI=id=>C.ev.find(e=>e.id===id), VDI=id=>C.vd.find(v=>v.id===id);
 const linkify=u=>/^https?:\/\//.test(u||'')?u:'';
 const CATS=['आर्टिस्ट / एंटरटेनमेंट','टेंट / शामियाना','हलवाई / केटरिंग','डेकोरेशन','लाइट / साउंड','LED वॉल / स्क्रीन','बैंड / ढोल','DJ','फ़ोटो / वीडियो','फूल','मेहंदी','पंडित जी','घोड़ी / बग्गी','गाड़ियाँ / ट्रांसपोर्ट','होटल / वेन्यू','प्रिंटिंग','मिठाई','SFX / आतिशबाज़ी','सुरक्षा','स्टेज / फ़र्नीचर','अन्य'];   // 12 Nov: + SFX, सुरक्षा, स्टेज / फ़र्नीचर (his rider vendor split)
 // ---------- data
-function sub(k){ onSnapshot(collection(db,COL[k]), s=>{ C[k]=s.docs.map(d=>({id:d.id,...d.data()})); LOADED[k]=true; XLG.warm(C[k],EN?'en':'hi'); if(k==='ev') seed(s); if(k==='gq'||k==='ag'||k==='meta') gqAuto(); if(k==='ag'||k==='meta') gwSched(); if(k==='vf'||k==='ag') tkKick(); if(k==='ag'){ agNmFix(); if(!GU) loadGuests(); } sched(); }, e=>{ console.warn(k,e); LOADED[k]=true; sched(); }); }
+function sub(k){ onSnapshot(collection(db,COL[k]), s=>{ C[k]=s.docs.map(d=>({id:d.id,...d.data()})); if(k==='ag') AGRAW=C.ag; if(k==='ag'||k==='meta'){ adFix(); agHide(); } LOADED[k]=true; XLG.warm(C[k],EN?'en':'hi'); if(k==='ev') seed(s); if(k==='gq'||k==='ag'||k==='meta') gqAuto(); if(k==='ag'||k==='meta') gwSched(); if(k==='vf'||k==='ag') tkKick(); if(k==='ag'){ agNmFix(); if(!GU) loadGuests(); } sched(); }, e=>{ console.warn(k,e); LOADED[k]=true; sched(); }); }
 let rq=0; function sched(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; render(); }); }
 async function put(k,id,data){ data.by=ME.name; data.at=Date.now();
   try{ if(id) await updateDoc(doc(db,COL[k],id),data); else await addDoc(collection(db,COL[k]),data); toast('सेव हो गया ✓'); return true; }
@@ -701,7 +701,20 @@ const guReset=()=>{ GU=null; GUL=null; GUM.clear(); GUR.clear(); };
 function loadGuests(){ if(GU) return Promise.resolve(); if(!GUL) GUL=loadGuests2(); return GUL; }
 // 18 Nov 2026 (found while linking his Delhi travel sheet): he renamed guests in the list (D-27 जवाहर जी -> नरिंदर सिंह जी, D-29 राजा जी -> तेजिंदर पाल सिंह जी …)
 // but the 🚉 cards kept the old name saved inside the entry. -> a card always shows the list's CURRENT name of its guest (found by its list id); nothing is written.
-function agNmFix(){ if(!GU||!C.ag) return; C.ag.forEach(a=>{ const g=!a.kind&&a.rid&&GUR.get(a.rid); if(g&&g.name&&a.name!==g.name) a.name=g.name; }); }
+// 18 Nov 2026 (his words, with the RSVP card of D-39): "yaha not coming humne click kiya hai" – but the guest still stood in 🚉 मेहमान व होटल with the old
+//   "coming" card (5 such guests on the site). -> RSVP ❌ नहीं आ रहे wins: that guest's own card is not shown and not counted anywhere (list, counts, rooms,
+//   PDF / Excel, kit). Nothing is deleted – press ✅ आ रहे again and the same card is back. A card with a traveller name (somebody else comes on that
+//   invitation) and a card of a guest who has already arrived stay.
+let AGRAW=null, AGHID=[];
+// 18 Nov 2026 (his words): "kayi saari coming guests ki jagah dates bhi automatically 18nov leta hai … jab rsvp calling hoti hai toh save karne ke time pe arrival date
+//   puchta hai … toh hum usko kya maanenge?" -> the RSVP form used to open with 18 Nov already filled (for everyone invited on the 18th), so 32 cards say
+//   "18 Nov" though nobody said it. Rule: an RSVP-made card with 18 Nov and nothing else (no time, no train / flight) and no hand-confirmed date is shown as
+//   "date not known – ask" (it is counted in "आने की तारीख नहीं"). Nothing is changed in the data; as soon as somebody saves a date by hand it is taken as told (adok).
+const AD0='2026-11-18';
+function adFix(){ (AGRAW||[]).forEach(a=>{ if(!a.kind&&a.src==='rv'&&a.ad===AD0&&!a.adok&&!a.ati&&!a.ano&&a.st!=='p'&&a.st!=='g'){ a.ad=''; a.adq=1; } });
+  C.meta.forEach(r=>{ if(String(r.id).startsWith('rv_')&&r.ad===AD0&&!r.adok&&!r.ati){ r.ad=''; r.adq=1; } }); }
+function agHide(){ if(!AGRAW) return; const RM=rvMap(); AGHID=AGRAW.filter(a=>!a.kind&&!a.cm&&a.rid&&a.st!=='p'&&a.st!=='g'&&(RM.get(a.rid)||{}).st==='n'); const H=new Set(AGHID); C.ag=H.size?AGRAW.filter(a=>!H.has(a)):AGRAW; }
+function agNmFix(){ if(!GU||!C.ag) return; (AGRAW||C.ag).forEach(a=>{ const g=!a.kind&&a.rid&&GUR.get(a.rid); if(g&&g.name&&a.name!==g.name) a.name=g.name; }); }
 async function loadGuests2(){
   try{ const m=await getDoc(doc(db,'list','meta')); if(!m.exists()) return; const md=m.data(), G=JSON.parse(md.G); let rows=[]; LGG=G;
     for(let i=0;i<md.chunks;i++){ const c=await getDoc(doc(db,'list','c'+i)); if(c.exists()) rows=rows.concat(JSON.parse(c.data().d)); }
@@ -832,7 +845,7 @@ function fAg(g,pre){ loadGuests(); const nk=!g&&pre&&pre.kind; form(g?(g.kind?'�
   {k:'ad',l:'आने की तारीख',t:'date',v:'2026-11-20'},{k:'ati',l:'आने का समय',t:'time'},{k:'am',l:'कैसे आ रहे हैं – चुनें या लिखें',dl:'dl-am',ph:'ट्रेन / फ़्लाइट / बस / अपनी गाड़ी / टैक्सी…'},{k:'ano',l:'ट्रेन / फ़्लाइट नंबर'},{k:'ap',l:'कहाँ उतरेंगे',ph:'जैसे: जोधपुर स्टेशन, एयरपोर्ट, भगत की कोठी'},
   {k:'pick',l:'लेने कौन जाएगा – ड्राइवर या TEB लॉजिस्टिक्स मैनेजर (जो उपलब्ध हो)',dl:'dl-who'},{k:'pph',l:'उनका मोबाइल (ज़रूरी नहीं)',t:'tel'},{k:'car',l:'गाड़ी',ph:'जैसे: इनोवा RJ19…'},{k:'hotel',l:'होटल / ठहरने की जगह',dl:'dl-ht'},{k:'room',l:'कमरा नंबर'},{k:'hpn',l:'हैम्पर के लिए नोट',ph:'जैसे: VIP हैम्पर, बच्चे भी हैं'},
   {k:'dd',l:'वापसी की तारीख',t:'date'},{k:'dt',l:'वापसी का समय',t:'time'},{k:'dno',l:'वापसी ट्रेन / फ़्लाइट'},{k:'drop',l:'छोड़ने कौन जाएगा – ड्राइवर या TEB लॉजिस्टिक्स मैनेजर',dl:'dl-who'},{k:'dph',l:'उनका मोबाइल (ज़रूरी नहीं)',t:'tel'},{k:'note',l:'नोट',t:'area'}], g||pre,
-  async o=>{ if(o.kind){ o.rid=''; } else { o.cat=''; o.evs=[]; const m=GUM.get(o.name); o.rid=m?m.rid:(g&&g.name===o.name?g.rid||'':''); } if(!g) o.st='a';
+  async o=>{ if(o.ad) o.adok=1; if(o.kind){ o.rid=''; } else { o.cat=''; o.evs=[]; const m=GUM.get(o.name); o.rid=m?m.rid:(g&&g.name===o.name?g.rid||'':''); } if(!g) o.st='a';
     { const c=g?tkCmp({...g,...o}):null; if(c){ o.tks=c.sig; o.tkfx=''; } else if(TKFILE&&TKSIG) o.tks=TKSIG; }   // 18 Nov: what is saved here by hand stays – the ticket check does not change it back   // artist / team / staff never go into the family list
     { const cl=rmClash(o,g&&g.id); if(cl&&!confirm((EN?'This room is already given: ':'यह कमरा पहले से दिया है: ')+cl+(EN?' – save anyway?':' – फिर भी सेव करें?'))) return false; }   // 12 Nov: no double booking by mistake
     let id=g&&g.id, ok; if(id) ok=await put('ag',id,o); else { id='ag'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); o.by=ME.name; o.at=Date.now(); try{ await setDoc(doc(db,'cr_ag',id),o); toast('सेव हो गया ✓'); ok=true; }catch(e){ toast('सेव नहीं हुआ – नेट या अनुमति देखें'); ok=false; } }
@@ -1984,7 +1997,7 @@ async function rvGqApply(g,q,tok){ const r=rvMap().get(g.rid)||{}; if((q.at||0)<
   return true; }
 
 const rvFs=g=>{ const on=x=>x&&!['0','–','-'].includes(String(x)); return GLF.filter((l,i)=>on((g.f||[])[i])); };
-const rvG=id=>GUR.get(id)||(GU||[]).find(g=>String(g.rid)===String(id)), rvAg=g=>C.ag.find(a=>!a.kind&&(a.rid===g.rid||(!a.rid&&a.name===g.name)));
+const rvG=id=>GUR.get(id)||(GU||[]).find(g=>String(g.rid)===String(id)), rvAg=g=>(AGRAW||C.ag).find(a=>!a.kind&&(a.rid===g.rid||(!a.rid&&a.name===g.name)));
 // 13 Nov 2026 (his words): "ye no reply yet wala jo button hai wo kisi kaam ka hi nahi hai, ye confusing lag raha hai" -> the ⏳ line is gone;
 //   a guest without an answer just shows the call / link / answer buttons (the ⏳ बाकी chip at the top still lists them)
 // 14 Nov 2026 (his words): "TEB management wala jo page hai uske andar guest list, hotel, RSVP calling ... agar mujhe ye pata karna hai
@@ -2081,16 +2094,17 @@ async function rvSave(g,o,tap){ const r=rvMap().get(g.rid)||{}, d={via:'',...o,r
     return true; }catch(e){ console.error(e); toast('सेव नहीं हुआ – नेट या अनुमति देखें'); return false; } }
 async function rvToAg(g,o,quiet){ const say=quiet?(()=>{}):toast; const a=rvAg(g), d={}; if(o.rmq) d.rmq=o.rmq; if(o.pkq) d.pkq=o.pkq; if(memNorm(o.mem).length) d.mem=memNorm(o.mem);
   ['ppl','ad','ati','am'].forEach(k=>{ if(o[k]&&!(a&&a[k])) d[k]=o[k]; });     // a filled-in travel record (ticket / Excel) is never overwritten
+  if(o.adok&&o.ad&&(!a||!a.ad||a.ad===o.ad||(!a.ati&&!a.ano))){ d.ad=o.ad; d.adok=1; }           // 18 Nov: a date typed in the RSVP form = told by the guest
   if(a){ if(!Object.keys(d).length) return; d.by=ME.name; d.at=Date.now(); try{ await updateDoc(doc(db,'cr_ag',a.id),d); if(a.tok) syncGp({...a,...d}); }catch(e){ say('🚉 मेहमान व होटल में नहीं जुड़ा – नेट देखें'); } return; }
   const id='ag'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
   const tk0=rvTokOf(g); try{ await setDoc(doc(db,'cr_ag',id),{name:g.name,rid:g.rid,st:'a',ph:ph10(g.ph||''),city:g.city||'',...d,...(tk0?{tok:tk0}:{}),src:'rv',by:ME.name,at:Date.now()}); say('✓ 🚉 मेहमान व होटल में जुड़ गए'); }catch(e){ say('🚉 मेहमान व होटल में नहीं जुड़ा – नेट देखें'); } }
 function fRvY(g){ const r=rvMap().get(g.rid)||{}, a=rvAg(g)||{}, f=g.f||[], on=x=>x&&!['0','–','-'].includes(String(x)), tap=r.st!=='y';
   const yn=(y,n)=>[['','– पता नहीं –'],['हाँ',y],['नहीं',n]];
-  form('✅ आ रहे हैं – '+g.name,[{k:'ppl',l:'कितने लोग आ रहे हैं',t:'num',ph:'जैसे: 3'},{k:'mem',l:'👥 साथ में कौन-कौन आ रहे हैं (नाम · रिश्ता · बड़े / बच्चा)',t:'mem'},{k:'ad',l:'कब पहुँचेंगे – तारीख',t:'date',v:on(f[0])?'2026-11-18':'2026-11-20'},{k:'ati',l:'लगभग समय (पता हो तो)',t:'time'},
+  form('✅ आ रहे हैं – '+g.name,[{k:'ppl',l:'कितने लोग आ रहे हैं',t:'num',ph:'जैसे: 3'},{k:'mem',l:'👥 साथ में कौन-कौन आ रहे हैं (नाम · रिश्ता · बड़े / बच्चा)',t:'mem'},{k:'ad',l:'कब पहुँचेंगे – तारीख (पता न हो तो खाली छोड़ दें)',t:'date'},{k:'ati',l:'लगभग समय (पता हो तो)',t:'time'},
     {k:'am',l:'कैसे आ रहे हैं',t:'sel',o:[['','– पता नहीं –'],['फ़्लाइट','✈️ फ़्लाइट'],['ट्रेन','🚆 ट्रेन'],['बस','🚌 बस'],['गाड़ी','🚗 अपनी गाड़ी'],['अन्य','अन्य']]},
     {k:'rmq',l:'होटल में कमरा चाहिए?',t:'sel',o:yn('हाँ, कमरा चाहिए','नहीं – अपनी व्यवस्था है')},{k:'pkq',l:'स्टेशन / एयरपोर्ट से पिकअप चाहिए?',t:'sel',o:yn('हाँ, पिकअप चाहिए','नहीं')},{k:'note',l:'नोट',t:'area',ph:'जैसे: 2 बच्चे भी हैं, 19 को रात देर से पहुँचेंगे'}],
     {ppl:r.ppl||a.ppl||'',mem:memNorm(r.mem).length?r.mem:(a.mem||[]),ad:r.ad||a.ad||undefined,ati:r.ati||a.ati||'',am:r.am||a.am||'',rmq:r.rmq||'',pkq:r.pkq||'',note:r.note||''},
-    async o=>{ if(o.ad==='') delete o.ad; const ok=await rvSave(g,{st:'y',...o},tap); if(ok) await rvToAg(g,o); return ok; }); }
+    async o=>{ if(o.ad) o.adok=1; else delete o.ad; const ok=await rvSave(g,{st:'y',...o},tap); if(ok) await rvToAg(g,o); return ok; }); }
 function fRvNote(g){ const r=rvMap().get(g.rid)||{}; form('📝 नोट – '+g.name,[{k:'note',l:'नोट',t:'area',ph:'जैसे: शाम 7 बजे के बाद कॉल करें, बेटे से बात हुई'}],{note:r.note||''},async o=>rvSave(g,{note:o.note})); }
 // 10 Nov (his words): "lagao" – WhatsApp (API) RSVP buttons (हाँ / नहीं / बात करनी है) come back in the vendor's report file; that file is put here
 //   once and every outside guest's RSVP fills by itself (nobody types it). A guest the team has already written something for is never changed.
@@ -2256,13 +2270,13 @@ async function imFile(f){ let rows; try{ rows=/\.csv$/i.test(f.name)||/csv|text/
     let ag=null, gu=null, fz=false;
     if(invN){ const T=nnm(trav), I=nnm(invN); gu=GU.find(x=>nnm(x.name)===I||nnm(x.en)===I)||null; const self=T===I||(gu&&(T===nnm(gu.name)||T===nnm(gu.en)));
       if(!self) o.cm=trav; const key=x=>x.cm?nnm(x.cm):'SELF', rk=self?'SELF':T;
-      ag=(gu&&C.ag.find(x=>x.rid===gu.rid&&key(x)===rk))||C.ag.find(x=>(!x.rid||!gu)&&(self?nnm(x.name)===I&&!x.cm:(nnm(x.cm||'')===T||nnm(x.name)===T)))||null;
+      ag=(gu&&(AGRAW||C.ag).find(x=>x.rid===gu.rid&&key(x)===rk))||(AGRAW||C.ag).find(x=>(!x.rid||!gu)&&(self?nnm(x.name)===I&&!x.cm:(nnm(x.cm||'')===T||nnm(x.name)===T)))||null;
       if(gu&&ag&&ag.rid!==gu.rid){ o.rid=gu.rid; o.name=gu.name; } if(!gu&&ag&&nnm(ag.name)!==I) o.name=invN; }
-    if(!invN&&o.ph){ ag=C.ag.find(x=>ph10(x.ph)===o.ph)||null; if(!ag) gu=GU.find(x=>x.ph===o.ph)||null; }
-    const N=nnm(name); if(!ag&&!invN) ag=C.ag.find(x=>nnm(x.name)===N||nnm(x.cm||'')===N||(x.rid&&GUR.get(x.rid)&&nnm(GUR.get(x.rid).en)===N))||null;
+    if(!invN&&o.ph){ ag=(AGRAW||C.ag).find(x=>ph10(x.ph)===o.ph)||null; if(!ag) gu=GU.find(x=>x.ph===o.ph)||null; }
+    const N=nnm(name); if(!ag&&!invN) ag=(AGRAW||C.ag).find(x=>nnm(x.name)===N||nnm(x.cm||'')===N||(x.rid&&GUR.get(x.rid)&&nnm(GUR.get(x.rid).en)===N))||null;
     if(!ag&&!gu) gu=GU.find(x=>nnm(x.name)===N||nnm(x.en)===N)||null;
     if(!ag&&!gu&&N.length>=6){ let best=0, bg=null; GU.forEach(x=>{ const e=nnm(x.en); if(!e||e.slice(0,3)!==N.slice(0,3)) return; const d=dice(e,N); if(d>best){ best=d; bg=x; } }); if(best>=0.72){ gu=bg; fz=true; } }
-    if(!ag&&gu&&!invN) ag=C.ag.find(x=>(x.rid===gu.rid||x.name===gu.name)&&!x.cm)||C.ag.find(x=>x.rid===gu.rid||x.name===gu.name)||null;
+    if(!ag&&gu&&!invN) ag=(AGRAW||C.ag).find(x=>(x.rid===gu.rid||x.name===gu.name)&&!x.cm)||(AGRAW||C.ag).find(x=>x.rid===gu.rid||x.name===gu.name)||null;
     if(!['ad','ati','ano','ap','dd','dt','dno','hotel','room','pick','car','drop'].some(k=>o[k])){ skip++; return; }
     out.push({name,o,ag,gu,fz,mb:!ag&&!gu?maybe({name,city:o.city}):null}); });
   if(!out.length){ toast(skip?'इस फ़ाइल में यात्रा / होटल की जानकारी नहीं मिली':'कोई पंक्ति नहीं मिली'); return; } IMR=out;
@@ -2275,7 +2289,7 @@ async function imFile(f){ let rows; try{ rows=/\.csv$/i.test(f.name)||/csv|text/
       <small style="display:block">${[x.o.ad?'⬇ '+dSh(x.o.ad)+(x.o.ati?' '+tHi(x.o.ati):''):'',x.o.ano?esc(x.o.ano):'',x.o.dd?'⬆ '+dSh(x.o.dd)+(x.o.dt?' '+tHi(x.o.dt):''):'',x.o.hotel?'🏨 '+esc(x.o.hotel)+(x.o.room?' · '+esc(x.o.room):''):''].filter(Boolean).join(' · ')||'—'}</small></div></div>`).join('')+(out.length>60?`<p class="sm">… और ${out.length-60}</p>`:''); }
 async function imSave(){ const L=IMR||[]; let n=0, bad=0; const e=$('#fm-e'), NEW=[];
   for(const x of L){ n++; if(e) e.textContent='डाल रहे हैं '+n+' / '+L.length+' …';
-    try{ const o={...x.o,by:ME.name,at:Date.now()}; let id, g;
+    try{ const o={...x.o,by:ME.name,at:Date.now()}; if(o.ad) o.adok=1; let id, g;
       if(x.ag){ id=x.ag.id; await updateDoc(doc(db,'cr_ag',id),o); g={...x.ag,...o}; }
       else { id='ag'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); g={name:x.gu?x.gu.name:x.name,rid:x.gu?x.gu.rid:'',st:'a',...o}; if(x.gu&&!g.ph&&x.gu.ph) g.ph=x.gu.ph; if(x.gu&&!g.city&&x.gu.city) g.city=x.gu.city; await setDoc(doc(db,'cr_ag',id),g); g.id=id; }
       if(!g.tok){ g.tok=rtok(); await updateDoc(doc(db,'cr_ag',id),{tok:g.tok}); } await syncGp(g); if(!g.rid) NEW.push(g); }
@@ -2476,7 +2490,7 @@ function gwBlock(){ if(!ME.mgr) return ''; const L=[...gwW().values()]; if(!GU) 
     +(dn.length?`<details><summary class="sm">✓ ${EN?'Given':'दे दिए'} (${dn.length})</summary>${dn.map(gwRow).join('')}</details>`:''); }
 function agRow(g){ const arr=[g.ad?dSh(g.ad):'',g.ati?tHi(g.ati):''].filter(Boolean).join(' · '), dep=[g.dd?dSh(g.dd):'',g.dt?tHi(g.dt):''].filter(Boolean).join(' · ');
   return `<div class="row ag"><div class="rh"><button class="st ${g.st||'a'}" data-a="agst" data-id="${g.id}" ${ME.mgr?'':'disabled'}>${AGS[g.st||'a']}</button>
-  <div class="w"><b>${esc(nmE(g.name,g.rid))}${g.ppl?` · ${g.ppl} लोग`:''}</b>${g.kind?`<small class="kd">${esc(AGKL(g.kind,g.cat))}${(v=>v?` · <a href="#" data-a="vdo" data-id="${v.id}">${esc(v.name)}</a>`:'')(g.vd&&VDI(g.vd))}${(g.evs||[]).map(EVI).filter(Boolean).map(e=>` · <a href="#" data-a="evo" data-id="${e.id}">${esc(e.title)}</a>`).join('')}</small>`:''}${g.cm?`<small class="cmx">👤 आ रहे हैं: <b>${esc(nmE(g.cm))}</b></small>`:''}${memNorm(g.mem).length?`<small class="cmx">👥 साथ में: <b>${esc(memTxtL(g.mem))}</b></small>`:''}${idWarn(g)}${agNoTk(g)?`<small class="late" style="color:#B3261E">🎫 ${EN?'Ticket not received yet':'टिकट अभी नहीं आया'}</small>`:''}<small>${[g.city?'📍 '+esc(EN&&g.ce?g.ce:ctE(g.city)):'',g.ph?`<a href="tel:${ph10(g.ph)}">${ph10(g.ph)}</a>`:''].filter(Boolean).join(' · ')}</small>
+  <div class="w"><b>${esc(nmE(g.name,g.rid))}${g.ppl?` · ${g.ppl} लोग`:''}</b>${g.kind?`<small class="kd">${esc(AGKL(g.kind,g.cat))}${(v=>v?` · <a href="#" data-a="vdo" data-id="${v.id}">${esc(v.name)}</a>`:'')(g.vd&&VDI(g.vd))}${(g.evs||[]).map(EVI).filter(Boolean).map(e=>` · <a href="#" data-a="evo" data-id="${e.id}">${esc(e.title)}</a>`).join('')}</small>`:''}${g.cm?`<small class="cmx">👤 आ रहे हैं: <b>${esc(nmE(g.cm))}</b></small>`:''}${memNorm(g.mem).length?`<small class="cmx">👥 साथ में: <b>${esc(memTxtL(g.mem))}</b></small>`:''}${idWarn(g)}${g.adq&&!g.ad?`<small class="late" style="color:#B3261E">📅 ${EN?'Arrival date not told yet – ask':'आने की तारीख अभी नहीं बताई – पूछ लें'}</small>`:''}${agNoTk(g)?`<small class="late" style="color:#B3261E">🎫 ${EN?'Ticket not received yet':'टिकट अभी नहीं आया'}</small>`:''}<small>${[g.city?'📍 '+esc(EN&&g.ce?g.ce:ctE(g.city)):'',g.ph?`<a href="tel:${ph10(g.ph)}">${ph10(g.ph)}</a>`:''].filter(Boolean).join(' · ')}</small>
   ${arr||g.ano||g.ap?`<small>⬇ आगमन: ${[arr,g.am&&g.am!=='अन्य'?esc(g.am):'',g.ano?esc(g.ano)+tfLive(g.ano):'',g.ap?esc(g.ap):''].filter(Boolean).join(' · ')}</small>`:''}
   ${g.pick||g.car?`<small>🚗 लेने: ${[g.pick?esc(g.pick):'',g.pph?`<a href="tel:${ph10(g.pph)}">${ph10(g.pph)}</a>`:'',g.car?esc(g.car):''].filter(Boolean).join(' · ')}</small>`:''}
   ${g.hotel||g.room?`<small>🏨 ${esc(g.hotel||'')}${g.room?' · कमरा '+esc(g.room):''}</small>`:''}${g.rmq==='हाँ'&&!g.hotel?'<small class="late">🛏 कमरा चाहिए – अभी होटल तय नहीं</small>':''}${rmLine(g)}${tkLine(g)}${g.pkq==='हाँ'&&!g.pick?'<small class="late">🚗 पिकअप चाहिए – अभी कोई तय नहीं</small>':''}
@@ -2499,7 +2513,7 @@ const agMode=g=>{ const a=String(g.am||'').toLowerCase(), o=[g.ano,g.ap].join(' 
 const agNoId=g=>{ const N=idNeed(g); return !!(N&&N.T.length&&N.miss.length); };
 const agHasTk=g=>C.vf.some(f=>f.ag===g.id&&f.kind==='tk')||(q=>!!(q&&(q.tk||[]).length))(gqNew(g));
 const agNoTk=g=>!g.kind&&g.st!=='p'&&g.st!=='g'&&['f','t','b'].includes(agMode(g))&&!agHasTk(g);
-const agPend=g=>{ const a=[agNoId(g)?'🪪 '+(EN?'ID pending':'ID बाकी'):'',agNoTk(g)?'🎫 '+(EN?'ticket pending':'टिकट बाकी'):''].filter(Boolean); return a.length?`<small class="late">⚠ ${a.join(' · ')}</small>`:''; };
+const agPend=g=>{ const a=[g.adq&&!g.ad?'📅 '+(EN?'arrival date to be asked':'आने की तारीख पूछनी है'):'',agNoId(g)?'🪪 '+(EN?'ID pending':'ID बाकी'):'',agNoTk(g)?'🎫 '+(EN?'ticket pending':'टिकट बाकी'):''].filter(Boolean); return a.length?`<small class="late">⚠ ${a.join(' · ')}</small>`:''; };
 const agCl=g=>{ const pk=g.pick?'🚗 '+esc(g.pick):(g.kind||g.pkq==='नहीं'?'':'<span class="late">🚗 पिकअप तय नहीं</span>'), rn=rmNeed(g), rg=rmOf(g).length, ht=g.hotel?'🏨 '+esc(g.hotel)+(g.room?' · '+esc(g.room):'')+(g.rmq!=='नहीं'&&rg<rn?' <span class="late">⚠ '+rn+(EN?' rooms needed':' कमरे चाहिए')+'</span>':''):(g.kind||g.rmq==='नहीं'?'':'<span class="late">🛏 '+rn+(EN?(rn>1?' rooms':' room')+' – not fixed':(rn>1?' कमरे':' कमरा')+' तय नहीं')+'</span>');
   return `<div class="cl" data-a="agx" data-id="${g.id}"><div class="tmx">${g.ati?tHi(g.ati):'–'}<i>${g.ad?dSh(g.ad):'तारीख नहीं'}</i></div><div class="w"><b>${esc(nmE(g.name,g.rid))}${g.ppl?' · '+g.ppl+' लोग':''}${g.st==='p'?' ✅':''}</b>${g.cm?`<small class="cmx">👤 ${EN?'Coming':'आ रहे हैं'}: <b>${esc(nmE(g.cm))}</b></small>`:''}
     <small>${[g.am&&g.am!=='अन्य'?esc(g.am):'',g.ano?esc(g.ano):'',g.ap?esc(g.ap):'',g.city?'📍 '+esc(EN&&g.ce?g.ce:ctE(g.city)):''].filter(Boolean).join(' · ')}</small><small>${[pk,ht].filter(Boolean).join(' · ')}</small>${agPend(g)}${g.note&&noteShow(g.note)?`<small data-keep>📝 ${esc(noteShow(g.note))}</small>`:''}${agTkBad(g)?`<small class="late">⚠ ${EN?'differs from the ticket – open':'टिकट से अलग – खोलकर देखें'}</small>`:''}</div></div>`; };
@@ -2523,7 +2537,7 @@ function vAg(){ if(AGM==='ht'&&AGH){ const x=HTI(AGH); if(x){ $('#v-ag').innerHT
   if((CFC||CFH)&&AGM!=='lnk'&&AGM!=='ht'){ if(!GU) loadGuests().then(()=>{ if(TAB==='ag') render(); }); for(let i=L.length-1;i>=0;i--) if(!cfOk(L[i],true)) L.splice(i,1); }   // 14 Nov: city / heading filter
   const tod=C.ag.filter(g=>g.ad===t&&g.st!=='p'&&g.st!=='g').length, here=C.ag.filter(g=>g.st==='p').length;
   const G0=C.ag.filter(g=>!g.kind), X0=C.ag.filter(g=>g.kind), pp=A=>A.reduce((a,g)=>a+(Number(g.ppl)||1),0), idM=G0.filter(g=>{ const N=idNeed(g); return N&&N.miss.length; }).length;
-  let h=`<div class="sum">बाहर से आने वाले<b>मेहमान ${G0.length} परिवार · ${pp(G0)} लोग</b>${idM?`<span class="sm" style="color:#FFD27A;display:block">⚠ ID बाकी (होटल चेक-इन के लिए): ${idM} परिवार</span>`:''}${(n=>n?`<span class="sm" style="color:#FFD27A;display:block">🎫 टिकट बाकी (ट्रेन / फ़्लाइट / बस से आने वाले): ${n} परिवार</span>`:'')(G0.filter(agNoTk).length)}${X0.length?`<span class="sm" style="color:#F3E6C2;display:block">🧳 काम से आने वाले (आर्टिस्ट, मेहंदी, स्टाफ़…): ${X0.length} · ${pp(X0)} लोग</span>`:''}<span class="sm" style="color:#E8E2C8">पहुँच गए ${here} · आज आने वाले ${tod}</span>${(()=>{ const R=C.ag.filter(g=>g.rmq!=='नहीं'), need=R.reduce((a,g)=>a+rmNeed(g),0), got=R.reduce((a,g)=>a+rmOf(g).length,0); return `<span class="sm" style="color:#F3E6C2;display:block">🛏 ${EN?'Rooms needed':'कमरे चाहिए'}: <b style="display:inline;font-size:inherit">${need}</b> · ${EN?'given':'दिए'} ${got} <span style="opacity:.85">(${RMRULE()})</span></span>`; })()}${(()=>{ const T=C.vf.filter(f=>f.kind==='tk'&&f.ag), rd=T.filter(f=>f.tr&&f.tr.v===TKV).length, bad=C.ag.filter(agTkBad).length; if(!T.length) return '';
+  let h=`<div class="sum">बाहर से आने वाले<b>मेहमान ${G0.length} परिवार · ${pp(G0)} लोग</b>${idM?`<span class="sm" style="color:#FFD27A;display:block">⚠ ID बाकी (होटल चेक-इन के लिए): ${idM} परिवार</span>`:''}${(n=>n?`<span class="sm" style="color:#FFD27A;display:block">🎫 टिकट बाकी (ट्रेन / फ़्लाइट / बस से आने वाले): ${n} परिवार</span>`:'')(G0.filter(agNoTk).length)}${X0.length?`<span class="sm" style="color:#F3E6C2;display:block">🧳 काम से आने वाले (आर्टिस्ट, मेहंदी, स्टाफ़…): ${X0.length} · ${pp(X0)} लोग</span>`:''}<span class="sm" style="color:#E8E2C8">पहुँच गए ${here} · आज आने वाले ${tod}</span>${AGHID.length?`<span class="sm" style="color:#E8E2C8;display:block">❌ RSVP में "नहीं आ रहे" – ${AGHID.length} मेहमान यहाँ नहीं दिखाए / नहीं गिने (RSVP में ✅ आ रहे दबाएँ तो वापस आ जाएँगे)</span>`:''}${(()=>{ const R=C.ag.filter(g=>g.rmq!=='नहीं'), need=R.reduce((a,g)=>a+rmNeed(g),0), got=R.reduce((a,g)=>a+rmOf(g).length,0); return `<span class="sm" style="color:#F3E6C2;display:block">🛏 ${EN?'Rooms needed':'कमरे चाहिए'}: <b style="display:inline;font-size:inherit">${need}</b> · ${EN?'given':'दिए'} ${got} <span style="opacity:.85">(${RMRULE()})</span></span>`; })()}${(()=>{ const T=C.vf.filter(f=>f.kind==='tk'&&f.ag), rd=T.filter(f=>f.tr&&f.tr.v===TKV).length, bad=C.ag.filter(agTkBad).length; if(!T.length) return '';
      return `<span class="sm" style="color:${bad?'#FFD27A':'#E8E2C8'};display:block">🎫 ${EN?'Tickets':'टिकट'} ${T.length}${rd<T.length?' · '+(EN?'reading… ':'पढ़ रहे हैं… ')+rd+' / '+T.length:''} · ${bad?'⚠ '+bad+(EN?' differ from what is written':' में लिखी तारीख़ टिकट से अलग'):(rd<T.length?'':(EN?'✓ all match':'✓ सब टिकट से मिलते हैं'))}</span>`; })()}</div>
    ${AGM==='ht'||AGM==='lnk'?'':agTiles()}
    ${(()=>{ const lg=LGI(); return `<div class="lgc"><span>📞 मेहमानों के page पर: <b>TEB लॉजिस्टिक्स मैनेजर</b> ${lg.name?esc(lg.name)+' · '+lg.ph:'<span class="late">अभी नहीं डाला</span>'}</span>${ME.mgr?'<button class="eb" data-a="lgset">✏️</button>':''}</div>`; })()}

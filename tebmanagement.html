@@ -2107,7 +2107,10 @@ function ecRows(){ const RM=rvMap(); const A=GU.filter(ecOut).filter(g=>cfOk(g))
 
 function vRv(){ if(!GU){ $('#v-rv').innerHTML='<p class="muted">सूची खुल रही है…</p>'; loadGuests().then(()=>{ if(TAB==='rv') render(); }); return; }
   if(RVW==='ec'){ $('#v-rv').innerHTML=vEc(); return; }
-  const RM=rvMap(), A=GU.filter(rvOut), st=g=>(RM.get(g.rid)||{}).st||'', n=k=>A.filter(g=>st(g)===k).length, yes=A.filter(g=>st(g)==='y');
+  // 19 Nov (his words, with Tarun ji's card on screen): "ye kya gadbad hai?" – his travel was already filled in 🚉, yet he still
+  //   stood in the calling list as "no answer". A guest whose travel / ticket is in the system IS coming, so he counts as ✅ here too.
+  const RM=rvMap(), A=GU.filter(rvOut), st=g=>{ const r=RM.get(g.rid)||{}; if(r.st) return r.st; return rvAg(g)?'y':''; },
+    n=k=>A.filter(g=>st(g)===k).length, yes=A.filter(g=>st(g)==='y');
   const ppl=yes.reduce((s,g)=>s+(parseInt((RM.get(g.rid)||{}).ppl)||0),0), done=A.filter(g=>st(g)).length;
   const q=RVQ.trim().toLowerCase(), dq=q.replace(/\D/g,'');
   const L=A.map((g,i)=>[g,i]).filter(([g])=>(RVF==='all'||(RVF==='0'?!st(g):st(g)===RVF))&&(!q||[g.name,g.en,g.no,g.city,g.ce].join(' ').toLowerCase().includes(q)||(dq.length>=4&&(g.phs||[g.ph]).join(' ').includes(dq))))

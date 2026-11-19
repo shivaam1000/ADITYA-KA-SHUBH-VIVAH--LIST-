@@ -64,7 +64,7 @@ const tg = PRT.tag || '', dt = (HI ? 'HINDI' : 'ENGLISH') + ' · ' + (PRT.dateEn
 let N = 0, NS = 0;
 if (SET) {
   // ---------- the guest-wise set: 2 sheets per guest, each followed by its back page (empty for the one-sided sheets) ----------
-  const G = PRT.rows.map(mk), SW = IT.sw, SH = IT.sh, w = 0.3 * 96 / 72; N = G.length; NS = N * 2;
+  const G = PRT.rows.map(mk), SW = IT.sw, SH = IT.sh, w = 0.3 * 96 / 72; N = G.length; NS = N + Math.ceil(N / 2);
   const sh0 = () => el(box, `width:${SW}mm;height:${SH}mm`, null, 'sheet');
   const pc = (sh, k, x, y, html) => el(sh, `left:${mm(x)};top:${mm(y)};width:${K[k].w}mm;height:${K[k].h}mm`, html, 'pc k-' + k);
   const lab = (sh, t) => el(sh, `left:${mm(8)};width:${mm(SW - 16)};top:${mm(2)};height:${mm(6)};line-height:${mm(6)};font-size:10pt`, t, 'lb');
@@ -73,20 +73,33 @@ if (SET) {
   const marks = (sh, xs, ys, x0, y0, x1, y1) => { xs.forEach(x => { vl(sh, x, y0 - 5.5, 3.5); vl(sh, x, y1 + 2, 3.5); }); ys.forEach(y => { hl(sh, x0 - 5.5, y, 3.5); hl(sh, x1 + 2, y, 3.5); }); };
   const TW = K.iti.w, TH = K.iti.h, TX = (SW - TW) / 2, TY = 16;                                   // tent card (A4 flat, fold in the middle)
   const KW = K.key.w, KH = K.key.h, KG = 6, KX = (SW - (2 * KW + KG)) / 2, KY = TY + TH + 14;      // 2 key holders below it
-  const LW = K.lug.w, LH = K.lug.h, LG3 = 3, LX = (SW - (3 * LW + 2 * LG3)) / 2, LY = 20;          // 6 luggage tags, 3 x 2
-  const GW = K.gift.w, GH = K.gift.h, GX = (SW - GW) / 2, GY = LY + 2 * LH + LG3 + 22;             // return gift tag below them
-  const tags = (sh, html) => { for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) pc(sh, 'lug', LX + c * (LW + LG3), LY + r * (LH + LG3), html);
-    marks(sh, [LX - 1.5, LX + LW + 1.5, LX + 2 * LW + 4.5, LX + 3 * LW + 7.5], [LY - 1.5, LY + LH + 1.5, LY + 2 * LH + 4.5], LX - 1.5, LY - 1.5, LX + 3 * LW + 7.5, LY + 2 * LH + 4.5); };
-  G.forEach((u, i) => { const who = `SET ${i + 1}/${N} · ${esc(u.lbl)} · `;
-    let s = sh0(); pc(s, 'iti', TX, TY, fill(K.iti.f, u)); marks(s, [TX, TX + TW], [TY, TY + TH], TX, TY, TX + TW, TY + TH);
+  // 19 Nov 2026 (his words): "13x19 pe unhi ke print ho aur sheet waste na ho iska kya tareeka hai?" -> the tag sheet now carries TWO guests,
+  //   each in his own half (6 luggage tags 2 x 3 + his gift tag), with the guest's name over each half and a cut line down the middle:
+  //   2 guests = 3 sheets instead of 4, and nothing has to be sorted after cutting. No piece changes size.
+  const LW = K.lug.w, LH = K.lug.h, LG3 = 3, BW = 2 * LW + LG3, ML = 14, BX = [ML, SW - ML - BW], LY = 16;
+  const GW = K.gift.w, GH = K.gift.h, GY = LY + 3 * LH + 2 * LG3 + 8;
+  // one guest's half. On the back the sheet is flipped on the long edge, so every piece sits at SW - x - width and falls exactly behind its front.
+  const half = (sh, bx, u, back) => { const mx = (x, wd) => back ? SW - x - wd : x, b2 = back ? SW - bx - BW : bx;
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 2; c++) pc(sh, 'lug', mx(bx + c * (LW + LG3), LW), LY + r * (LH + LG3), back ? KB(u) : KF(u));
+    const gx = bx + (BW - GW) / 2, g2 = mx(gx, GW);
+    pc(sh, 'gift', g2, GY, back ? fill(K.gift.b, u) : fill(K.gift.f, u));
+    marks(sh, [b2 - 1.5, b2 + LW + 1.5, b2 + 2 * LW + 4.5], [LY - 1.5, LY + LH + 1.5, LY + 2 * LH + 4.5, LY + 3 * LH + 7.5], b2 - 1.5, LY - 1.5, b2 + 2 * LW + 4.5, LY + 3 * LH + 7.5);
+    marks(sh, [g2 - 1.5, g2 + GW + 1.5], [GY - 1.5, GY + GH + 1.5], g2 - 1.5, GY - 1.5, g2 + GW + 1.5, GY + GH + 1.5);
+    el(sh, `left:${mm(b2)};top:${mm(9)};width:${mm(BW)};height:${mm(5.5)};line-height:${mm(5.5)};font-size:9pt`, esc(u.lbl), 'lb'); };
+  const cutmid = sh => { vl(sh, SW / 2, 4.5, 6); vl(sh, SW / 2, SH - 10.5, 6);
+    el(sh, `left:${mm(SW / 2 - 16)};top:${mm(SH - 21)};width:${mm(32)};height:${mm(5)};line-height:${mm(5)};font-size:8pt`, 'CUT HERE', 'lb'); };
+  const tentSheet = (u, who) => { const s = sh0(); pc(s, 'iti', TX, TY, fill(K.iti.f, u)); marks(s, [TX, TX + TW], [TY, TY + TH], TX, TY, TX + TW, TY + TH);
     hl(s, TX - 10, TY + TH / 2, 7); hl(s, TX + TW + 3, TY + TH / 2, 7);
     el(s, `left:${mm(TX - 24)};top:${mm(TY + TH / 2 - 6)};width:${mm(14)};height:${mm(5)};line-height:${mm(5)};font-size:9pt`, 'FOLD', 'lb'); el(s, `left:${mm(TX + TW + 10)};top:${mm(TY + TH / 2 - 6)};width:${mm(14)};height:${mm(5)};line-height:${mm(5)};font-size:9pt`, 'FOLD', 'lb');
     pc(s, 'key', KX, KY, fill(K.key.f, u)); pc(s, 'key', KX + KW + KG, KY, fill(K.key.f, u));
-    lab(s, who + 'SHEET 1/2 · TENT CARD + 2 KEY HOLDERS · ' + dt); sh0();                          // its back stays empty
-    s = sh0(); tags(s, KF(u)); pc(s, 'gift', GX, GY, fill(K.gift.f, u)); marks(s, [GX - 1.5, GX + GW + 1.5], [GY - 1.5, GY + GH + 1.5], GX - 1.5, GY - 1.5, GX + GW + 1.5, GY + GH + 1.5);
-    lab(s, who + 'SHEET 2/2 · 6 LUGGAGE TAGS + GIFT TAG · FRONT · ' + dt);
-    s = sh0(); tags(s, KB(u)); pc(s, 'gift', GX, GY, fill(K.gift.b, u)); marks(s, [GX - 1.5, GX + GW + 1.5], [GY - 1.5, GY + GH + 1.5], GX - 1.5, GY - 1.5, GX + GW + 1.5, GY + GH + 1.5);   // the layout is the same from left and right, so the backs fall behind their fronts
-    lab(s, who + 'SHEET 2/2 · BACK (print on the reverse) · ' + dt); });
+    lab(s, who + 'TENT CARD + 2 KEY HOLDERS · ' + dt); sh0(); };                                   // its back stays empty
+  for (let i = 0; i < N; i += 2) { const A = G[i], B = G[i + 1] || null;
+    tentSheet(A, `GUEST ${i + 1}/${N} · ${esc(A.lbl)} · `); if (B) tentSheet(B, `GUEST ${i + 2}/${N} · ${esc(B.lbl)} · `);
+    const two = B ? `GUEST ${i + 1} + ${i + 2}/${N}` : `GUEST ${i + 1}/${N} · ${esc(A.lbl)}`;
+    let s = sh0(); half(s, BX[0], A, false); if (B) { half(s, BX[1], B, false); cutmid(s); }
+    lab(s, two + ' · TAG SHEET · 6 LUGGAGE TAGS + GIFT TAG EACH · FRONT · ' + dt);
+    s = sh0(); half(s, BX[0], A, true); if (B) { half(s, BX[1], B, true); cutmid(s); }
+    lab(s, two + ' · TAG SHEET · BACK (print on the reverse) · ' + dt); }
   { const s = sh0(); el(s, `left:${mm(KX)};top:${mm(KY)};width:${KW}mm;height:${KH}mm`, K.key.die, 'pc k-key'); el(s, `left:${mm(KX + KW + KG)};top:${mm(KY)};width:${KW}mm;height:${KH}mm`, K.key.die, 'pc k-key');
     lab(s, 'KEY HOLDER DIELINE for SHEET 1 (cut solid, fold dashed) – same positions as on every SHEET 1 – one is enough'); }
 } else {
@@ -117,10 +130,10 @@ if (SET) {
     el(sh, `left:${mm(10)};width:${mm(IT.sw - 20)};top:${mm(2)};height:${mm(7)};line-height:${mm(7)}`, `${IT.title} · DIELINE (cut solid, fold dashed) – same positions as the print sheets – one is enough`, 'lb'); }
 }
 const IN = IT.inch || [13, 19];
-document.getElementById('pt').textContent = SET ? `${IT.hi} (${HI ? 'हिंदी' : 'English'}) – ${N} मेहमान ${PRT.tag ? '· ' + PRT.tag + ' ' : ''}· ${NS} शीट (13 × 19) – हर मेहमान की 2`
+document.getElementById('pt').textContent = SET ? `${IT.hi} (${HI ? 'हिंदी' : 'English'}) – ${N} मेहमान ${PRT.tag ? '· ' + PRT.tag + ' ' : ''}· ${NS} शीट (13 × 19) – हर 2 मेहमान की 3`
   : `${IT.hi} (${HI ? 'हिंदी' : 'English'}) – ${N} ${PRT.tag ? '· ' + PRT.tag + ' ' : ''}· ${IT.direct ? N + ' लिफ़ाफ़े (C5, सीधे लिफ़ाफ़े पर)' : NS + ' शीट (' + Math.min(IN[0], IN[1]) + ' × ' + Math.max(IN[0], IN[1]) + ')'}${IT.duplex ? ' · आगे + पीछे' : ''}`;
 document.title = `Room kit - ${IT.title} - ${HI ? 'Hindi' : 'English'} - ${N} ${SET ? 'guests' : 'pcs'} - ${NS} sheet`;
-if (SET) { const sm = document.querySelector('.bar small'); if (sm) sm.innerHTML = 'प्रिंटर से कहें: <b>पूरी फ़ाइल दोनों तरफ़ (back to back)</b> छापें। हर मेहमान की 2 शीट एक के बाद एक: <b>1</b> = टेंट कार्ड + 2 की-होल्डर · <b>2</b> = 6 लगेज टैग + गिफ्ट टैग (आगे + पीछे)। शीट 1 का पीछे खाली रहता है – फ़ाइल के <b>खाली पन्ने हटाएँ नहीं</b>। हर शीट के ऊपर मेहमान का नाम और नंबर छपा है। लैपटॉप (Chrome): Destination = <b>Save as PDF</b>, Margins = <b>None</b>, Scale = <b>100%</b>।' + ((window.PK && PK.MOB && N > 10) ? ' <b>मोबाइल पर एक बार में 10 मेहमान तक चुनें</b> – ज़्यादा में फ़ोन अटक सकता है।' : ''); }
+if (SET) { const sm = document.querySelector('.bar small'); if (sm) sm.innerHTML = 'प्रिंटर से कहें: <b>पूरी फ़ाइल दोनों तरफ़ (back to back)</b> छापें। हर <b>2 मेहमान की 3 शीट</b> एक के बाद एक: <b>1</b> और <b>2</b> = एक-एक मेहमान का टेंट कार्ड + 2 की-होल्डर · <b>3</b> = दोनों के 6-6 लगेज टैग + गिफ्ट टैग (आगे + पीछे) – इसे बीच की <b>CUT HERE</b> लाइन से आधा-आधा काट लें, बायाँ आधा पहले मेहमान का, दायाँ दूसरे का। टेंट कार्ड वाली शीट का पीछे खाली रहता है – फ़ाइल के <b>खाली पन्ने हटाएँ नहीं</b>। हर शीट और हर आधे के ऊपर मेहमान का नाम छपा है। लैपटॉप (Chrome): Destination = <b>Save as PDF</b>, Margins = <b>None</b>, Scale = <b>100%</b>।' + ((window.PK && PK.MOB && N > 10) ? ' <b>मोबाइल पर एक बार में 10 मेहमान तक चुनें</b> – ज़्यादा में फ़ोन अटक सकता है।' : ''); }
 // a long name gets smaller: one line on a form line, two lines at most elsewhere
 const fitRun = (pre, it) => document.querySelectorAll(String(it.fit).split(',').map(q => pre + q.trim()).join(', ')).forEach(e => { let f = parseFloat(getComputedStyle(e).fontSize); const min = (it.minpt || 6.5) * 96 / 72;
   if (e.matches('.fl i')) { e.style.whiteSpace = 'nowrap'; while (e.scrollWidth > e.clientWidth + 0.5 && f > 9.5) { f -= 0.25; e.style.fontSize = f + 'px'; } if (e.scrollWidth > e.clientWidth + 0.5) { e.style.whiteSpace = 'normal'; e.style.lineHeight = '1.2'; } return; }

@@ -1917,8 +1917,52 @@ const XPGK={ d:{k:g=>g.ad||'', lab:d=>d?'⬇ '+dHi(d):(EN?'⬇ arrival date not 
   c:{k:g=>cfCity(g,true)[0], lab:(v,x)=>'📍 '+cfCity(x,true)[1], t:EN?'city-wise':'शहर-वार'},
   h:{k:g=>cfHead(g,true)[0], lab:(v,x)=>'🏷 '+cfHead(x,true)[1], t:EN?'heading-wise':'हेडिंग-वार'},
   ht:{k:g=>String(g.hotel||'').trim(), lab:v=>'🏨 '+(v||(EN?'hotel not given yet':'होटल अभी तय नहीं')), t:EN?'hotel-wise':'होटल-वार'} };
-const xpBar=ks=>`<div class="xpb noprint">${ks.includes('ag')?`<button data-a="xpick" style="background:#4E5B2E;color:#fff;border-color:#4E5B2E;margin-bottom:6px">⬇ ${EN?'Download my way (date / city / heading-wise)':'अपनी मर्ज़ी से डाउनलोड (तारीख / शहर / हेडिंग-वार)'}</button><br>`:''}${ks.map(k=>`<span class="xpl">${XPT[k]}</span><button data-a="xp" data-v="${k}:pdf">⬇ PDF</button><button data-a="xp" data-v="${k}:xl">⬇ Excel</button>`).join('<br>')}</div>`;
+const xpBar=ks=>`<div class="xpb noprint">${ks.includes('ag')?`<button data-a="idpick" style="background:#1F5C8B;color:#fff;border-color:#1F5C8B;margin-bottom:6px">🪪 ${EN?'Guest IDs – one PDF (to send to the hotel)':'मेहमानों की ID – एक PDF (होटल को भेजने के लिए)'}</button><br><button data-a="xpick" style="background:#4E5B2E;color:#fff;border-color:#4E5B2E;margin-bottom:6px">⬇ ${EN?'Download my way (date / city / heading-wise)':'अपनी मर्ज़ी से डाउनलोड (तारीख / शहर / हेडिंग-वार)'}</button><br>`:''}${ks.map(k=>`<span class="xpl">${XPT[k]}</span><button data-a="xp" data-v="${k}:pdf">⬇ PDF</button><button data-a="xp" data-v="${k}:xl">⬇ Excel</button>`).join('<br>')}</div>`;
 // the chooser itself
+// 19 Nov 2026 (his words): "ek aisa feature bhi jisse me guests ke id's direct download kar saku chahe phone chahe laptop /
+//   aur aage hotel me bhej saku" -> every chosen guest's ID files joined into ONE pdf (phone + laptop), ready to forward to the hotel.
+const idLat=s=>String(s||'').replace(/[^\x20-\xFF]/g,'').replace(/\s+/g,' ').trim();
+function idName(a){ const g=a.rid&&GUR.get(a.rid); return idLat(a.cm||(g&&g.en)||kitEn(a.name))||idLat(kitEn(a.cm||a.name))||(g&&g.no)||''; }
+async function idPdfRun(L,tag){
+  const F=[]; L.forEach(a=>{ C.vf.filter(f=>f.ag===a.id&&f.kind==='id'&&f.fid).forEach(f=>F.push({a,f})); });
+  if(!F.length){ toast(EN?'No ID uploaded for these':'इनकी कोई ID नहीं चढ़ी है'); return; }
+  toast((EN?'Making one PDF… ':'एक PDF बना रहे हैं… ')+F.length+(EN?' files':' फ़ाइल'));
+  try{ await loadJs('https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js'); }catch(e){ toast(EN?'Net problem':'नेट देखें'); return; }
+  const P=window.PDFLib, out=await P.PDFDocument.create(), font=await out.embedFont(P.StandardFonts.HelveticaBold), col=P.rgb(0.18,0.26,0.10);
+  const PW=595.28, PH=841.89; let ok=0, bad=0, n=0;
+  for(const {a,f} of F){
+    n++; if(n%6===0) toast((EN?'PDF… ':'PDF… ')+n+' / '+F.length);
+    let file=null; try{ file=await fGet(f.col||'blobs',f.fid); }catch(e){ bad++; continue; }
+    let buf=null; try{ buf=await file.arrayBuffer(); }catch(e){ bad++; continue; }
+    const lab=idLat([idName(a),a.hotel||'',a.room?('Room '+a.room):''].filter(Boolean).join(' · ')).slice(0,78);
+    const isPdf=/pdf/i.test(f.type||'')||/\.pdf$/i.test(f.name||'');
+    try{
+      if(isPdf){ const src=await P.PDFDocument.load(buf,{ignoreEncryption:true}), pgs=await out.copyPages(src,src.getPageIndices());
+        pgs.forEach((pg,k)=>{ out.addPage(pg); if(k===0){ const sz=pg.getSize();
+          pg.drawRectangle({x:0,y:sz.height-17,width:sz.width,height:17,color:P.rgb(1,1,1),opacity:0.86});
+          pg.drawText(lab,{x:8,y:sz.height-13,size:9,font,color:col}); } }); }
+      else { const isPng=/png/i.test(f.type||'')||/\.png$/i.test(f.name||'');
+        const img=isPng?await out.embedPng(buf):await out.embedJpg(buf), pg=out.addPage([PW,PH]), m=24, top=38;
+        const sc=Math.min((PW-2*m)/img.width,(PH-top-m)/img.height);
+        pg.drawText(lab,{x:m,y:PH-26,size:10,font,color:col});
+        pg.drawImage(img,{x:(PW-img.width*sc)/2,y:m,width:img.width*sc,height:img.height*sc}); }
+      ok++; }
+    catch(e){ console.warn('ID', f.name, e); bad++; }
+  }
+  if(!ok){ toast(EN?'None of the IDs could be read':'कोई ID नहीं खुल पाई'); return; }
+  const bytes=await out.save(), nm=(EN?'Guest IDs':'Mehmaano ki ID')+(tag?' - '+idLat(tag):'')+' - '+TODAY()+'.pdf';
+  const bl=new Blob([bytes],{type:'application/pdf'});
+  if(PK.MOB) PK.give(bl,nm,{open:1}); else xlDown(nm,bl);
+  toast('✓ '+ok+(EN?' IDs in one PDF':' ID एक PDF में')+(bad?' · '+bad+(EN?' could not be read':' नहीं खुलीं'):'')); }
+function idDlPick(){ const HT=(C.ht||[]).map(h=>[h.name,'🏨 '+h.name]);
+  form(EN?'Guest IDs – one PDF':'मेहमानों की ID – एक PDF',
+   [{k:'who',l:EN?'Whose IDs':'किसकी ID',t:'sel',o:[['',EN?'everyone showing now':'जो अभी दिख रहे हैं'],...HT,['noht',EN?'hotel not given yet':'जिनका होटल अभी तय नहीं']]}],
+   {who:''},
+   async v=>{ const base=C.ag.filter(g=>agKOk(g)&&cfOk(g,true)&&!g.kind);
+     const L=!v.who?base:v.who==='noht'?base.filter(g=>!String(g.hotel||'').trim()):base.filter(g=>String(g.hotel||'').trim()===v.who);
+     if(!L.length){ toast(EN?'nobody here':'इसमें कोई नहीं'); return; }
+     await idPdfRun(L,v.who==='noht'?'no hotel':v.who); });
+  $('#fm-s').textContent='🪪 '+(EN?'Make the PDF':'PDF बनाएँ'); }
 function xpPick(){ form(EN?'Download – your way':'डाउनलोड – अपनी मर्ज़ी से',
   [{k:'what',l:EN?'What':'क्या चाहिए',t:'sel',o:[['arr',EN?'Arrivals (with pickup)':'आगमन (पिकअप सहित)'],['dep',EN?'Returns (with drop)':'वापसी (छोड़ने सहित)'],['hotel',EN?'Hotel check-in / check-out':'होटल चेक-इन / चेक-आउट'],['ag',EN?'All outstation guests':'सब बाहर से आने वाले'],['pend',EN?'ID / ticket pending':'ID / टिकट बाकी']]},
    {k:'gby',l:EN?'Split it by':'किस हिसाब से बाँटें',t:'sel',o:[['',EN?'as it comes':'जैसा आता है'],['d',EN?'arrival date':'आने की तारीख'],['dd',EN?'return date':'वापसी की तारीख'],['c',EN?'city':'शहर'],['h',EN?'heading':'हेडिंग'],['ht',EN?'hotel':'होटल']]},
@@ -2776,12 +2820,37 @@ const kitCity=s=>{ s=String(s||'').trim(); if(!/[ऀ-ॿ]/.test(s)) return s; co
 const kitRooms=u=>String(u.room||'').split(/[,\/&;]+|\s+(?:and|और)\s+/).map(x=>x.trim()).filter(Boolean);
 const kitDone=()=>{ const m=C.meta.find(x=>x.id==='kitp'); return (m&&m.u)||{}; };
 let KITSK=0;
+// 19 Nov 2026 (his words): "periwal me galti hai / tum detailed ticket check karo aur uske hisab se luggage tag, room key holder banao /
+//   ye detail do tarah se mil sakti hai – ticket se ya phir humari website se bhari hui detail se / jaise pranay moondra me bhi uski wife sath aa rahi hai"
+//   -> the luggage tag and the key holder now carry EVERYBODY travelling on that card: the ticket's passengers + the members filled on the website,
+//      minus the one whose name is printed big (the head) and minus the staff. "Janki Prasad" on the ticket = "जानकीदास" of the list, "Sudha" = "Sudha Maheshwari" – one person, the fuller name is kept.
+const kpNz=s=>tkWd(/[ऀ-ॿ]/.test(s)?kitEn(s):s).filter(w=>!TKWEAK.test(w)).map(tkNz);
+const kpHit=(x,L)=>L.some(y=>x===y||(x.length>=4&&y.length>=4&&(x.startsWith(y)||y.startsWith(x))));
+const kpSame=(A,B)=>!!A.length&&!!B.length&&(A.every(x=>kpHit(x,B))||B.every(x=>kpHit(x,A)));
+const kpTi=n=>String(n||'').replace(/[A-Za-z]+/g,w=>knCap(w,!/[a-z]/.test(String(n))));
+// an English name written in Hindi letters: the known Hindi spellings (women's names, the common middle / last words) first, so "Sakshi" = साक्षी, not सक्षि
+let KPWI=null;
+const kpWi=()=>{ if(!KPWI){ KPWI=new Map(); [...KNWH,...KNLH].forEach(h=>{ const z=tkNz(kitEn(h).toUpperCase().replace(/[^A-Z]/g,'')); if(z.length>2&&!KPWI.has(z)) KPWI.set(z,h); }); } return KPWI; };
+const kpHi=n=>{ const h=kitHi(n); if(/[ऀ-ॿ]/.test(n)) return h;   // written in English: transliterate the whole name, then put back the spellings we know
+  const W=String(n).trim().split(/\s+/), H=String(h).trim().split(/\s+/); if(W.length!==H.length) return h;
+  return W.map((w,i)=>kpWi().get(tkNz(w.toUpperCase().replace(/[^A-Z]/g,'')))||H[i]).join(' '); };
+// Shri / Smt. is decided on the English spelling (that list is the full one) and the same title then goes on the Hindi name
+const kpTitle=(hi,en)=>/^(Smt|Sushri)\b/i.test(en)?hi.replace(/^(श्रीमती|सुश्री|श्री)\s+/,'श्रीमती '):(/^Shri\b/.test(en)?hi.replace(/^(श्रीमती|सुश्री|श्री)\s+/,'श्री '):hi);
+function kitParty(a,g,head){ if(!a) return [];
+  const HN=kpNz((head&&head.hi)||''), out=[];
+  const add=(n,kid)=>{ n=kitCl(n); if(!n||n.replace(/[^A-Za-zऀ-ॿ]/g,'').length<3) return; const W=kpNz(n); if(!W.length||kpSame(W,HN)) return;
+    const i=out.findIndex(x=>kpSame(x.w,W)); if(i>=0){ if(n.length>out[i].n.length) out[i]={n,w:W,kid:out[i].kid&&!!kid}; return; } out.push({n,w:W,kid:!!kid}); };
+  C.vf.filter(f=>f.ag===a.id&&f.kind==='tk'&&f.tr).forEach(f=>(f.tr.pax||[]).forEach(x=>{ if(x&&x.a!=='s') add(x.n,x.a==='c'); }));
+  memNorm(a.mem).forEach(m=>{ if(m.a!=='s') add(m.n,m.a==='c'); });
+  return out.map(x=>{ const h=kpHi(x.n), e=kpTi(kitEn(x.n));
+    if(x.kid) return {hi:'चि. '+h,en:e,kid:1};
+    const en=kitNm(e); return {hi:kpTitle(kitNm(h),en),en,kid:0}; }); }
 function kitUnits(){ const out=[]; KITSK=0;
   gwW().forEach(x=>{ const g=x.g; if(KNTM.test(g.name||'')||KNTM.test(g.en||'')){ KITSK++; return; } const L=C.ag.filter(a=>!a.kind&&(a.rid===g.rid||(!a.rid&&a.name===g.name)));
     const sn=new Set(), L2=L.slice().sort((p,q)=>(q.room?1:0)-(p.room?1:0)||(q.hotel?1:0)-(p.hotel?1:0));
     (L2.length?L2:[null]).forEach(a=>{ const w=kitWho(a,g), k=nnm(w.hi)||nnm(w.en); if(sn.has(k)) return; sn.add(k);   // the same traveller on two cards = one kit
       const city=(a&&a.city)||g.city||'', hotel=((a&&a.hotel)||'').trim(), en=kitNm(w.en), dev=/[ऀ-ॿ]/.test(w.hi), own=nnm(w.hi)===nnm(g.name), cp=ph10((a&&a.ph)||'');
-      out.push({k:a?a.id:'rv_'+g.rid, rid:g.rid, hi:dev?kitNm(w.hi):kitHi(en), en, auto:!dev, src:w.src, inv:own?'':g.name, mob:cp.length===10?cp:(own?(g.ph||''):''), hotel_hi:kitHi(hotel), city, city_en:(a&&a.city&&a.city!==g.city)?kitCity(a.city):(g.ce||kitCity(city)),
+      out.push({k:a?a.id:'rv_'+g.rid, rid:g.rid, par:kitParty(a,g,w), hi:dev?kitNm(w.hi):kitHi(en), en, auto:!dev, src:w.src, inv:own?'':g.name, mob:cp.length===10?cp:(own?(g.ph||''):''), hotel_hi:kitHi(hotel), city, city_en:(a&&a.city&&a.city!==g.city)?kitCity(a.city):(g.ce||kitCity(city)),
         hotel, hotel_en:kitEn(hotel).replace(/^Hotal\b/,'Hotel'), room:(a&&a.room)||'', ppl:(a&&a.ppl)||'', ad:(a&&a.ad)||'', ati:(a&&a.ati)||''}); }); });
   return out.sort((p,q)=>(p.hotel||'ॿ').localeCompare(q.hotel||'ॿ')||String(p.room).localeCompare(String(q.room),undefined,{numeric:true})||String(p.en).localeCompare(String(q.en))); }
 const kitNew=(u,D0)=>KITI().some(([k])=>!((D0[u.k]||{})[k]));
@@ -2805,11 +2874,12 @@ function kitBlock(){ if(!ME.mgr) return ''; if(!GU) return `<p class="muted">${E
   return h+L.map(u=>{ const dn=D0[u.k]||{}, on=!KITX.has(u.k), rm=kitRooms(u);
     return `<div class="row${on?'':' done'}"><div class="rh"><label style="display:flex;gap:9px;align-items:flex-start;flex:1;cursor:pointer;min-width:0"><input type="checkbox" data-a="kitsel" data-id="${esc(u.k)}" ${on?'checked':''} style="width:20px;height:20px;margin-top:2px;flex:none">
     <div class="w" data-keep="1"><b>${esc(KITL==='en'?u.en:u.hi)}</b>${KITL!=='en'&&u.auto?`<small style="color:#8A5A00">🔤 ${EN?'Hindi name made from English by itself – check once':'हिंदी नाम अंग्रेज़ी से अपने आप बना – एक बार देख लें'} (${esc(u.en)})</small>`:''}${KITSRC(u)||u.inv?`<small style="color:${u.src==='tk'||u.src==='id'||u.src==='cm'?'#1F5C8B':'#1E7D45'}">${[KITSRC(u),u.inv?(EN?'invited: ':'निमंत्रण: ')+esc(u.inv):''].filter(Boolean).join(' · ')}</small>`:''}<small>${[u.city_en?'📍 '+esc(KITL==='en'?u.city_en:(u.city||u.city_en)):'',u.mob?'📱 '+esc(u.mob):'',u.hotel?'🏨 '+esc(u.hotel_en||u.hotel):'',rm.length?(EN?'Room ':'कमरा ')+esc(rm.join(', ')):'',u.ad?'⬇ '+dSh(u.ad)+(u.ati?' · '+tHi(u.ati):''):''].filter(Boolean).join(' · ')}</small>
+    ${(u.par||[]).length?`<small style="color:#1F5C8B">साथ में: ${esc((KITL==='en'?u.par.map(x=>x.en):u.par.map(x=>x.hi)).join(', '))}</small>`:''}
     ${dup(u)?`<small class="late">⚠ ${EN?'This name is in the list twice – untick one':'यही नाम सूची में दो बार है – एक का ✓ हटा दें'}</small>`:''}
     <small>${KITI().map(([k,ic])=>dn[k]?`<span style="color:#1E7D45">${ic}✓</span>`:`<span style="opacity:.4">${ic}</span>`).join(' ')}</small></div></label></div></div>`; }).join(''); }
 async function kitPrint(item){ const S=kitSel(); if(!S.length) return; const d=new Date(), MO=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   try{ localStorage.setItem('prt',JSON.stringify({kind:'kit',item,lang:KITL,tag:KITF==='new'?(EN?'new':'नए'):'',dateEn:d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear(),
-      rows:S.map(u=>({en:u.en,hi:u.hi,city:u.city,city_en:u.city_en,hotel:u.hotel,hotel_en:u.hotel_en,hotel_hi:u.hotel_hi,room:u.room,ppl:u.ppl,ad:u.ad,ati:u.ati,mob:u.mob}))})); }
+      rows:S.map(u=>({en:u.en,hi:u.hi,par:u.par||[],city:u.city,city_en:u.city_en,hotel:u.hotel,hotel_en:u.hotel_en,hotel_hi:u.hotel_hi,room:u.room,ppl:u.ppl,ad:u.ad,ati:u.ati,mob:u.mob}))})); }
   catch(e){ toast(EN?'Could not open – phone storage full?':'नहीं खुला – फ़ोन की जगह भरी है?'); return; }
   const up={}, ts=Date.now(); S.forEach(u=>{ (item==='set'?['lug','gift','iti','key']:[item]).forEach(k=>{ up['u.'+u.k+'.'+k]=ts; }); });   // the whole set = these four printed
   const save=async()=>{ try{ await setDoc(doc(db,'cr_meta','kitp'),{at:ts},{merge:true}); await updateDoc(doc(db,'cr_meta','kitp'),up); }catch(e){ console.warn('kitp',e); } };
@@ -2914,7 +2984,7 @@ document.addEventListener('click',async e=>{ const b=e.target.closest('[data-a]'
     case 'rvc': RVC=v==='1'; RVX=''; try{ localStorage.setItem('tebRvC',RVC?'1':'0'); }catch(_){} render(); break; case 'rvx': RVX=RVX===id?'':id; render(); break;
     case 'agf': AGF=AGF===v?'':v; AGX=''; if(AGM==='ht'||AGM==='lnk') AGM='arr'; render(); lsGo('#ag-ls'); break; case 'agl': AGL=v==='1'; AGX=''; try{ localStorage.setItem('tebAgC',AGL?'1':'0'); }catch(_){} render(); break; case 'agx': AGX=AGX===id?'':id; render(); break;
     case 'rvopen': { const r=rvMap().get(id)||{}; TAB='rv'; RVF=r.st||'0'; RVQ=''; RVX=id; RVN=1e4; CFC=''; CFH=''; try{ sessionStorage.setItem('crTab','rv'); }catch(_){} render(); setTimeout(()=>{ const el=[...document.querySelectorAll('#v-rv [data-rid]')].find(x=>x.dataset.rid===id); if(el) el.scrollIntoView({block:'center'}); },120); break; }
-    case 'rvf': RVF=v; RVN=150; RVX=''; render(); lsGo('#rv-ls'); break; case 'rvmore': RVN+=150; render(); break; case 'rvxl': rvXl(); break; case 'xp': { const [k,f]=String(v).split(':'); await xpRun(k,f==='pdf'); break; } case 'xpick': xpPick(); break;
+    case 'rvf': RVF=v; RVN=150; RVX=''; render(); lsGo('#rv-ls'); break; case 'rvmore': RVN+=150; render(); break; case 'rvxl': rvXl(); break; case 'xp': { const [k,f]=String(v).split(':'); await xpRun(k,f==='pdf'); break; } case 'xpick': xpPick(); break; case 'idpick': idDlPick(); break;
     case 'rvw': RVW=v; RVQ=''; render(); break; case 'ecf': ECF=v; render(); lsGo('#ec-ls'); break;
     case 'eccl': if(ME.mgr) await ecCall(id,v==='1'); break;
     case 'ecxl': { const {H,R}=ecRows(); if(!R.length){ toast('इसमें अभी कुछ नहीं है'); break; }
